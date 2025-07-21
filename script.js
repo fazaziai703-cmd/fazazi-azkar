@@ -1,7 +1,71 @@
-// --- Data for Azkar ---
-// بيانات أذكار الصباح (يمكن إضافة التشكيل يدوياً هنا)
-    const morningAzkar = [
-      { text: "آيَةُ الكُرْسِيِّ:\n\nاللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ ۚ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ ۚ لَّهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ ۗ مَن ذَا الَّذِي يَشْفَعُ عِندَهُ إِلَّا بِإِذْنِهِ ۚ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ ۖ وَلَا يُحِيطُونَ بِشَيْءٍ مِّنْ عِلْمِهِ إِلَّا بِمَا شَاءَ ۚ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ ۖ وَلَا يَئُودُهُ حِفْظُهُمَا ۚ وَهُوَ الْعَلِيُّ الْعَظِيمُ",
+// --- Global Variables ---
+let currentCategory = 'morning';
+let currentAzkarIndex = 0;
+let currentRepeatCount = 0;
+let azkarData = {}; // Will hold all azkar categories
+let customAzkar = loadCustomAzkar(); // Load custom azkar from localStorage
+let deferredPrompt; // For PWA install prompt
+
+// --- Settings Variables (Loaded from localStorage or default) ---
+let isDarkMode = localStorage.getItem('darkMode') === 'true';
+let selectedTheme = localStorage.getItem('selectedTheme') || 'default';
+let selectedFont = localStorage.getItem('selectedFont') || 'Amiri';
+let fontSize = parseFloat(localStorage.getItem('fontSize')) || 1.1;
+let autoSkip = localStorage.getItem('autoSkip') === 'true';
+let notificationEnabled = localStorage.getItem('notificationEnabled') === 'true';
+let customAzkarReminder = localStorage.getItem('customAzkarReminder') === 'true';
+
+// --- DOM Elements ---
+const mainTab = document.getElementById('mainTab');
+const appTitle = document.getElementById('appTitle');
+const sidebar = document.querySelector('.sidebar');
+const resetButton = document.getElementById('resetButton');
+
+// Modals
+const shareModal = document.getElementById('shareModal');
+const closeShareModalBtn = document.getElementById('closeShareModalBtn');
+const shareAzkarText = document.getElementById('shareAzkarText');
+const shareTextarea = document.getElementById('shareTextarea');
+const copyShareBtn = document.getElementById('copyShareBtn');
+const nativeShareBtn = document.getElementById('nativeShareBtn');
+
+const infoModal = document.getElementById('infoModal');
+const closeInfoModalBtn = document.getElementById('closeInfoModalBtn');
+const azkarInfoText = document.getElementById('azkarInfoText');
+
+const customAzkarModal = document.getElementById('customAzkarModal');
+const customAzkarModalTitle = document.getElementById('customAzkarModalTitle');
+const azkarTextInput = document.getElementById('azkarTextInput');
+const azkarRepeatInput = document.getElementById('azkarRepeatInput');
+const saveCustomAzkarBtn = document.getElementById('saveCustomAzkarBtn');
+const cancelCustomAzkarBtn = document.getElementById('cancelCustomAzkarBtn');
+let editingAzkarIndex = -1; // -1 means adding new, otherwise index of azkar being edited
+
+const confirmDeleteModal = document.getElementById('confirmDeleteModal');
+const closeConfirmDeleteModalBtn = document.getElementById('closeConfirmDeleteModalBtn');
+const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+let deleteIndexToConfirm = -1;
+
+// Settings elements
+const darkModeToggle = document.getElementById('darkModeToggle');
+const themeSelector = document.getElementById('themeSelector');
+const fontSelector = document.getElementById('fontSelector');
+const fontSizeRange = document.getElementById('fontSizeRange');
+const currentFontSizeSpan = document.getElementById('currentFontSize');
+const autoSkipToggle = document.getElementById('autoSkipToggle');
+const notificationToggle = document.getElementById('notificationToggle');
+const customAzkarReminderToggle = document.getElementById('customAzkarReminderToggle');
+
+
+// --- Azkar Data (Your full azkar data will go here) ---
+// Since the provided .text file had CSS and HTML, I'm assuming your azkar data
+// was either loaded externally or hardcoded in your original script.js.
+// You MUST place your actual azkar data structure here (e.g., const azkarData = { ... };)
+// For now, I'll put a placeholder. Replace this with your actual data.
+azkarData = {
+    "morning": [
+        { text: "آيَةُ الكُرْسِيِّ:\nاللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ ۚ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ ۚ لَّهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ ۗ مَن ذَا الَّذِي يَشْفَعُ عِندَهُ إِلَّا بِإِذْنِهِ ۚ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ ۖ وَلَا يُحِيطُونَ بِشَيْءٍ مِّنْ عِلْمِهِ إِلَّا بِمَا شَاءَ ۚ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ ۖ وَلَا يَئُودُهُ حِفْظُهُمَا ۚ وَهُوَ الْعَلِيُّ الْعَظِيمُ",
         repeat: 1,
         meaning: "الآية الكريمة تبين عظمة الله تعالى، وأنه المتفرد بالألوهية، الحي الذي لا يموت، القائم على تدبير كل شيء، لا يغفل ولا ينام، وهو مالك كل شيء، ولا يشفع أحد عنده إلا بإذنه، وعلمه محيط بكل شيء، ولا يعجزه حفظ السماوات والأرض.",
         virtue: "فضلها: من قرأها حين يصبح أجير من الجن حتى يمسي، ومن قرأها حين يمسي أجير منهم حتى يصبح.",
@@ -122,16 +186,15 @@
         source: "رواه البخاري ومسلم", hadith_number: "البخاري: 6403، مسلم: 2691"
       },
       // أذكار إضافية (أمثلة)
-      { text: "أذكار الصباح\n\nرَضِيتُ بِاللَّهِ رَبًّا، وَبِالْإِسْلَامِ دِينًا، وَبِمُحَمَّدٍ صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ نَبِيًّا.",
+      { text: "أذكار الصباح\n "رَضِيتُ بِاللَّهِ رَبًّا، وَبِالْإِسْلَامِ دِينًا، وَبِمُحَمَّدٍ صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ نَبِيًّا.",
         repeat: 3,
         meaning: "أرضى وأطمئن بالله ربًّا لي ومدبرًا لجميع أموري، وبالإسلام دينًا كاملاً وشاملاً لطريقتي في الحياة، وبمحمد صلى الله عليه وسلم نبيًّا ورسولاً أقتدي به.",
         virtue: "فضلها: من قالها حين يصبح وحين يمسي كان حقًا على الله أن يرضيه يوم القيامة.",
         source: "رواه الترمذي", hadith_number: "3389"
       }
-    ];
-
-    const eveningAzkar = [
-        { text: "آيَةُ الكُرْسِيِّ:\n\nاللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ ۚ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ ۚ لَّهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ ۗ مَن ذَا الَّذِي يَشْفَعُ عِندَهُ إِلَّا بِإِذْنِهِ ۚ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ ۖ وَلَا يُحِيطُونَ بِشَيْءٍ مِّنْ عِلْمِهِ إِلَّا بِمَا شَاءَ ۚ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ ۖ وَلَا يَئُودُهُ حِفْظُهُمَا ۚ وَهُوَ الْعَلِيُّ الْعَظِيمُ",
+    ],
+    "evening": [
+        { text: "آيَةُ الكُرْسِيِّ:\nاللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ ۚ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ ۚ لَّهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ ۗ مَن ذَا الَّذِي يَشْفَعُ عِندَهُ إِلَّا بِإِذْنِهِ ۚ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ ۖ وَلَا يُحِيطُونَ بِشَيْءٍ مِّنْ عِلْمِهِ إِلَّا بِمَا شَاءَ ۚ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ ۖ وَلَا يَئُودُهُ حِفْظُهُمَا ۚ وَهُوَ الْعَلِيُّ الْعَظِيمُ",
           repeat: 1,
           meaning: "الآية الكريمة تبين عظمة الله تعالى، وأنه المتفرد بالألوهية، الحي الذي لا يموت، القائم على تدبير كل شيء، لا يغفل ولا ينام، وهو مالك كل شيء، ولا يشفع أحد عنده إلا بإذنه، وعلمه محيط بكل شيء، ولا يعجزه حفظ السماوات والأرض.",
           virtue: "فضلها: من قرأها حين يمسي أجير من الجن حتى يصبح، ومن قرأها حين يصبح أجير منهم حتى يمسي.",
@@ -258,9 +321,8 @@
           virtue: "فضلها: من قالها حين يصبح وحين يمسي كان حقًا على الله أن يرضيه يوم القيامة.",
           source: "رواه الترمذي", hadith_number: "3389"
         }
-    ];
-
-    const sleepAzkar = [
+    ],
+    "sleep": [
         { text: "أذكار النوم\n\nبِاسْمِكَ رَبِّي وَضَعْتُ جَنْبِي وَبِكَ أَرْفَعُهُ، إِنْ أَمْسَكْتَ نَفْسِي فَارْحَمْهَا، وَإِنْ أَرْسَلْتَهَا فَاحْفَظْهَا بِمَا تَحْفَظُ بِهِ عِبَادَكَ الصَّالِحِينَ.",
           repeat: 1,
           meaning: "أدعو باسمك يا ربي عند نومي واستيقاظي، فإن توفيت نفسي فلتشملها رحمتك، وإن أبقيتها فاحفظها برعايتك التي تحفظ بها عبادك الصالحين.",
@@ -309,9 +371,8 @@
           virtue: "فضله: كان النبي صلى الله عليه وسلم يفعل ذلك كل ليلة عند نومه، وهذا يدل على أهمية هذه السور في التحصين والحفظ من الشرور.",
           source: "رواه البخاري", hadith_number: "5017"
         },
-    ];
-
-    const wakingAzkar = [
+    ],
+    "wakeUp": [
         { text: "أذكار الاستيقاظ\n\nالْحَمْدُ لِلَّهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا وَإِلَيْهِ النُّشُورُ.",
           repeat: 1,
           meaning: "أحمد الله الذي أعاد إلينا الحياة بعد الموت الصغير (النوم)، وإليه وحده المرجع بعد الموت الأكبر يوم القيامة للحساب.",
@@ -336,9 +397,8 @@
           virtue: "دعاء شامل لطلب الخير في اليوم كله والحماية من شروره.",
           source: "رواه أبو داود", hadith_number: "5084"
         }
-    ];
-
-    const afterPrayerAzkar = [
+    ],
+    "prayer": [
         { text: "أذكار بعد الصلوات\n\nأَسْتَغْفِرُ اللَّهَ.",
           repeat: 3,
           meaning: "أطلب المغفرة من الله تعالى، تعبيرًا عن التوبة والرجوع إليه من كل ذنب أو تقصير.",
@@ -382,11 +442,12 @@
           virtue: "وصية نبوية جامعة من النبي صلى الله عليه وسلم لمعاذ بن جبل رضي الله عنه.",
           source: "رواه أبو داود والنسائي", hadith_number: "أبو داود: 1522"
         }
-    ];
-
-    // أذكار إضافية متنوعة (أمثلة)
-    const generalAzkar = [
-        { text: "أذكار متنوعة\n\nبِسْمِ اللَّهِ.",
+    ],
+    "fortressBook": [
+	        { "text": "رضيت بالله رباً، وبالإسلام ديناً، وبمحمد صلى الله عليه وسلم نبياً.", "repeat": 3, "info": "حصن المسلم" }
+    ],
+    "general": [
+		{ text: "أذكار متنوعة\n\nبِسْمِ اللَّهِ.",
           repeat: 1,
           meaning: "أي: أبدأ كل عمل باسم الله، طلبًا للبركة والاستعانة به.",
           virtue: "البركة في كل عمل يبدأ به، وحماية من الشيطان. (أحاديث عامة في التسمية)"
@@ -401,214 +462,739 @@
           meaning: "دعاء جامع يطلب فيه المسلم من الله المغفرة لذنوبه، والرحمة التي تشمل كل خير، والعافية في الدين والدنيا، والرزق الحلال الطيب.",
           virtue: "من جوامع الدعاء التي كان النبي صلى الله عليه وسلم يداوم عليها.",
           source: "رواه مسلم", hadith_number: "2697"
-        }
-    ];
-// ملاحظة: تم اختصار بيانات الأذكار هنا لتسهيل القراءة، الكود الكامل موجود في ملفك الأصلي
-
-// --- Global State Variables ---
-let currentAzkarType = '';
-let currentAzkar = [];
-let azkarIndex = 0;
-let currentCount = 0;
-let customAzkar = [];
-let deferredPrompt;
-let notificationPermission = 'default';
-let stats = {
-    completedAzkarToday: 0,
-    totalCompletedAzkar: 0,
-    lastSessionDate: null
+        },
+        { text: "سبحان الله وبحمده، سبحان الله العظيم.", repeat: 100, info: "ذكر عام" }
+    ],
+    "dailyDuaa": [
+        { "text": "اللهم آتنا في الدنيا حسنة وفي الآخرة حسنة وقنا عذاب النار.", "repeat": 1, "info": "دعاء يومي" }
+    ],
+    "dailyQuran": [
+        { "text": "قل هو الله أحد (سورة الإخلاص)", "repeat": 3, "info": "قراءة سورة الإخلاص" }
+    ]
 };
 
-// --- Utility Functions ---
+
+// --- Helper Functions ---
 function saveSettings() {
-  localStorage.setItem('darkMode', document.body.classList.contains('dark'));
-  localStorage.setItem('fontFamily', document.documentElement.style.getPropertyValue('--font-family'));
-  localStorage.setItem('baseFontSize', document.documentElement.style.getPropertyValue('--base-font-size'));
-  localStorage.setItem('azkarFontSize', document.documentElement.style.getPropertyValue('--azkar-font-size'));
-  localStorage.setItem('fontColor', document.documentElement.style.getPropertyValue('--azkar-text-color'));
-  localStorage.setItem('bgColor', document.documentElement.style.getPropertyValue('--primary-bg'));
-  localStorage.setItem('currentTheme', document.body.dataset.theme || 'default');
-  localStorage.setItem('customAzkar', JSON.stringify(customAzkar));
-  localStorage.setItem('notificationPermission', notificationPermission);
-  localStorage.setItem('azkarStats', JSON.stringify(stats));
+    localStorage.setItem('darkMode', isDarkMode);
+    localStorage.setItem('selectedTheme', selectedTheme);
+    localStorage.setItem('selectedFont', selectedFont);
+    localStorage.setItem('fontSize', fontSize);
+    localStorage.setItem('autoSkip', autoSkip);
+    localStorage.setItem('notificationEnabled', notificationEnabled);
+    localStorage.setItem('customAzkarReminder', customAzkarReminder);
+    applySettings();
 }
 
-function loadSettings() {
-  if (localStorage.getItem('darkMode') === 'true') {
-    document.body.classList.add('dark');
-    document.getElementById('darkModeText').textContent = 'إيقاف';
-  } else {
-    document.getElementById('darkModeText').textContent = 'تفعيل';
-  }
-
-  const savedFont = localStorage.getItem('fontFamily');
-  if (savedFont) {
-    document.documentElement.style.setProperty('--font-family', savedFont);
-    document.getElementById('fontSelect').value = savedFont;
-  }
-
-  // ... (بقية كود تحميل الإعدادات)
-}
-
-function resetApp() {
-    currentAzkarType = '';
-    currentAzkar = [];
-    azkarIndex = 0;
-    currentCount = 0;
-    renderMainPage();
-    openTab('mainTab', document.querySelector('.tab-button:first-child'));
-    updateProgressBar();
-    closeNav();
-    exitFocusMode();
-}
-
-// --- Modal Management (Improved) ---
-function openModal(title, bodyHtml, buttonsHtml = '') {
-    const modalOverlay = document.getElementById('appModal');
-    document.getElementById('modalHeaderText').innerHTML = title;
-    document.getElementById('modalBody').innerHTML = bodyHtml;
-    document.getElementById('modalButtons').innerHTML = buttonsHtml;
-    modalOverlay.classList.add('show');
-}
-
-function closeModal() {
-    document.getElementById('appModal').classList.remove('show');
-}
-
-function showConfirmationModal(message, onConfirmCallback) {
-    const title = 'تأكيد الإجراء <i class="fas fa-exclamation-triangle"></i>';
-    const body = `<p>${message}</p>`;
-    const buttons = `
-        <button class="button" style="background:var(--button-bg-reset);" onclick="closeModal()">إلغاء</button>
-        <button class="button" style="background:var(--button-bg-skip);" id="confirmActionBtn">تأكيد</button>
-    `;
-    openModal(title, body, buttons);
-
-    // Add event listener to the new confirm button
-    document.getElementById('confirmActionBtn').onclick = () => {
-        onConfirmCallback();
-        closeModal();
-    };
-}
-
-function confirmResetSettings() {
-    showConfirmationModal('هل أنت متأكد من إعادة تعيين جميع الإعدادات إلى الافتراضيات؟', () => {
-        localStorage.clear();
-        location.reload();
-    });
-}
-
-function confirmResetStats() {
-    showConfirmationModal('هل أنت متأكد من مسح جميع بيانات الإحصائيات؟ لا يمكن التراجع عن هذا الإجراء.', () => {
-        stats = { completedAzkarToday: 0, totalCompletedAzkar: 0, lastSessionDate: new Date().toDateString() };
-        saveSettings();
-        updateStatsDisplay();
-    });
-}
-
-function confirmDeleteCustomAzkar(index) {
-    showConfirmationModal('هل أنت متأكد أنك تريد حذف هذا الذكر؟', () => {
-        customAzkar.splice(index, 1);
-        renderCustomAzkarList();
-        saveSettings();
-    });
-}
-
-
-// --- Azkar Core Logic ---
-function displayAzkar(index) {
-  // ... (نفس الكود الخاص بعرض الأذكار)
-}
-
-// ... (بقية دوال الأذكار مثل nextAzkar, prevAzkar, updateCounter)
-
-// --- Page Rendering ---
-function renderMainPage() {
-    const mainTab = document.getElementById('mainTab');
-    mainTab.innerHTML = `
-        <h2>اختر نوع الأذكار</h2>
-        <button class="button" onclick="startAzkarSession('morning')">أذكار الصباح <i class="fas fa-sun"></i></button>
-        <button class="button" onclick="startAzkarSession('evening')">أذكار المساء <i class="fas fa-moon"></i></button>
-        <button class="button" onclick="startAzkarSession('sleep')">أذكار النوم <i class="fas fa-bed"></i></button>
-        <button class="button" onclick="startAzkarSession('waking')">أذكار الاستيقاظ <i class="fas fa-sunrise"></i></button>
-        <button class="button" onclick="startAzkarSession('afterPrayer')">أذكار بعد الصلاة <i class="fas fa-pray"></i></button>
-        <button class="button" onclick="startAzkarSession('general')">أذكار متنوعة <i class="fas fa-lightbulb"></i></button>
-        <button class="button" onclick="startAzkarSession('custom')">قائمة الأذكار المخصصة <i class="fas fa-th-list"></i></button>
-        <div class="custom-azkar-area">
-            <h3>إدارة الأذكار المخصصة <i class="fas fa-plus-circle"></i></h3>
-            <input type="text" id="newAzkarText" placeholder="اكتب الذكر هنا" aria-label="أدخل الذكر الجديد">
-            <input type="number" id="newAzkarRepeat" value="1" min="1" aria-label="عدد مرات التكرار">
-            <div class="input-group">
-                <button class="button" style="background:var(--button-bg-install);" onclick="addCustomAzkar()"><i class="fas fa-plus"></i> إضافة الذكر</button>
-            </div>
-            <div class="button-group">
-                <button class="button" style="background:var(--button-bg-blue);" onclick="importCustomAzkar()"><i class="fas fa-upload"></i> استيراد</button>
-                <button class="button" style="background:var(--button-bg-share);" onclick="exportCustomAzkar()"><i class="fas fa-download"></i> تصدير</button>
-            </div>
-            <input type="text" id="searchCustomAzkar" placeholder="ابحث في الأذكار المخصصة..." onkeyup="renderCustomAzkarList()" style="margin-top: 10px;">
-            <ul id="customAzkarList" class="custom-azkar-list"></ul>
-        </div>
-    `;
-   updateProgressBar(); // هذا السطر يمكن أن يبقى هنا لأنه يعتمد على العناصر التي تم إنشاؤها للتو	
-   closeNav(); // أضفه فقط إذا كان يجب إغلاق الشريط الجانبي عند عرض الصفحة الرئيسية
+function applySettings() {
+    document.body.classList.toggle('dark', isDarkMode);
+    document.body.className = document.body.className.split(' ').filter(c => !c.startsWith('theme-')).join(' '); // Clear existing themes
+    if (selectedTheme !== 'default') {
+        document.body.classList.add(`theme-${selectedTheme}`);
+    }
+    document.body.style.fontFamily = `'${selectedFont}', serif`;
+    document.documentElement.style.setProperty('--base-font-size', `${fontSize}em`);
+    document.documentElement.style.setProperty('--azkar-font-size', `${fontSize + 0.2}em`); // Adjust azkar font size slightly larger
+    if (currentFontSizeSpan) {
+        currentFontSizeSpan.textContent = `${fontSize.toFixed(1)}em`;
     }
 
-function renderAzkarPage() {
-    const mainTab = document.getElementById('mainTab');
+    if (darkModeToggle) darkModeToggle.checked = isDarkMode;
+    if (themeSelector) themeSelector.value = selectedTheme;
+    if (fontSelector) fontSelector.value = selectedFont;
+    if (fontSizeRange) fontSizeRange.value = fontSize;
+    if (autoSkipToggle) autoSkipToggle.checked = autoSkip;
+    if (notificationToggle) notificationToggle.checked = notificationEnabled;
+    if (customAzkarReminderToggle) customAzkarReminderToggle.checked = customAzkarReminder;
+}
+
+// --- Notifications ---
+function requestNotificationPermission() {
+    if ('Notification' in window) {
+        Notification.requestPermission().then(permission => {
+            if (permission === 'granted') {
+                console.log('Notification permission granted.');
+                sendNotification('تطبيق الأذكار', 'تم تفعيل الإشعارات بنجاح!');
+            } else {
+                console.warn('Notification permission denied or dismissed.');
+                notificationEnabled = false; // Disable if not granted
+                if (notificationToggle) notificationToggle.checked = false;
+                saveSettings(); // Save updated setting
+            }
+        });
+    } else {
+        alert('المتصفح لا يدعم الإشعارات.');
+        notificationEnabled = false;
+        if (notificationToggle) notificationToggle.checked = false;
+        saveSettings();
+    }
+}
+
+function sendNotification(title, body) {
+    if (notificationEnabled && 'Notification' in window && Notification.permission === 'granted') {
+        new Notification(title, { body: body, icon: 'images/icons/icon-192x192.png' });
+    }
+}
+
+function scheduleDailyNotification(hour, minute, title, body, notificationId) {
+    if (!notificationEnabled || !('Notification' in window) || Notification.permission !== 'granted') return;
+
+    // Clear existing notification for this ID to avoid duplicates
+    // (This part is tricky with standard Notifications API, often requires background sync or more advanced APIs)
+    // For simplicity, we'll just schedule and let new ones overwrite.
+
+    const now = new Date();
+    let notificationTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour, minute, 0, 0);
+
+    // If the scheduled time is in the past today, schedule for tomorrow
+    if (notificationTime.getTime() < now.getTime()) {
+        notificationTime.setDate(notificationTime.getDate() + 1);
+    }
+
+    const delay = notificationTime.getTime() - now.getTime();
+
+    // Use setTimeout for simple scheduling. For persistent notifications,
+    // Service Worker's Periodic Background Sync or Web Push is needed.
+    setTimeout(() => {
+        sendNotification(title, body);
+        // Reschedule for the next day
+        scheduleDailyNotification(hour, minute, title, body, notificationId);
+    }, delay);
+}
+
+function initializeNotifications() {
+    // Example: Morning Azkar reminder at 7:00 AM
+    scheduleDailyNotification(7, 0, 'تذكير أذكار الصباح', 'لا تنس أذكار الصباح!', 'morningAzkar');
+    // Example: Evening Azkar reminder at 6:00 PM
+    scheduleDailyNotification(18, 0, 'تذكير أذكار المساء', 'حان وقت أذكار المساء!', 'eveningAzkar');
+
+    // Custom Azkar reminder (simplified, for advanced scheduling, use Service Worker background sync)
+    if (customAzkarReminder && customAzkar.length > 0) {
+        // Schedule a generic reminder for custom azkar, e.g., at 9:00 PM
+        scheduleDailyNotification(21, 0, 'تذكير أذكارك الخاصة', 'راجع أذكارك المخصصة!', 'customAzkar');
+    }
+}
+
+
+// --- PWA Install Prompt ---
+function showInstallPrompt() {
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+                console.log('User accepted the A2HS prompt');
+            } else {
+                console.log('User dismissed the A2HS prompt');
+            }
+            deferredPrompt = null;
+        });
+    } else {
+        alert('لا يمكن عرض نافذة التثبيت في الوقت الحالي. ربما تم تثبيت التطبيق بالفعل، أو أن المتصفح لا يدعم هذه الميزة.');
+    }
+}
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    // Prevent the mini-infobar from appearing on mobile
+    e.preventDefault();
+    // Stash the event so it can be triggered later.
+    deferredPrompt = e;
+    console.log(`'beforeinstallprompt' event was fired.`);
+    // You could show a custom install button here if you want
+});
+
+// --- Main App Logic ---
+
+function loadAzkar(category) {
+    currentCategory = category;
+    currentAzkarIndex = 0;
+    // Check if the category exists and has azkar, otherwise fall back to 'general' or display empty
+    const selectedAzkarList = azkarData[currentCategory] || [];
+    if (selectedAzkarList.length === 0 && currentCategory !== 'custom') {
+        console.warn(`Category "${category}" has no azkar. Falling back to general.`);
+        currentCategory = 'general'; // Fallback
+        currentAzkarIndex = 0;
+        currentRepeatCount = 0;
+        return; // Exit to re-evaluate with general azkar
+    }
+    currentRepeatCount = 0;
+    renderAzkar();
+}
+
+function renderAzkar() {
+    const azkarDisplay = document.getElementById('azkarDisplay');
+    const azkarCount = document.getElementById('azkarCount');
+    const counterButton = document.getElementById('counterButton');
+
+    if (!azkarDisplay || !azkarCount || !counterButton) {
+        console.error("DOM elements for azkar display are not found.");
+        return;
+    }
+
+    let azkarList;
+    if (currentCategory === 'custom') {
+        azkarList = customAzkar;
+    } else {
+        azkarList = azkarData[currentCategory];
+    }
+
+    if (!azkarList || azkarList.length === 0) {
+        azkarDisplay.innerHTML = '<p>لا يوجد أذكار لعرضها في هذه الفئة.</p>';
+        azkarCount.textContent = '';
+        counterButton.style.display = 'none';
+        return;
+    } else {
+        counterButton.style.display = 'block';
+    }
+
+    if (currentAzkarIndex >= azkarList.length) {
+        azkarDisplay.innerHTML = '<p>انتهت أذكار هذه الفئة! يمكنك البدء من جديد أو اختيار فئة أخرى.</p>';
+        azkarCount.textContent = '';
+        counterButton.style.display = 'none';
+        currentAzkarIndex = 0; // Reset for next session
+        return;
+    }
+
+    const azkar = azkarList[currentAzkarIndex];
+    const initialRepeat = azkar.repeat;
+
+    // Reset repeat count if starting a new azkar or if it's auto-skipped
+    if (currentRepeatCount === 0 || counterButton.dataset.prevAzkarId !== `${currentCategory}-${currentAzkarIndex}`) {
+        currentRepeatCount = initialRepeat;
+    }
+    counterButton.dataset.prevAzkarId = `${currentCategory}-${currentAzkarIndex}`;
+
+    // Apply fade-out animation first, then change content and fade-in
+    azkarDisplay.classList.add('fade-out-element');
+    setTimeout(() => {
+        azkarDisplay.innerHTML = azkar.text;
+        azkarCount.textContent = `العداد: ${currentRepeatCount} / ${initialRepeat}`;
+        counterButton.textContent = `اضغط هنا (${currentRepeatCount})`;
+        azkarDisplay.classList.remove('fade-out-element');
+        azkarDisplay.classList.add('fade-in-element');
+        // Remove fade-in class after animation to allow re-triggering
+        azkarDisplay.addEventListener('animationend', () => {
+            azkarDisplay.classList.remove('fade-in-element');
+        }, { once: true });
+    }, 300); // Duration of fade-out animation
+}
+
+
+function updateCounter() {
+    const azkarList = (currentCategory === 'custom') ? customAzkar : azkarData[currentCategory];
+    if (!azkarList || azkarList.length === 0 || currentAzkarIndex >= azkarList.length) {
+        return; // No azkar to count
+    }
+
+    const azkar = azkarList[currentAzkarIndex];
+    currentRepeatCount--;
+    document.getElementById('azkarCount').textContent = `العداد: ${currentRepeatCount} / ${azkar.repeat}`;
+    document.getElementById('counterButton').textContent = `اضغط هنا (${currentRepeatCount})`;
+
+    // Add flash effect
+    const counterButton = document.getElementById('counterButton');
+    counterButton.classList.add('flash');
+    setTimeout(() => {
+        counterButton.classList.remove('flash');
+    }, 100);
+
+    if (currentRepeatCount <= 0) {
+        nextAzkar();
+        if (autoSkip) {
+            // Optional: sendNotification for auto-skipped azkar
+        }
+    }
+}
+
+function nextAzkar() {
+    currentAzkarIndex++;
+    currentRepeatCount = 0; // Reset count for the next azkar
+    renderAzkar();
+    updateProgressBar();
+}
+
+function prevAzkar() {
+    if (currentAzkarIndex > 0) {
+        currentAzkarIndex--;
+        currentRepeatCount = 0; // Reset count for the previous azkar
+        renderAzkar();
+        updateProgressBar();
+    }
+}
+
+function skipAzkar() {
+    nextAzkar(); // Simply move to the next azkar
+}
+
+function updateProgressBar() {
+    const progressBarFill = document.getElementById('progressBarFill');
+    const progressText = document.getElementById('progressText');
+    if (!progressBarFill || !progressText) return;
+
+    let azkarList;
+    if (currentCategory === 'custom') {
+        azkarList = customAzkar;
+    } else {
+        azkarList = azkarData[currentCategory];
+    }
+
+    if (!azkarList || azkarList.length === 0) {
+        progressBarFill.style.width = '0%';
+        progressText.textContent = '0/0';
+        return;
+    }
+
+    const progress = currentAzkarIndex / azkarList.length;
+    progressBarFill.style.width = `${progress * 100}%`;
+    progressText.textContent = `${currentAzkarIndex}/${azkarList.length}`;
+}
+
+// --- Navigation and Page Rendering ---
+
+// Global function to toggle sidebar (accessible from index.html onclick)
+function toggleNav() {
+    sidebar.classList.toggle('open');
+}
+
+// Global function to close sidebar (accessible from index.html onclick, or via direct call)
+function closeNav() {
+    sidebar.classList.remove('open');
+}
+
+// Global function to open tabs (accessible from index.html onclick)
+function openTab(tabName) {
+    const tabs = document.querySelectorAll('.tab-content');
+    tabs.forEach(tab => {
+        tab.classList.remove('active');
+    });
+    document.getElementById(tabName).classList.add('active');
+
+    // Update title based on tab
+    if (tabName === 'mainTab') {
+        appTitle.textContent = 'تطبيق الأذكار';
+        renderMainPage(); // Re-render main page content
+    } else if (tabName === 'settingsTab') {
+        appTitle.textContent = 'الإعدادات';
+        applySettings(); // Apply settings when settings tab is opened
+    } else if (tabName === 'aboutTab') {
+        appTitle.textContent = 'عن التطبيق';
+    } else if (tabName === 'azkarPage') { // New tab for main azkar display (moved from mainTab content)
+        appTitle.textContent = 'الأذكار';
+        renderAzkarPage();
+    } else if (tabName === 'customAzkarTab') {
+        appTitle.textContent = 'أذكاري الخاصة';
+        renderCustomAzkarPage();
+    }
+
+    closeNav();
+}
+
+// Global function to reset app (accessible from index.html onclick)
+function resetApp() {
+    if (confirm("هل أنت متأكد أنك تريد إعادة تعيين التطبيق؟ سيتم حذف جميع أذكارك المخصصة وإعادة تعيين الإعدادات.")) {
+        localStorage.clear();
+        customAzkar = []; // Clear in memory
+        // Reset settings to default values
+        isDarkMode = false;
+        selectedTheme = 'default';
+        selectedFont = 'Amiri';
+        fontSize = 1.1;
+        autoSkip = false;
+        notificationEnabled = false;
+        customAzkarReminder = false;
+        saveSettings(); // Save defaults
+        alert("تم إعادة تعيين التطبيق بنجاح.");
+        openTab('mainTab'); // Go back to main page
+    }
+}
+
+// This function will render the content of the main Azkar categories page
+function renderMainPage() {
     mainTab.innerHTML = `
-        <div id="progressContainer" class="progress-container">
+        <div id="progressContainer" class="progress-container fade-in-element">
           <div id="progressBarFill" class="progress-bar-fill"></div>
           <span id="progressText" class="progress-text"></span>
         </div>
-        <div class="azkar-container">
-            <div id="azkarDisplay" class="azkar"></div>
-            <button id="azkarInfoButton" class="info-button" onclick="showAzkarInfo()" aria-label="عرض معلومات الذكر"><i class="fas fa-info-circle"></i></button>
-            <button id="focusModeBtn" class="focus-button" onclick="toggleFocusMode()" aria-label="تفعيل وضع التركيز"><i class="fas fa-arrows-alt"></i></button>
-        </div>
-        <div id="azkarCount" class="count"></div>
-        <button id="counterButton" class="counter-btn" onclick="updateCounter()"></button>
-        <div class="azkar-navigation">
-            <button id="prevAzkarBtn" class="button" style="background:var(--button-bg-prev);" onclick="prevAzkar()"><i class="fas fa-arrow-right"></i> الذكر السابق</button>
-            <button id="shareAzkarBtn" class="button" style="background:var(--button-bg-share);" onclick="showShareModal()"><i class="fas fa-share-alt"></i> مشاركة الذكر</button>
-            <button id="skipAzkarBtn" class="button" style="background:var(--button-bg-skip);" onclick="skipAzkar()"><i class="fas fa-forward"></i> تخطي</button>
-            <button id="nextAzkarBtn" class="button" style="background:var(--button-bg-main);" onclick="nextAzkar()">الذكر التالي <i class="fas fa-arrow-left"></i></button>
+        <div class="category-grid fade-in-element">
+            <button id="morningAzkarBtn" class="category-btn">أذكار الصباح</button>
+            <button id="eveningAzkarBtn" class="category-btn">أذكار المساء</button>
+            <button id="sleepAzkarBtn" class="category-btn">أذكار النوم</button>
+            <button id="wakeUpAzkarBtn" class="category-btn">أذكار الاستيقاظ</button>
+            <button id="prayerAzkarBtn" class="category-btn">أذكار الصلاة</button>
+            <button id="fortressBookBtn" class="category-btn">حصن المسلم</button>
+            <button id="generalAzkarBtn" class="category-btn">أذكار متنوعة</button>
+            <button id="dailyDuaaBtn" class="category-btn">أدعية يومية</button>
+            <button id="dailyQuranBtn" class="category-btn">آيات من القرآن</button>
+            <button id="customAzkarPageBtn" class="category-btn">أذكاري الخاصة</button>
         </div>
     `;
-	updateProgressBar(); // هذا السطر يمكن أن يبقى هنا
-	closeNav(); // أضفه فقط إذا كان يجب إغلاق الشريط الجانبي عند عرض صفحة الأذكار
+    // Attach event listeners after content is loaded
+    document.getElementById('morningAzkarBtn').onclick = () => { openTab('azkarPage'); loadAzkar('morning'); };
+    document.getElementById('eveningAzkarBtn').onclick = () => { openTab('azkarPage'); loadAzkar('evening'); };
+    document.getElementById('sleepAzkarBtn').onclick = () => { openTab('azkarPage'); loadAzkar('sleep'); };
+    document.getElementById('wakeUpAzkarBtn').onclick = () => { openTab('azkarPage'); loadAzkar('wakeUp'); };
+    document.getElementById('prayerAzkarBtn').onclick = () => { openTab('azkarPage'); loadAzkar('prayer'); };
+    document.getElementById('fortressBookBtn').onclick = () => { openTab('azkarPage'); loadAzkar('fortressBook'); };
+    document.getElementById('generalAzkarBtn').onclick = () => { openTab('azkarPage'); loadAzkar('general'); };
+    document.getElementById('dailyDuaaBtn').onclick = () => { openTab('azkarPage'); loadAzkar('dailyDuaa'); };
+    document.getElementById('dailyQuranBtn').onclick = () => { openTab('azkarPage'); loadAzkar('dailyQuran'); };
+    document.getElementById('customAzkarPageBtn').onclick = () => openTab('customAzkarTab');
+
+    updateProgressBar();
+    closeNav();
+}
+
+// This function will render the current azkar display page
+function renderAzkarPage() {
+    mainTab.innerHTML = `
+        <div id="progressContainer" class="progress-container">
+            <div id="progressBarFill" class="progress-bar-fill"></div>
+            <span id="progressText" class="progress-text"></span>
+        </div>
+        <div class="azkar-container">
+            <div id="azkarDisplay" class="azkar"></div>
+            <button id="azkarInfoButton" class="info-button" aria-label="عرض معلومات الذكر"><i class="fas fa-info-circle"></i></button>
+            <button id="focusModeBtn" class="focus-button" aria-label="تفعيل وضع التركيز"><i class="fas fa-arrows-alt"></i></button>
+        </div>
+        <div id="azkarCount" class="count"></div>
+        <button id="counterButton" class="counter-btn"></button>
+        <div class="azkar-navigation">
+            <button id="prevAzkarBtn" class="button" style="background:var(--button-bg-prev);"><i class="fas fa-arrow-right"></i> الذكر السابق</button>
+            <button id="shareAzkarBtn" class="button" style="background:var(--button-bg-share);"><i class="fas fa-share-alt"></i> مشاركة الذكر</button>
+            <button id="skipAzkarBtn" class="button" style="background:var(--button-bg-skip);"><i class="fas fa-forward"></i> تخطي</button>
+            <button id="nextAzkarBtn" class="button" style="background:var(--button-bg-main);">الذكر التالي <i class="fas fa-arrow-left"></i></button>
+        </div>
+    `;
+    // Attach event listeners after content is loaded
+    document.getElementById('azkarInfoButton').onclick = showAzkarInfo;
+    document.getElementById('focusModeBtn').onclick = toggleFocusMode;
+    document.getElementById('counterButton').onclick = updateCounter;
+    document.getElementById('prevAzkarBtn').onclick = prevAzkar;
+    document.getElementById('shareAzkarBtn').onclick = showShareModal;
+    document.getElementById('skipAzkarBtn').onclick = skipAzkar;
+    document.getElementById('nextAzkarBtn').onclick = nextAzkar;
+
+    // Ensure the current azkar is rendered if a category was already selected
+    if (currentCategory && azkarData[currentCategory] && azkarData[currentCategory].length > 0) {
+        renderAzkar();
+    } else if (currentCategory === 'custom' && customAzkar.length > 0) {
+        renderAzkar();
+    } else {
+        // Fallback if no category selected or data is empty
+        mainTab.querySelector('.azkar').innerHTML = '<p>الرجاء اختيار فئة أذكار من الرئيسية.</p>';
+        mainTab.querySelector('.count').textContent = '';
+        mainTab.querySelector('.counter-btn').style.display = 'none';
     }
 
+    updateProgressBar();
+    closeNav();
+}
+
+
+function renderCustomAzkarPage() {
+    mainTab.innerHTML = `
+        <div class="custom-azkar-area fade-in-element">
+            <h2>إدارة أذكاري الخاصة</h2>
+            <button id="addCustomAzkarBtn" class="add-button" title="إضافة ذكر جديد" aria-label="إضافة ذكر جديد"><i class="fas fa-plus"></i> إضافة ذكر جديد</button>
+            <ul id="customAzkarList" class="custom-azkar-list"></ul>
+        </div>
+        <button id="startCustomAzkarSessionBtn" class="button" style="background:var(--button-bg-main);">بدء جلسة أذكار مخصصة</button>
+    `;
+
+    document.getElementById('addCustomAzkarBtn').onclick = openAddCustomAzkarModal;
+    document.getElementById('startCustomAzkarSessionBtn').onclick = () => { openTab('azkarPage'); loadAzkar('custom'); };
+    renderCustomAzkarList();
+    closeNav();
+}
+
 // --- Custom Azkar Management ---
-function deleteCustomAzkar(index) {
-  // This function is now a wrapper for the confirmation modal
-  confirmDeleteCustomAzkar(index);
+
+function loadCustomAzkar() {
+    try {
+        const storedAzkar = localStorage.getItem('customAzkar');
+        return storedAzkar ? JSON.parse(storedAzkar) : [];
+    } catch (e) {
+        console.error("Error parsing custom azkar from localStorage:", e);
+        return [];
+    }
+}
+
+function saveCustomAzkar() {
+    localStorage.setItem('customAzkar', JSON.stringify(customAzkar));
 }
 
 function renderCustomAzkarList() {
     const list = document.getElementById('customAzkarList');
-    // ... (نفس الكود)
-    // تغيير بسيط في زر الحذف
-    listItem.innerHTML = `
-      <span>${azkar.text} (${azkar.repeat})</span>
-      <div class="custom-azkar-actions">
-        <button class="move-btn" onclick="moveCustomAzkar(${originalIndex}, 'up')" title="تحريك لأعلى" aria-label="تحريك لأعلى"><i class="fas fa-arrow-up"></i></button>
-        <button class="move-btn" onclick="moveCustomAzkar(${originalIndex}, 'down')" title="تحريك لأسفل" aria-label="تحريك لأسفل"><i class="fas fa-arrow-down"></i></button>
-        <button class="edit-btn" onclick="editCustomAzkar(${originalIndex})" title="تعديل" aria-label="تعديل الذكر"><i class="fas fa-edit"></i></button>
-        <button onclick="deleteCustomAzkar(${originalIndex})" title="حذف" aria-label="حذف الذكر"><i class="fas fa-trash-alt"></i></button>
-      </div>
-    `;
-    // ...
+    if (!list) {
+        console.error("customAzkarList element not found.");
+        return;
+    }
+    list.innerHTML = ''; // Clear existing list
+
+    if (customAzkar.length === 0) {
+        list.innerHTML = '<p style="text-align: center; color: var(--text-color);">لا يوجد أذكار مخصصة بعد. أضف بعض الأذكار!</p>';
+        return;
+    }
+
+    customAzkar.forEach((azkar, index) => {
+        const listItem = document.createElement('li');
+        listItem.innerHTML = `
+            <span>${azkar.text} (${azkar.repeat})</span>
+            <div class="custom-azkar-actions">
+                <button class="move-btn" data-index="${index}" data-direction="up" title="تحريك لأعلى" aria-label="تحريك لأعلى"><i class="fas fa-arrow-up"></i></button>
+                <button class="move-btn" data-index="${index}" data-direction="down" title="تحريك لأسفل" aria-label="تحريك لأسفل"><i class="fas fa-arrow-down"></i></button>
+                <button class="edit-btn" data-index="${index}" title="تعديل" aria-label="تعديل الذكر"><i class="fas fa-edit"></i></button>
+                <button class="delete-btn" data-index="${index}" title="حذف" aria-label="حذف الذكر"><i class="fas fa-trash-alt"></i></button>
+            </div>
+        `;
+        list.appendChild(listItem);
+    });
+
+    // Attach event listeners to the dynamically created buttons
+    list.querySelectorAll('.move-btn').forEach(button => {
+        button.onclick = () => moveCustomAzkar(parseInt(button.dataset.index), button.dataset.direction);
+    });
+    list.querySelectorAll('.edit-btn').forEach(button => {
+        button.onclick = () => editCustomAzkar(parseInt(button.dataset.index));
+    });
+    list.querySelectorAll('.delete-btn').forEach(button => {
+        button.onclick = () => deleteCustomAzkar(parseInt(button.dataset.index));
+    });
 }
 
-// ... (بقية دوال التطبيق)
 
-// --- Initial Setup ---
+function openAddCustomAzkarModal() {
+    editingAzkarIndex = -1; // Indicate new azkar
+    customAzkarModalTitle.textContent = 'إضافة ذكر جديد';
+    azkarTextInput.value = '';
+    azkarRepeatInput.value = '1';
+    customAzkarModal.classList.add('show');
+}
+
+function closeCustomAzkarModal() {
+    customAzkarModal.classList.remove('show');
+}
+
+function saveCustomAzkarEntry() {
+    const text = azkarTextInput.value.trim();
+    const repeat = parseInt(azkarRepeatInput.value);
+
+    if (text === '' || isNaN(repeat) || repeat < 1) {
+        alert('الرجاء إدخال نص الذكر وعدد تكرار صحيح.');
+        return;
+    }
+
+    if (editingAzkarIndex === -1) {
+        // Add new azkar
+        customAzkar.push({ text, repeat, info: "ذكر مخصص" });
+    } else {
+        // Update existing azkar
+        customAzkar[editingAzkarIndex] = { text, repeat, info: "ذكر مخصص" };
+    }
+    saveCustomAzkar();
+    renderCustomAzkarList();
+    closeCustomAzkarModal();
+}
+
+function editCustomAzkar(index) {
+    editingAzkarIndex = index;
+    const azkar = customAzkar[index];
+    if (azkar) {
+        customAzkarModalTitle.textContent = 'تعديل الذكر';
+        azkarTextInput.value = azkar.text;
+        azkarRepeatInput.value = azkar.repeat;
+        customAzkarModal.classList.add('show');
+    }
+}
+
+function confirmDeleteCustomAzkar(index) {
+    deleteIndexToConfirm = index;
+    confirmDeleteModal.classList.add('show');
+}
+
+function deleteCustomAzkarConfirmed() {
+    if (deleteIndexToConfirm !== -1) {
+        customAzkar.splice(deleteIndexToConfirm, 1);
+        saveCustomAzkar();
+        renderCustomAzkarList();
+        closeConfirmDeleteModal();
+        deleteIndexToConfirm = -1; // Reset
+    }
+}
+
+function closeConfirmDeleteModal() {
+    confirmDeleteModal.classList.remove('show');
+}
+
+
+function moveCustomAzkar(index, direction) {
+    if (direction === 'up' && index > 0) {
+        [customAzkar[index], customAzkar[index - 1]] = [customAzkar[index - 1], customAzkar[index]];
+    } else if (direction === 'down' && index < customAzkar.length - 1) {
+        [customAzkar[index], customAzkar[index + 1]] = [customAzkar[index + 1], customAzkar[index]];
+    }
+    saveCustomAzkar();
+    renderCustomAzkarList();
+}
+
+
+// --- Share & Info Modals ---
+function showShareModal() {
+    const azkarList = (currentCategory === 'custom') ? customAzkar : azkarData[currentCategory];
+    if (!azkarList || azkarList.length === 0 || currentAzkarIndex >= azkarList.length) {
+        alert('لا يوجد ذكر لمشاركته حالياً.');
+        return;
+    }
+    const azkar = azkarList[currentAzkarIndex];
+    const shareText = `${azkar.text}\n(${azkar.repeat} مرات)\n\nتطبيق الأذكار: https://fazaziai703-cmd.github.io/fazazi-azkar/`;
+    shareAzkarText.textContent = azkar.text; // Display the azkar text
+    shareTextarea.value = shareText; // Set full share text in textarea
+    shareModal.classList.add('show');
+}
+
+function closeShareModal() {
+    shareModal.classList.remove('show');
+}
+
+function copyShareText() {
+    shareTextarea.select();
+    document.execCommand('copy');
+    alert('تم نسخ الذكر بنجاح!');
+    closeShareModal();
+}
+
+function nativeShare() {
+    if (navigator.share) {
+        const azkarList = (currentCategory === 'custom') ? customAzkar : azkarData[currentCategory];
+        const azkar = azkarList[currentAzkarIndex];
+        const shareText = `${azkar.text}\n(${azkar.repeat} مرات)`;
+        navigator.share({
+            title: 'تطبيق الأذكار',
+            text: shareText,
+            url: 'https://fazaziai703-cmd.github.io/fazazi-azkar/',
+        }).then(() => {
+            console.log('Share successful');
+            closeShareModal();
+        }).catch((error) => {
+            console.error('Error sharing:', error);
+            alert('فشل في المشاركة، قد لا يدعم جهازك هذه الميزة.');
+        });
+    } else {
+        alert('متصفحك لا يدعم ميزة المشاركة المباشرة. يمكنك نسخ النص يدوياً.');
+    }
+}
+
+function showAzkarInfo() {
+    const azkarList = (currentCategory === 'custom') ? customAzkar : azkarData[currentCategory];
+    if (!azkarList || azkarList.length === 0 || currentAzkarIndex >= azkarList.length) {
+        azkarInfoText.innerHTML = '<p>لا توجد معلومات متاحة لهذا الذكر.</p>';
+        infoModal.classList.add('show');
+        return;
+    }
+    const azkar = azkarList[currentAzkarIndex];
+
+    let infoContent = '';
+    if (azkar.meaning) {
+        infoContent += `<p><strong>المعنى:</strong> ${azkar.meaning}</p>`;
+    }
+    if (azkar.virtue) {
+        infoContent += `<p><strong>الفضل:</strong> ${azkar.virtue}</p>`;
+    }
+    if (azkar.source) {
+        infoContent += `<p><strong>المصدر:</strong> ${azkar.source}`;
+        if (azkar.hadith_number) {
+            infoContent += ` (رقم الحديث: ${azkar.hadith_number})`;
+        }
+        infoContent += `</p>`;
+    }
+    if (azkar.info) { // For backward compatibility or general info if the above are missing
+        infoContent += `<p><strong>معلومات إضافية:</strong> ${azkar.info}</p>`;
+    }
+
+    if (infoContent === '') {
+        infoContent = '<p>لا توجد معلومات إضافية لهذا الذكر.</p>';
+    }
+
+    azkarInfoText.innerHTML = infoContent;
+    infoModal.classList.add('show');
+}
+
+function closeInfoModal() {
+    infoModal.classList.remove('show');
+}
+
+function toggleFocusMode() {
+    document.body.classList.toggle('focus-mode');
+    if (document.body.classList.contains('focus-mode')) {
+        document.getElementById('focusModeBtn').innerHTML = '<i class="fas fa-compress-arrows-alt"></i>'; // Change icon to exit focus
+        alert('تم تفعيل وضع التركيز. سيتم إخفاء بعض العناصر.');
+    } else {
+        document.getElementById('focusModeBtn').innerHTML = '<i class="fas fa-arrows-alt"></i>'; // Change icon to enter focus
+        alert('تم إلغاء وضع التركيز.');
+    }
+}
+
+
+// --- Initial Setup and Event Listeners (for static elements) ---
 document.addEventListener('DOMContentLoaded', () => {
-  // ملاحظة: قمت بنسخ الكود الكامل من ملفك الأصلي هنا
-  // بما في ذلك بيانات الأذكار الكاملة ودوال الإعدادات والتوابع الأخرى
-  // تم اختصارها في العرض هنا فقط لتسهيل القراءة.
-  loadSettings();
-  renderMainPage();
-  checkNotificationPermission();
-  updateStatsDisplay();
+    applySettings(); // Apply saved settings first
+    renderMainPage(); // Render the initial main page content
+
+    // Event listeners for static elements (those always in index.html)
+    resetButton.onclick = resetApp;
+
+    // Settings tab event listeners
+    if (darkModeToggle) {
+        darkModeToggle.onchange = () => { isDarkMode = darkModeToggle.checked; saveSettings(); };
+    }
+    if (themeSelector) {
+        themeSelector.onchange = () => { selectedTheme = themeSelector.value; saveSettings(); };
+    }
+    if (fontSelector) {
+        fontSelector.onchange = () => { selectedFont = fontSelector.value; saveSettings(); };
+    }
+    if (fontSizeRange) {
+        fontSizeRange.oninput = () => {
+            fontSize = parseFloat(fontSizeRange.value);
+            currentFontSizeSpan.textContent = `${fontSize.toFixed(1)}em`; // Update displayed value immediately
+            applySettings(); // Apply font size change
+        };
+        fontSizeRange.onchange = () => { // Save when user releases slider
+            saveSettings();
+        };
+    }
+    if (autoSkipToggle) {
+        autoSkipToggle.onchange = () => { autoSkip = autoSkipToggle.checked; saveSettings(); };
+    }
+    if (notificationToggle) {
+        notificationToggle.onchange = () => {
+            notificationEnabled = notificationToggle.checked;
+            if (notificationEnabled) {
+                requestNotificationPermission();
+            } else {
+                saveSettings();
+            }
+        };
+    }
+    if (customAzkarReminderToggle) {
+        customAzkarReminderToggle.onchange = () => { customAzkarReminder = customAzkarReminderToggle.checked; saveSettings(); };
+    }
+
+    // Modal close buttons
+    closeShareModalBtn.onclick = closeShareModal;
+    copyShareBtn.onclick = copyShareText;
+    nativeShareBtn.onclick = nativeShare;
+
+    closeInfoModalBtn.onclick = closeInfoModal;
+
+    closeCustomAzkarModalBtn.onclick = closeCustomAzkarModal;
+    saveCustomAzkarBtn.onclick = saveCustomAzkarEntry;
+    cancelCustomAzkarBtn.onclick = closeCustomAzkarModal;
+
+    closeConfirmDeleteModalBtn.onclick = closeConfirmDeleteModal;
+    confirmDeleteBtn.onclick = deleteCustomAzkarConfirmed;
+    cancelDeleteBtn.onclick = closeConfirmDeleteModal;
+
+
+    // Initialize notifications after settings are loaded and applied
+    initializeNotifications();
 });
