@@ -185,7 +185,14 @@ azkarData = {
         virtue: "فضلها: من قالها مائة مرة في يوم كانت له عدل عشر رقاب (تحرير عشر عبيد)، وكتبت له مائة حسنة، ومحيت عنه مائة سيئة، وكانت له حرزاً من الشيطان يومه ذلك حتى يمسي، ولم يأت أحد بأفضل مما جاء به إلا رجل عمل أكثر منه.",
         source: "رواه البخاري ومسلم", hadith_number: "البخاري: 6403، مسلم: 2691"
       },
-         ],
+      // أذكار إضافية (أمثلة)
+      { text: "أذكار الصباح\nرَضِيتُ بِاللَّهِ رَبًّا، وَبِالْإِسْلَامِ دِينًا، وَبِمُحَمَّدٍ صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ نَبِيًّا.",
+        repeat: 3,
+        meaning: "أرضى وأطمئن بالله ربًّا لي ومدبرًا لجميع أموري، وبالإسلام دينًا كاملاً وشاملاً لطريقتي في الحياة، وبمحمد صلى الله عليه وسلم نبيًّا ورسولاً أقتدي به.",
+        virtue: "فضلها: من قالها حين يصبح وحين يمسي كان حقًا على الله أن يرضيه يوم القيامة.",
+        source: "رواه الترمذي", hadith_number: "3389"
+      }
+    ],
     "evening": [
         { text: "آيَةُ الكُرْسِيِّ:\nاللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ ۚ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ ۚ لَّهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ ۗ مَن ذَا الَّذِي يَشْفَعُ عِندَهُ إِلَّا بِإِذْنِهِ ۚ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ ۖ وَلَا يُحِيطُونَ بِشَيْءٍ مِّنْ عِلْمِهِ إِلَّا بِمَا شَاءَ ۚ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ ۖ وَلَا يَئُودُهُ حِفْظُهُمَا ۚ وَهُوَ الْعَلِيُّ الْعَظِيمُ",
           repeat: 1,
@@ -759,6 +766,7 @@ function openTab(tabName) {
     tabs.forEach(tab => {
         tab.classList.remove('active');
     });
+    // The error is here: document.getElementById(tabName) might be null
     document.getElementById(tabName).classList.add('active');
 
     // Update title based on tab
@@ -783,7 +791,8 @@ function openTab(tabName) {
 
 // Global function to reset app (accessible from index.html onclick)
 function resetApp() {
-    if (confirm("هل أنت متأكد أنك تريد إعادة تعيين التطبيق؟ سيتم حذف جميع أذكارك المخصصة وإعادة تعيين الإعدادات.")) {
+    // Replaced alert with a custom modal for confirmation
+    showConfirmModal("إعادة تعيين التطبيق", "هل أنت متأكد أنك تريد إعادة تعيين التطبيق؟ سيتم حذف جميع أذكارك المخصصة وإعادة تعيين الإعدادات.", () => {
         localStorage.clear();
         customAzkar = []; // Clear in memory
         // Reset settings to default values
@@ -795,10 +804,39 @@ function resetApp() {
         notificationEnabled = false;
         customAzkarReminder = false;
         saveSettings(); // Save defaults
-        alert("تم إعادة تعيين التطبيق بنجاح.");
+        showAlertModal("تم إعادة تعيين التطبيق بنجاح.");
         openTab('mainTab'); // Go back to main page
-    }
+    });
 }
+
+// --- Custom Modal Functions (Replaces alert/confirm) ---
+function showAlertModal(message) {
+    const modal = document.getElementById('appModal');
+    document.getElementById('modalHeaderText').textContent = 'تنبيه';
+    document.getElementById('modalBody').innerHTML = `<p>${message}</p>`;
+    document.getElementById('modalButtons').innerHTML = `<button class="button" onclick="closeModal()">إغلاق</button>`;
+    modal.classList.add('show');
+}
+
+function showConfirmModal(title, message, onConfirmCallback) {
+    const modal = document.getElementById('appModal');
+    document.getElementById('modalHeaderText').textContent = title;
+    document.getElementById('modalBody').innerHTML = `<p>${message}</p>`;
+    document.getElementById('modalButtons').innerHTML = `
+        <button class="button" id="modalConfirmBtn">تأكيد</button>
+        <button class="button" onclick="closeModal()">إلغاء</button>
+    `;
+    document.getElementById('modalConfirmBtn').onclick = () => {
+        onConfirmCallback();
+        closeModal();
+    };
+    modal.classList.add('show');
+}
+
+function closeModal() {
+    document.getElementById('appModal').classList.remove('show');
+}
+
 
 // This function will render the content of the main Azkar categories page
 function renderMainPage() {
@@ -972,7 +1010,7 @@ function saveCustomAzkarEntry() {
     const repeat = parseInt(azkarRepeatInput.value);
 
     if (text === '' || isNaN(repeat) || repeat < 1) {
-        alert('الرجاء إدخال نص الذكر وعدد تكرار صحيح.');
+        showAlertModal('الرجاء إدخال نص الذكر وعدد تكرار صحيح.'); // Changed alert to custom modal
         return;
     }
 
@@ -1034,7 +1072,7 @@ function moveCustomAzkar(index, direction) {
 function showShareModal() {
     const azkarList = (currentCategory === 'custom') ? customAzkar : azkarData[currentCategory];
     if (!azkarList || azkarList.length === 0 || currentAzkarIndex >= azkarList.length) {
-        alert('لا يوجد ذكر لمشاركته حالياً.');
+        showAlertModal('لا يوجد ذكر لمشاركته حالياً.'); // Changed alert to custom modal
         return;
     }
     const azkar = azkarList[currentAzkarIndex];
@@ -1051,7 +1089,7 @@ function closeShareModal() {
 function copyShareText() {
     shareTextarea.select();
     document.execCommand('copy');
-    alert('تم نسخ الذكر بنجاح!');
+    showAlertModal('تم نسخ الذكر بنجاح!'); // Changed alert to custom modal
     closeShareModal();
 }
 
@@ -1069,10 +1107,10 @@ function nativeShare() {
             closeShareModal();
         }).catch((error) => {
             console.error('Error sharing:', error);
-            alert('فشل في المشاركة، قد لا يدعم جهازك هذه الميزة.');
+            showAlertModal('فشل في المشاركة، قد لا يدعم جهازك هذه الميزة.'); // Changed alert to custom modal
         });
     } else {
-        alert('متصفحك لا يدعم ميزة المشاركة المباشرة. يمكنك نسخ النص يدوياً.');
+        showAlertModal('متصفحك لا يدعم ميزة المشاركة المباشرة. يمكنك نسخ النص يدوياً.'); // Changed alert to custom modal
     }
 }
 
@@ -1119,10 +1157,10 @@ function toggleFocusMode() {
     document.body.classList.toggle('focus-mode');
     if (document.body.classList.contains('focus-mode')) {
         document.getElementById('focusModeBtn').innerHTML = '<i class="fas fa-compress-arrows-alt"></i>'; // Change icon to exit focus
-        alert('تم تفعيل وضع التركيز. سيتم إخفاء بعض العناصر.');
+        showAlertModal('تم تفعيل وضع التركيز. سيتم إخفاء بعض العناصر.'); // Changed alert to custom modal
     } else {
         document.getElementById('focusModeBtn').innerHTML = '<i class="fas fa-arrows-alt"></i>'; // Change icon to enter focus
-        alert('تم إلغاء وضع التركيز.');
+        showAlertModal('تم إلغاء وضع التركيز.'); // Changed alert to custom modal
     }
 }
 
