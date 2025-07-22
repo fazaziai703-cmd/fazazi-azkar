@@ -4,175 +4,138 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>تطبيق الأذكار</title>
+  
+  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Amiri&family=Noto+Naskh+Arabic&family=Lateefah&family=Scheherazade+New&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <link rel="stylesheet" href="style.css">
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" xintegrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  
+  <!-- PWA Manifest -->
   <link rel="manifest" href="manifest.json">
+  
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="sidebar">
-    <a href="#" class="closebtn" onclick="toggleNav()">&times;</a>
-    <a href="#" onclick="openTab('mainTab')">الرئيسية</a>
-    <a href="#" onclick="openTab('settingsTab')">الإعدادات</a>
-    <a href="#" onclick="openTab('aboutTab')">عن التطبيق</a>
+  <!-- Side Navigation for Azkar List -->
+  <div id="mySidenav" class="sidenav">
+    <button class="closebtn" onclick="closeNav()">&times;</button>
+    <h3><i class="fas fa-list"></i> قائمة الأذكار</h3>
+    <a href="#" onclick="openTab('mainTab')"><i class="fas fa-home"></i> الرئيسية</a>
+    <a href="#" onclick="openTab('settingsTab')"><i class="fas fa-cog"></i> الإعدادات</a>
+    <a href="#" onclick="openTab('aboutTab')"><i class="fas fa-info-circle"></i> عن التطبيق</a>
   </div>
 
-  <div class="main-content" id="mainContent">
-    <div class="header">
-      <button class="menu-btn" onclick="toggleNav()" aria-label="القائمة"><i class="fas fa-bars"></i></button>
-      <h1 id="appTitle">تطبيق الأذكار</h1>
-      <button id="resetButton" class="reset-button" aria-label="إعادة تعيين التطبيق"><i class="fas fa-sync-alt"></i></button>
-    </div>
-
-    <div class="container">
-      <div id="mainTab" class="tab-content active">
-        </div>
-
-      <div id="settingsTab" class="tab-content">
-        <div class="settings-section">
-          <h2>الإعدادات</h2>
-          <div class="settings-option">
-            <label for="darkModeToggle">الوضع الداكن</label>
-            <div>
-              <label class="switch">
-                <input type="checkbox" id="darkModeToggle">
-                <span class="slider round"></span>
-              </label>
-            </div>
-          </div>
-          <div class="settings-option">
-            <label for="themeSelector">السمة</label>
-            <div>
-              <select id="themeSelector">
-                <option value="default">افتراضية (أخضر)</option>
-                <option value="blue">زرقاء</option>
-                <option value="brown">بنية</option>
-              </select>
-            </div>
-          </div>
-          <div class="settings-option">
-            <label for="fontSelector">الخط</label>
-            <div>
-              <select id="fontSelector">
-                <option value="Amiri">الأميري</option>
-                <option value="Noto Naskh Arabic">النسخ العادي</option>
-                <option value="Lateefah">لطيفة</option>
-                <option value="Scheherazade New">شهرزاد</option>
-              </select>
-            </div>
-          </div>
-          <div class="settings-option">
-            <label for="fontSizeRange">حجم الخط</label>
-            <div>
-              <input type="range" id="fontSizeRange" min="0.8" max="1.5" step="0.1" value="1.1">
-              <span id="currentFontSize">1.1em</span>
-            </div>
-          </div>
-          <div class="settings-option">
-            <label for="autoSkipToggle">التخطي التلقائي</label>
-            <div>
-              <label class="switch">
-                <input type="checkbox" id="autoSkipToggle">
-                <span class="slider round"></span>
-              </label>
-            </div>
-          </div>
-          <div class="settings-option">
-            <label for="notificationToggle">إشعارات تذكير</label>
-            <div>
-              <label class="switch">
-                <input type="checkbox" id="notificationToggle">
-                <span class="slider round"></span>
-              </label>
-            </div>
-          </div>
-          <div class="settings-option">
-            <label for="customAzkarReminderToggle">تذكير أذكار مخصصة</label>
-            <div>
-              <label class="switch">
-                <input type="checkbox" id="customAzkarReminderToggle">
-                <span class="slider round"></span>
-              </label>
-            </div>
-          </div>
-          <button class="button" onclick="showInstallPrompt()">تثبيت التطبيق</button>
-          <button class="button" onclick="resetApp()">إعادة تعيين التطبيق</button>
-        </div>
-      </div>
-
-      <div id="aboutTab" class="tab-content">
-        <div class="settings-section">
-          <h2>عن التطبيق</h2>
-          <p>تطبيق الأذكار اليومية هو رفيقك الروحي لمساعدتك على تذكر الله في كل وقت.</p>
-          <p>الميزات:</p>
-          <ul>
-            <li>أذكار الصباح والمساء، النوم، الاستيقاظ، والصلاة.</li>
-            <li>أذكار وأدعية متنوعة من حصن المسلم.</li>
-            <li>إمكانية إضافة أذكارك الخاصة وإدارتها.</li>
-            <li>وضع التركيز لتجربة قراءة أفضل.</li>
-            <li>مشاركة الأذكار مع الأصدقاء.</li>
-            <li>إعدادات تخصيص شاملة (الوضع الداكن، الثيمات، الخطوط).</li>
-            <li>إشعارات تذكير مخصصة.</li>
-            <li>يعمل كتطبيق ويب تقدمي (PWA) لتجربة سريعة وغير متصلة بالإنترنت.</li>
-          </ul>
-          <p>تطوير: فزازي</p>
-          <p>الإصدار: 1.0.7</p>
-        </div>
-      </div>
-    </div>
-    <div class="footer">
-      <p>&copy; 2024 تطبيق الأذكار. جميع الحقوق محفوظة.</p>
-    </div>
+  <!-- Main Header -->
+  <div class="header">
+    <button class="openbtn" onclick="toggleNav()">&#9776;</button>
+    <h1 id="appTitle">تطبيق الأذكار</h1>
   </div>
 
-  <div id="shareModal" class="modal-overlay">
+  <!-- Main Content Area -->
+  <div class="container main-content-padding">
+    <!-- Content will be dynamically loaded here by script.js functions (renderMainPage, renderAzkarPage, etc.) -->
+    <div id="mainTab" class="tab-content active">
+      <!-- Initial content rendered by renderMainPage() -->
+    </div>
+    <div id="settingsTab" class="tab-content">
+      <!-- Settings content -->
+      <div class="settings-section">
+        <h3>الوضع الليلي</h3>
+        <label class="switch">
+          <input type="checkbox" id="darkModeToggle">
+          <span class="slider round"></span>
+        </label>
+      </div>
+
+      <div class="settings-section">
+        <h3>اختيار الثيم</h3>
+        <select id="themeSelector">
+          <option value="default">الافتراضي (أخضر)</option>
+          <option value="blue">أزرق</option>
+          <option value="purple">بنفسجي</option>
+          <option value="orange">برتقالي</option>
+        </select>
+      </div>
+
+      <div class="settings-section">
+        <h3>اختيار الخط</h3>
+        <select id="fontSelector">
+          <option value="Amiri">الأميري</option>
+          <option value="Noto Naskh Arabic">الخط النسخي</option>
+          <option value="Lateefah">لطيفة</option>
+          <option value="Scheherazade New">شهرزاد</option>
+        </select>
+      </div>
+
+      <div class="settings-section">
+        <h3>حجم الخط</h3>
+        <input type="range" id="fontSizeRange" min="0.8" max="1.5" step="0.1" value="1.1">
+        <span id="currentFontSize">1.1em</span>
+      </div>
+
+      <div class="settings-section">
+        <h3>تخطي الذكر تلقائياً عند الانتهاء</h3>
+        <label class="switch">
+          <input type="checkbox" id="autoSkipToggle">
+          <span class="slider round"></span>
+        </label>
+      </div>
+
+      <div class="settings-section">
+        <h3>تفعيل الإشعارات (تذكيرات)</h3>
+        <label class="switch">
+          <input type="checkbox" id="notificationToggle">
+          <span class="slider round"></span>
+        </label>
+      </div>
+
+      <div class="settings-section">
+        <h3>تذكير بأذكاري الخاصة</h3>
+        <label class="switch">
+          <input type="checkbox" id="customAzkarReminderToggle">
+          <span class="slider round"></span>
+        </label>
+      </div>
+    </div>
+    <div id="aboutTab" class="tab-content">
+      <!-- About content -->
+      <h2>عن تطبيق الأذكار</h2>
+      <p>تطبيق الأذكار هو رفيقك اليومي لتذكيرك بأذكار الصباح والمساء والنوم وغيرها، مع ميزات متقدمة لمساعدتك على الحفاظ على وردك اليومي.</p>
+      <p>تم تطوير هذا التطبيق بحب وإخلاص لخدمة المسلمين، ونسأل الله أن يجعله خالصاً لوجهه الكريم.</p>
+      <p>نأمل أن يكون هذا التطبيق عوناً لك في ذكر الله تعالى في كل وقت وحين.</p>
+      <p>لأي اقتراحات أو ملاحظات، لا تتردد في التواصل معنا.</p>
+      <p>مع خالص الدعوات لوالدنا الفاضل/ أبو عمران الفزازي، ولابني عمران (عبقرينو)، مع دعواتي له بدوام التفوق والتوفيق. والدكم المحب/ أبو عمران الفزازي</p>
+    </div>
+  </div>
+  
+  <!-- Fixed bottom buttons -->
+  <div class="top-fixed-buttons">
+    <button class="button" style="background:#607d8b;" onclick="resetApp()"><i class="fas fa-home"></i> العودة للقائمة الرئيسية</button>
+    <button id="installAppBtn" class="button" style="background:#8bc34a; display:none;"><i class="fas fa-plus"></i> تثبيت التطبيق</button>
+  </div>
+
+  <!-- Reusable Modal for Info, Share, and Confirmations -->
+  <div id="appModal" class="modal-overlay">
     <div class="modal-content">
-      <h3>مشاركة الذكر <button class="close-button" id="closeShareModalBtn">&times;</button></h3>
-      <p id="shareAzkarText"></p>
-      <textarea id="shareTextarea" readonly></textarea>
-      <button class="button" id="copyShareBtn">نسخ</button>
-      <button class="button" id="nativeShareBtn">مشاركة عبر...</button>
+      <h3 id="modalTitle">
+        <button class="close-button" onclick="closeModal()"><i class="fas fa-times-circle"></i></button>
+        <span id="modalHeaderText"></span>
+      </h3>
+      <div id="modalBody"></div>
+      <div id="modalButtons"></div>
     </div>
   </div>
 
-  <div id="infoModal" class="modal-overlay">
-    <div class="modal-content">
-      <h3>معلومات الذكر <button class="close-button" id="closeInfoModalBtn">&times;</button></h3>
-      <p id="azkarInfoText"></p>
-    </div>
-  </div>
-
-  <div id="customAzkarModal" class="modal-overlay">
-    <div class="modal-content">
-      <h3 id="customAzkarModalTitle">إضافة ذكر جديد <button class="close-button" id="closeCustomAzkarModalBtn">&times;</button></h3>
-      <div class="input-group">
-        <input type="text" id="azkarTextInput" placeholder="نص الذكر" required>
-        <input type="number" id="azkarRepeatInput" placeholder="عدد التكرار" min="1" value="1" required>
-      </div>
-      <div class="button-group">
-        <button class="button" id="saveCustomAzkarBtn">حفظ</button>
-        <button class="button" id="cancelCustomAzkarBtn">إلغاء</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="confirmDeleteModal" class="modal-overlay">
-    <div class="modal-content">
-      <h3>تأكيد الحذف <button class="close-button" id="closeConfirmDeleteModalBtn">&times;</button></h3>
-      <p>هل أنت متأكد أنك تريد حذف هذا الذكر؟</p>
-      <div class="button-group">
-        <button class="button" id="confirmDeleteBtn">تأكيد</button>
-        <button class="button" id="cancelDeleteBtn">إلغاء</button>
-      </div>
-    </div>
-  </div>
-
+  <!-- JavaScript file -->
   <script src="script.js"></script>
+
+  <!-- PWA Service Worker Registration -->
   <script>
-    // تسجيل Service Worker
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./service-worker.js', { scope: './' })
+        navigator.serviceWorker.register('./service-worker.js') // Use relative path
           .then(registration => {
             console.log('Service Worker registered successfully with scope:', registration.scope);
           })
@@ -181,6 +144,25 @@
           });
       });
     }
+
+    // Handle PWA install prompt
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const installAppBtn = document.getElementById('installAppBtn');
+      if (installAppBtn) {
+        installAppBtn.style.display = 'block'; // Show install button
+        installAppBtn.onclick = showInstallPrompt;
+      }
+    });
+
+    window.addEventListener('appinstalled', () => {
+      console.log('PWA was installed');
+      const installAppBtn = document.getElementById('installAppBtn');
+      if (installAppBtn) {
+        installAppBtn.style.display = 'none'; // Hide install button after install
+      }
+    });
   </script>
 </body>
 </html>
