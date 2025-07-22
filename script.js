@@ -77,7 +77,7 @@ azkarData = {
         virtue: "فضلها: تعدل ثلث القرآن في الأجر، ومن قرأها ثلاث مرات في الصباح والمساء كفته من كل شيء.",
         source: "رواه الترمذي وصححه الألباني", hadith_number: "2903"
       },
-      { text: "سُورَةُ الْفَلَقِ:\nبِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nقُلْ أَعُوذُ بِرَبِّ الْفَلَقِ (1)\nمِن شَرِّ مَا خَلَقَ (2)\nوَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ (3)\nوَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ (4)\nوَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ (5)",
+      { text: "سُورَةُ الْفَلَقِ:\nBISMILLAHIRRAHMANIRRAHIM\nQUL A'OODHU BIRABBI AL-FALAQ (1)\nMIN SHARRI MA KHALAQ (2)\nWA MIN SHARRI GHASIQIN IZA WAQAB (3)\nWA MIN SHARRI AN-NAFATHATI FI AL-'UQAD (4)\nWA MIN SHARRI HASIDIN IZA HASAD (5)",
         repeat: 3,
         meaning: "يطلب المسلم من الله تعالى الحماية من كل المخلوقات الشريرة، ومن شر الليل إذا أقبل بظلامه، ومن شر السحر والسحرة، ومن شر الحاسدين.",
         virtue: "فضلها: حرز للمسلم وحصن له من كل شرور الدنيا، وقد أوصى بها النبي صلى الله عليه وسلم.",
@@ -589,7 +589,7 @@ function showInstallPrompt() {
             deferredPrompt = null;
         });
     } else {
-        alert('لا يمكن عرض نافذة التثبيت في الوقت الحالي. ربما تم تثبيت التطبيق بالفعل، أو أن المتصفح لا يدعم هذه الميزة.');
+        showAlertModal('لا يمكن عرض نافذة التثبيت في الوقت الحالي. ربما تم تثبيت التطبيق بالفعل، أو أن المتصفح لا يدعم هذه الميزة.');
     }
 }
 
@@ -766,25 +766,33 @@ function openTab(tabName) {
     tabs.forEach(tab => {
         tab.classList.remove('active');
     });
-    // The error is here: document.getElementById(tabName) might be null
-    document.getElementById(tabName).classList.add('active');
 
-    // Update title based on tab
+    const targetTab = document.getElementById(tabName);
+    if (targetTab) { // <-- Added check for null
+        targetTab.classList.add('active');
+    } else {
+        console.error(`Element with ID '${tabName}' not found in main HTML structure. Falling back to mainTab.`);
+        // Fallback to mainTab if the requested tab is not a top-level tab in index.html
+        document.getElementById('mainTab').classList.add('active');
+        appTitle.textContent = 'تطبيق الأذكار';
+        renderMainPage();
+        closeNav();
+        return;
+    }
+
+    // Update title based on tab and render content
     if (tabName === 'mainTab') {
         appTitle.textContent = 'تطبيق الأذكار';
-        renderMainPage(); // Re-render main page content
+        renderMainPage(); // Render the category selection grid
     } else if (tabName === 'settingsTab') {
         appTitle.textContent = 'الإعدادات';
         applySettings(); // Apply settings when settings tab is opened
     } else if (tabName === 'aboutTab') {
         appTitle.textContent = 'عن التطبيق';
-    } else if (tabName === 'azkarPage') { // New tab for main azkar display (moved from mainTab content)
-        appTitle.textContent = 'الأذكار';
-        renderAzkarPage();
-    } else if (tabName === 'customAzkarTab') {
-        appTitle.textContent = 'أذكاري الخاصة';
-        renderCustomAzkarPage();
     }
+    // 'azkarPage' and 'customAzkarTab' are not top-level tabs in index.html.
+    // They are sub-views rendered within 'mainTab'.
+    // The sidebar links should only call openTab('mainTab'), openTab('settingsTab'), openTab('aboutTab').
 
     closeNav();
 }
@@ -859,16 +867,17 @@ function renderMainPage() {
         </div>
     `;
     // Attach event listeners after content is loaded
-    document.getElementById('morningAzkarBtn').onclick = () => { openTab('azkarPage'); loadAzkar('morning'); };
-    document.getElementById('eveningAzkarBtn').onclick = () => { openTab('azkarPage'); loadAzkar('evening'); };
-    document.getElementById('sleepAzkarBtn').onclick = () => { openTab('azkarPage'); loadAzkar('sleep'); };
-    document.getElementById('wakeUpAzkarBtn').onclick = () => { openTab('azkarPage'); loadAzkar('wakeUp'); };
-    document.getElementById('prayerAzkarBtn').onclick = () => { openTab('azkarPage'); loadAzkar('prayer'); };
-    document.getElementById('fortressBookBtn').onclick = () => { openTab('azkarPage'); loadAzkar('fortressBook'); };
-    document.getElementById('generalAzkarBtn').onclick = () => { openTab('azkarPage'); loadAzkar('general'); };
-    document.getElementById('dailyDuaaBtn').onclick = () => { openTab('azkarPage'); loadAzkar('dailyDuaa'); };
-    document.getElementById('dailyQuranBtn').onclick = () => { openTab('azkarPage'); loadAzkar('dailyQuran'); };
-    document.getElementById('customAzkarPageBtn').onclick = () => openTab('customAzkarTab');
+    // These now directly call render functions for sub-views within mainTab
+    document.getElementById('morningAzkarBtn').onclick = () => { loadAzkar('morning'); renderAzkarPage(); };
+    document.getElementById('eveningAzkarBtn').onclick = () => { loadAzkar('evening'); renderAzkarPage(); };
+    document.getElementById('sleepAzkarBtn').onclick = () => { loadAzkar('sleep'); renderAzkarPage(); };
+    document.getElementById('wakeUpAzkarBtn').onclick = () => { loadAzkar('wakeUp'); renderAzkarPage(); };
+    document.getElementById('prayerAzkarBtn').onclick = () => { loadAzkar('prayer'); renderAzkarPage(); };
+    document.getElementById('fortressBookBtn').onclick = () => { loadAzkar('fortressBook'); renderAzkarPage(); };
+    document.getElementById('generalAzkarBtn').onclick = () => { loadAzkar('general'); renderAzkarPage(); };
+    document.getElementById('dailyDuaaBtn').onclick = () => { loadAzkar('dailyDuaa'); renderAzkarPage(); };
+    document.getElementById('dailyQuranBtn').onclick = () => { loadAzkar('dailyQuran'); renderAzkarPage(); };
+    document.getElementById('customAzkarPageBtn').onclick = () => renderCustomAzkarPage(); // This will render into mainTab
 
     updateProgressBar();
     closeNav();
@@ -932,7 +941,7 @@ function renderCustomAzkarPage() {
     `;
 
     document.getElementById('addCustomAzkarBtn').onclick = openAddCustomAzkarModal;
-    document.getElementById('startCustomAzkarSessionBtn').onclick = () => { openTab('azkarPage'); loadAzkar('custom'); };
+    document.getElementById('startCustomAzkarSessionBtn').onclick = () => { loadAzkar('custom'); renderAzkarPage(); }; // Changed to renderAzkarPage
     renderCustomAzkarList();
     closeNav();
 }
@@ -1168,7 +1177,7 @@ function toggleFocusMode() {
 // --- Initial Setup and Event Listeners (for static elements) ---
 document.addEventListener('DOMContentLoaded', () => {
     applySettings(); // Apply saved settings first
-    renderMainPage(); // Render the initial main page content
+    openTab('mainTab'); // Render the initial main page content by activating mainTab
 
     // Event listeners for static elements (those always in index.html)
     resetButton.onclick = resetApp;
