@@ -1096,4 +1096,21 @@ body.focus-mode .main-content-padding {
     top: 15px; width: 28px; height: 28px; /* Reduced from 30px */
     font-size: 0.5em; /* Reduced from 0.6em */
   }
+  /* NEW: Elegant Active Glow & Hover Effects */
+.category-btn.active {
+  box-shadow: 0 0 12px rgba(76, 175, 80, 0.3);
+  transform: scale(1.02);
+}
+.category-btn:hover {
+  transform: scale(1.03);
+  background: linear-gradient(to bottom right, var(--button-bg-blue), var(--button-bg-blue-hover));
+}
+
+/* NEW: Soft Title Enhancements */
+.main-content-tab h2 {
+  font-weight: 300;
+  font-size: 1.7em;
+  letter-spacing: 0.5px;
+}
+
 }
