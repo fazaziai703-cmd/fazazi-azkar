@@ -14,22 +14,23 @@ let fontSize = parseFloat(localStorage.getItem('fontSize')) || 1.1;
 let autoSkip = localStorage.getItem('autoSkip') === 'true';
 let notificationEnabled = localStorage.getItem('notificationEnabled') === 'true';
 let customAzkarReminder = localStorage.getItem('customAzkarReminder') === 'true';
+let currentLanguage = localStorage.getItem('currentLanguage') || 'ar'; // New: Current language
 
 // --- DOM Elements ---
 // يتم تعريف عناصر DOM الثابتة الموجودة في index.html هنا
-const mainTab = document.getElementById('mainTab');
 const appTitle = document.getElementById('appTitle');
-const sidebar = document.querySelector('.sidenav'); // تم تصحيح المعرف ليتوافق مع class="sidenav"
+const sidebar = document.querySelector('.sidenav');
+const languageSelector = document.getElementById('languageSelector'); // New: Language selector
 
 // Modals
-const appModal = document.getElementById('appModal'); // المودال الرئيسي يستخدم الآن لجميع الأغراض
+const appModal = document.getElementById('appModal');
 const modalHeaderText = document.getElementById('modalHeaderText');
 const modalBody = document.getElementById('modalBody');
 const modalButtons = document.getElementById('modalButtons');
 
-let azkarTextInput; // تم إعلانها هنا لتكون متاحة عالمياً بعد إنشائها ديناميكياً
-let azkarRepeatInput; // تم إعلانها هنا لتكون متاحة عالمياً بعد إنشائها ديناميكياً
-let editingAzkarIndex = -1; // -1 means adding new, otherwise index of azkar being edited
+let azkarTextInput;
+let azkarRepeatInput;
+let editingAzkarIndex = -1;
 let deleteIndexToConfirm = -1;
 
 // Settings elements
@@ -41,6 +42,324 @@ const currentFontSizeSpan = document.getElementById('currentFontSize');
 const autoSkipToggle = document.getElementById('autoSkipToggle');
 const notificationToggle = document.getElementById('notificationToggle');
 const customAzkarReminderToggle = document.getElementById('customAzkarReminderToggle');
+
+
+// --- Translations Object ---
+// Object to hold all translatable strings in the application
+const translations = {
+    'ar': {
+        'appTitle': 'تطبيق الأذكار',
+        'home': 'الرئيسية',
+        'settings': 'الإعدادات',
+        'stats': 'إحصاءاتي',
+        'contactUs': 'تواصل معنا',
+        'about': 'عن التطبيق',
+        'darkMode': 'الوضع الليلي:',
+        'theme': 'السمة:',
+        'defaultTheme': 'افتراضي (أخضر)',
+        'blueTheme': 'أزرق',
+        'brownTheme': 'بني',
+        'font': 'الخط:',
+        'fontSize': 'حجم الخط:',
+        'autoSkip': 'تخطي الذكر تلقائياً:',
+        'enableNotifications': 'تفعيل الإشعارات:',
+        'customAzkarReminder': 'تذكير أذكاري الخاصة:',
+        'resetApp': 'إعادة تعيين التطبيق وتحديثه',
+        'installApp': 'تثبيت التطبيق',
+        'azkarEnded': 'انتهت أذكار هذه الفئة! يمكنك البدء من جديد أو اختيار فئة أخرى.',
+        'noAzkar': 'لا يوجد أذكار لعرضها في هذه الفئة.',
+        'counter': 'العداد:',
+        'tapHere': 'اضغط هنا',
+        'prevAzkar': 'الذكر السابق',
+        'shareAzkar': 'مشاركة الذكر',
+        'skip': 'تخطي',
+        'nextAzkar': 'الذكر التالي',
+        'addCustomAzkar': 'إضافة ذكر جديد',
+        'manageCustomAzkar': 'إدارة أذكاري الخاصة',
+        'noCustomAzkar': 'لا يوجد أذكار مخصصة بعد. أضف بعض الأذكار!',
+        'startCustomSession': 'بدء جلسة أذكار مخصصة',
+        'azkarTextPlaceholder': 'نص الذكر',
+        'repeatCountPlaceholder': 'عدد التكرار',
+        'save': 'حفظ',
+        'cancel': 'إلغاء',
+        'saveEdits': 'حفظ التعديلات',
+        'delete': 'حذف',
+        'confirmDeleteTitle': 'تأكيد الحذف',
+        'confirmDeleteMessage': 'هل أنت متأكد أنك تريد حذف هذا الذكر المخصص؟',
+        'copySuccess': 'تم نسخ الذكر بنجاح!',
+        'shareFailed': 'فشل في المشاركة، قد لا يدعم جهازك هذه الميزة.',
+        'browserNoShare': 'متصفحك لا يدعم ميزة المشاركة المباشرة. يمكنك نسخ النص يدوياً.',
+        'noInfo': 'لا توجد معلومات متاحة لهذا الذكر.',
+        'infoTitle': 'معلومات الذكر',
+        'meaning': 'المعنى:',
+        'virtue': 'الفضل:',
+        'source': 'المصدر:',
+        'hadithNumber': 'رقم الحديث:',
+        'additionalInfo': 'معلومات إضافية:',
+        'focusModeOn': 'تم تفعيل وضع التركيز. سيتم إخفاء بعض العناصر.',
+        'focusModeOff': 'تم إلغاء وضع التركيز.',
+        'alert': 'تنبيه',
+        'close': 'إغلاق',
+        'confirm': 'تأكيد',
+        'resetConfirmTitle': 'إعادة تعيين التطبيق وتحديثه',
+        'resetConfirmMessage': 'هل أنت متأكد أنك تريد إعادة تعيين التطبيق؟ سيتم حذف جميع أذكارك المخصصة وإعادة تعيين الإعدادات، ثم سيتم تحديث التطبيق إلى أحدث إصدار.',
+        'resetSuccess': 'تم إعادة تعيين التطبيق بنجاح. سيتم إعادة تحميل الصفحة الآن لتطبيق التحديثات.',
+        'notificationsEnabled': 'تم تفعيل الإشعارات بنجاح!',
+        'notificationsDenied': 'تم رفض تفعيل إذن الإشعارات.',
+        'notificationsBlocked': 'الإشعارات محظورة لمتصفحك. الرجاء تغيير الإعدادات في متصفحك للسماح بالإشعارات لهذا الموقع.',
+        'browserNoNotifications': 'المتصفح لا يدعم الإشعارات.',
+        'pwaInstallPromptFailed': 'لا يمكن عرض نافذة التثبيت في الوقت الحالي. ربما تم تثبيت التطبيق بالفعل، أو أن المتصفح لا يدعم هذه الميزة.',
+        'noShareContent': 'لا يوجد ذكر لمشاركته حالياً.',
+        'statsPageTitle': 'إحصاءاتي',
+        'statsPageDescription': 'هنا يمكنك عرض إحصائيات استخدامك للتطبيق.',
+        'completedAzkarToday': 'عدد الأذكار المكتملة اليوم:',
+        'totalCompletedAzkar': 'إجمالي الأذكار المكتملة:',
+        'lastSessionDate': 'آخر جلسة:',
+        'noLastSession': 'لا توجد',
+        'viewDetailedReport': 'عرض تقرير مفصل',
+        'featureUnderDevelopment': 'هذه الميزة قيد التطوير!',
+        'contactUsPageTitle': 'تواصل معنا',
+        'contactUsPageDescription': 'يسعدنا تواصلكم معنا لأي استفسارات أو اقتراحات.',
+        'contactWhatsapp': 'تواصل عبر واتساب',
+        'contactEmail': 'أرسل بريد إلكتروني',
+        'aboutPageTitle': 'عن التطبيق',
+        'aboutPageP1': 'تطبيق الأذكار هو رفيقك اليومي لتذكيرك بالأذكار والأدعية المهمة في حياتك.',
+        'aboutPageP2': 'يهدف التطبيق إلى تسهيل قراءة الأذكار والمحافظة عليها، مع توفير خيارات تخصيص لتناسب احتياجاتك.',
+        'version': 'الإصدار:',
+        'developedBy': 'تم التطوير بواسطة:',
+        'hopeMessage': 'نأمل أن يكون هذا التطبيق عوناً لكم في ذكر الله.',
+        'allRightsReserved': 'جميع الحقوق محفوظة.',
+        'designedWithLove': 'صمم بحب ليساعدك على ذكر الله.',
+        'morningAzkar': 'أذكار الصباح',
+        'eveningAzkar': 'أذكار المساء',
+        'sleepAzkar': 'أذكار النوم',
+        'wakeUpAzkar': 'أذكار الاستيقاظ',
+        'prayerAzkar': 'أذكار الصلاة',
+        'fortressBook': 'حصن المسلم',
+        'generalAzkar': 'أذكار متنوعة',
+        'dailyDuaa': 'أدعية يومية',
+        'dailyQuran': 'آيات من القرآن',
+        'customAzkar': 'أذكاري الخاصة',
+        'moveUp': 'تحريك لأعلى',
+        'moveDown': 'تحريك لأسفل',
+        'edit': 'تعديل',
+        'editDhikr': 'تعديل الذكر',
+        'enterValidAzkarInfo': 'الرجاء إدخال نص الذكر وعدد تكرار صحيح.',
+        'customDhikr': 'ذكر مخصص',
+        'times': 'مرات',
+        'inquirySubject': 'استفسار بخصوص تطبيق الأذكار',
+        'copy': 'نسخ',
+        'share': 'مشاركة'
+    },
+    'en': {
+        'appTitle': 'Azkar App',
+        'home': 'Home',
+        'settings': 'Settings',
+        'stats': 'My Stats',
+        'contactUs': 'Contact Us',
+        'about': 'About',
+        'darkMode': 'Dark Mode:',
+        'theme': 'Theme:',
+        'defaultTheme': 'Default (Green)',
+        'blueTheme': 'Blue',
+        'brownTheme': 'Brown',
+        'font': 'Font:',
+        'fontSize': 'Font Size:',
+        'autoSkip': 'Auto Skip Dhikr:',
+        'enableNotifications': 'Enable Notifications:',
+        'customAzkarReminder': 'Custom Azkar Reminder:',
+        'resetApp': 'Reset App & Update',
+        'installApp': 'Install App',
+        'azkarEnded': 'This category\'s Azkar have ended! You can start again or choose another category.',
+        'noAzkar': 'No Azkar to display in this category.',
+        'counter': 'Counter:',
+        'tapHere': 'Tap Here',
+        'prevAzkar': 'Previous Dhikr',
+        'shareAzkar': 'Share Dhikr',
+        'skip': 'Skip',
+        'nextAzkar': 'Next Dhikr',
+        'addCustomAzkar': 'Add New Dhikr',
+        'manageCustomAzkar': 'Manage My Custom Azkar',
+        'noCustomAzkar': 'No custom Azkar yet. Add some!',
+        'startCustomSession': 'Start Custom Azkar Session',
+        'azkarTextPlaceholder': 'Dhikr Text',
+        'repeatCountPlaceholder': 'Repeat Count',
+        'save': 'Save',
+        'cancel': 'Cancel',
+        'saveEdits': 'Save Edits',
+        'delete': 'Delete',
+        'confirmDeleteTitle': 'Confirm Deletion',
+        'confirmDeleteMessage': 'Are you sure you want to delete this custom Dhikr?',
+        'copySuccess': 'Dhikr copied successfully!',
+        'shareFailed': 'Share failed, your device may not support this feature.',
+        'browserNoShare': 'Your browser does not support direct sharing. You can copy the text manually.',
+        'noInfo': 'No information available for this Dhikr.',
+        'infoTitle': 'Dhikr Information',
+        'meaning': 'Meaning:',
+        'virtue': 'Virtue:',
+        'source': 'Source:',
+        'hadithNumber': 'Hadith Number:',
+        'additionalInfo': 'Additional Info:',
+        'focusModeOn': 'Focus mode enabled. Some elements will be hidden.',
+        'focusModeOff': 'Focus mode disabled.',
+        'alert': 'Alert',
+        'close': 'Close',
+        'confirm': 'Confirm',
+        'resetConfirmTitle': 'Reset App & Update',
+        'resetConfirmMessage': 'Are you sure you want to reset the app? All your custom Azkar and settings will be deleted, then the app will update to the latest version.',
+        'resetSuccess': 'App reset successfully. The page will reload now to apply updates.',
+        'notificationsEnabled': 'Notifications enabled successfully!',
+        'notificationsDenied': 'Notification permission denied.',
+        'notificationsBlocked': 'Notifications are blocked for your browser. Please change your browser settings to allow notifications for this site.',
+        'browserNoNotifications': 'Your browser does not support notifications.',
+        'pwaInstallPromptFailed': 'Cannot show install prompt at this time. The app might already be installed, or your browser does not support this feature.',
+        'noShareContent': 'No Dhikr to share currently.',
+        'statsPageTitle': 'My Statistics',
+        'statsPageDescription': 'Here you can view your app usage statistics.',
+        'completedAzkarToday': 'Azkar Completed Today:',
+        'totalCompletedAzkar': 'Total Azkar Completed:',
+        'lastSessionDate': 'Last Session:',
+        'noLastSession': 'None',
+        'viewDetailedReport': 'View Detailed Report',
+        'featureUnderDevelopment': 'This feature is under development!',
+        'contactUsPageTitle': 'Contact Us',
+        'contactUsPageDescription': 'We are happy to hear from you for any inquiries or suggestions.',
+        'contactWhatsapp': 'Contact via WhatsApp',
+        'contactEmail': 'Send Email',
+        'aboutPageTitle': 'About the App',
+        'aboutPageP1': 'Azkar App is your daily companion to remind you of important Azkar and supplications in your life.',
+        'aboutPageP2': 'The app aims to facilitate reading and maintaining Azkar, while providing customization options to suit your needs.',
+        'version': 'Version:',
+        'developedBy': 'Developed by:',
+        'hopeMessage': 'We hope this app will be a help to you in remembering Allah.',
+        'allRightsReserved': 'All rights reserved.',
+        'designedWithLove': 'Designed with love to help you remember Allah.',
+        'morningAzkar': 'Morning Azkar',
+        'eveningAzkar': 'Evening Azkar',
+        'sleepAzkar': 'Sleep Azkar',
+        'wakeUpAzkar': 'Wake Up Azkar',
+        'prayerAzkar': 'Prayer Azkar',
+        'fortressBook': 'Fortress of the Muslim',
+        'generalAzkar': 'General Azkar',
+        'dailyDuaa': 'Daily Duas',
+        'dailyQuran': 'Quranic Verses',
+        'customAzkar': 'My Custom Azkar',
+        'moveUp': 'Move Up',
+        'moveDown': 'Move Down',
+        'edit': 'Edit',
+        'editDhikr': 'Edit Dhikr',
+        'enterValidAzkarInfo': 'Please enter valid Dhikr text and repeat count.',
+        'customDhikr': 'Custom Dhikr',
+        'times': 'times',
+        'inquirySubject': 'Azkar App Inquiry',
+        'copy': 'Copy',
+        'share': 'Share'
+    },
+    'ur': {
+        'appTitle': 'اذکار ایپ',
+        'home': 'ہوم',
+        'settings': 'ترتیبات',
+        'stats': 'میری شماریات',
+        'contactUs': 'ہم سے رابطہ کریں',
+        'about': 'کے بارے میں',
+        'darkMode': 'ڈارک موڈ:',
+        'theme': 'تھیم:',
+        'defaultTheme': 'پہلے سے طے شدہ (سبز)',
+        'blueTheme': 'نیلا',
+        'brownTheme': 'بھورا',
+        'font': 'فونٹ:',
+        'fontSize': 'فونٹ سائز:',
+        'autoSkip': 'ذکر خودکار چھوڑ دیں:',
+        'enableNotifications': 'اطلاعات فعال کریں:',
+        'customAzkarReminder': 'اپنی مرضی کے اذکار یاد دہانی:',
+        'resetApp': 'ایپ ری سیٹ کریں اور اپ ڈیٹ کریں',
+        'installApp': 'ایپ انسٹال کریں',
+        'azkarEnded': 'اس زمرے کے اذکار ختم ہو گئے ہیں! آپ دوبارہ شروع کر سکتے ہیں یا کوئی اور زمرہ منتخب کر سکتے ہیں۔',
+        'noAzkar': 'اس زمرے میں کوئی اذکار ظاہر کرنے کے لیے نہیں ہیں۔',
+        'counter': 'کاؤنٹر:',
+        'tapHere': 'یہاں ٹیپ کریں',
+        'prevAzkar': 'پچھلا ذکر',
+        'shareAzkar': 'ذکر شیئر کریں',
+        'skip': 'چھوڑ دیں',
+        'nextAzkar': 'اگلا ذکر',
+        'addCustomAzkar': 'نیا ذکر شامل کریں',
+        'manageCustomAzkar': 'میرے حسب ضرورت اذکار کا انتظام کریں',
+        'noCustomAzkar': 'ابھی تک کوئی حسب ضرورت اذکار نہیں ہے۔ کچھ شامل کریں!',
+        'startCustomSession': 'حسب ضرورت اذکار سیشن شروع کریں',
+        'azkarTextPlaceholder': 'ذکر کا متن',
+        'repeatCountPlaceholder': 'تکرار کی گنتی',
+        'save': 'محفوظ کریں',
+        'cancel': 'منسوخ کریں',
+        'saveEdits': 'ترمیمات محفوظ کریں',
+        'delete': 'حذف کریں',
+        'confirmDeleteTitle': 'حذف کی تصدیق کریں',
+        'confirmDeleteMessage': 'کیا آپ واقعی اس حسب ضرورت ذکر کو حذف کرنا چاہتے ہیں؟',
+        'copySuccess': 'ذکر کامیابی سے کاپی ہو گیا!',
+        'shareFailed': 'شیئر ناکام ہو گیا، ہو سکتا ہے آپ کا آلہ اس خصوصیت کو سپورٹ نہ کرتا ہو۔',
+        'browserNoShare': 'آپ کا براؤزر براہ راست شیئرنگ کی خصوصیت کو سپورٹ نہیں کرتا ہے۔ آپ متن کو دستی طور پر کاپی کر سکتے ہیں۔',
+        'noInfo': 'اس ذکر کے لیے کوئی معلومات دستیاب نہیں ہے۔',
+        'infoTitle': 'ذکر کی معلومات',
+        'meaning': 'معنی:',
+        'virtue': 'فضیلت:',
+        'source': 'ماخذ:',
+        'hadithNumber': 'حدیث نمبر:',
+        'additionalInfo': 'اضافی معلومات:',
+        'focusModeOn': 'فوکس موڈ فعال ہو گیا ہے۔ کچھ عناصر چھپ جائیں گے۔',
+        'focusModeOff': 'فوکس موڈ غیر فعال ہو گیا ہے۔',
+        'alert': 'انتباہ',
+        'close': 'بند کریں',
+        'confirm': 'تصدیق کریں',
+        'resetConfirmTitle': 'ایپ ری سیٹ کریں اور اپ ڈیٹ کریں',
+        'resetConfirmMessage': 'کیا آپ واقعی ایپ کو ری سیٹ کرنا چاہتے ہیں؟ آپ کے تمام حسب ضرورت اذکار اور ترتیبات حذف ہو جائیں گی، پھر ایپ تازہ ترین ورژن پر اپ ڈیٹ ہو جائے گا۔',
+        'resetSuccess': 'ایپ کامیابی سے ری سیٹ ہو گئی۔ اپ ڈیٹس لاگو کرنے کے لیے صفحہ اب ری لوڈ ہو گا۔',
+        'notificationsEnabled': 'اطلاعات کامیابی سے فعال ہو گئیں!',
+        'notificationsDenied': 'اطلاعات کی اجازت مسترد کر دی گئی۔',
+        'notificationsBlocked': 'آپ کے براؤزر کے لیے اطلاعات مسدود ہیں۔ براہ کرم اس سائٹ کے لیے اطلاعات کی اجازت دینے کے لیے اپنے براؤزر کی ترتیبات تبدیل کریں۔',
+        'browserNoNotifications': 'آپ کا براؤزر اطلاعات کو سپورٹ نہیں کرتا ہے۔',
+        'pwaInstallPromptFailed': 'اس وقت انسٹال پرامپٹ نہیں دکھایا جا سکتا۔ ہو سکتا ہے ایپ پہلے سے انسٹال ہو، یا آپ کا براؤزر اس خصوصیت کو سپورٹ نہیں کرتا ہے۔',
+        'noShareContent': 'فی الحال شیئر کرنے کے لیے کوئی ذکر نہیں ہے۔',
+        'statsPageTitle': 'میری شماریات',
+        'statsPageDescription': 'یہاں آپ اپنے ایپ کے استعمال کی شماریات دیکھ سکتے ہیں۔',
+        'completedAzkarToday': 'آج مکمل ہونے والے اذکار:',
+        'totalCompletedAzkar': 'کل مکمل ہونے والے اذکار:',
+        'lastSessionDate': 'آخری سیشن:',
+        'noLastSession': 'کوئی نہیں',
+        'viewDetailedReport': 'تفصیلی رپورٹ دیکھیں',
+        'featureUnderDevelopment': 'یہ خصوصیت زیرِ ترقی ہے!',
+        'contactUsPageTitle': 'ہم سے رابطہ کریں',
+        'contactUsPageDescription': 'ہم آپ کے کسی بھی سوال یا تجاویز کے لیے آپ سے رابطہ کرنے میں خوش ہیں۔',
+        'contactWhatsapp': 'واٹس ایپ کے ذریعے رابطہ کریں',
+        'contactEmail': 'ای میل بھیجیں',
+        'aboutPageTitle': 'ایپ کے بارے میں',
+        'aboutPageP1': 'اذکار ایپ آپ کی روزمرہ کی زندگی میں اہم اذکار اور دعاؤں کی یاد دلانے کے لیے آپ کا روزمرہ کا ساتھی ہے۔',
+        'aboutPageP2': 'ایپ کا مقصد اذکار کو پڑھنے اور برقرار رکھنے میں آسانی فراہم کرنا ہے، جبکہ آپ کی ضروریات کے مطابق تخصیص کے اختیارات بھی فراہم کرنا ہے۔',
+        'version': 'ورژن:',
+        'developedBy': 'تیار کردہ از:',
+        'hopeMessage': 'ہم امید کرتے ہیں کہ یہ ایپ آپ کو اللہ کو یاد کرنے میں مددگار ثابت ہو گی۔',
+        'allRightsReserved': 'تمام حقوق محفوظ ہیں۔',
+        'designedWithLove': 'اللہ کو یاد کرنے میں آپ کی مدد کے لیے محبت سے ڈیزائن کیا گیا ہے۔',
+        'morningAzkar': 'صبح کے اذکار',
+        'eveningAzkar': 'شام کے اذکار',
+        'sleepAzkar': 'سونے کے اذکار',
+        'wakeUpAzkar': 'جاگنے کے اذکار',
+        'prayerAzkar': 'نماز کے اذکار',
+        'fortressBook': 'حصن المسلم',
+        'generalAzkar': 'متفرق اذکار',
+        'dailyDuaa': 'روزانہ کی دعائیں',
+        'dailyQuran': 'قرآنی آیات',
+        'customAzkar': 'میرے حسب ضرورت اذکار',
+        'moveUp': 'اوپر منتقل کریں',
+        'moveDown': 'نیچے منتقل کریں',
+        'edit': 'ترمیم کریں',
+        'editDhikr': 'ذکر میں ترمیم کریں',
+        'enterValidAzkarInfo': 'براہ کرم درست ذکر کا متن اور تکرار کی گنتی درج کریں۔',
+        'customDhikr': 'حسب ضرورت ذکر',
+        'times': 'بار',
+        'inquirySubject': 'اذکار ایپ انکوائری',
+        'copy': 'کاپی کریں',
+        'share': 'شیئر کریں'
+    }
+};
 
 // --- Azkar Data (Your full azkar data will go here) ---
 // بيانات أذكار الصباح (يمكن إضافة التشكيل يدوياً هنا)
@@ -58,7 +377,7 @@ azkarData = {
         virtue: "فضلها: تعدل ثلث القرآن في الأجر، ومن قرأها ثلاث مرات في الصباح والمساء كفته من كل شيء.",
         source: "رواه الترمذي وصححه الألباني", hadith_number: "2903"
       },
-      { text: "سُورَةُ الْفَلَقِ:\nبِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nقُلْ أَعُوذُ بِرَبِّ الْفَلَقِ (1)\nمِن شَرِّ مَا خَلَقَ (2)\nوَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ (3)\nوَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ (4)\nوَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ (5)",
+      { text: "سُورَةُ الْفَلَقِ:\nBISMILLAHIRRAHMANIRRAHIM\nQUL A'OODHU BIRABBI AL-FALAQ (1)\nMIN SHARRI MA KHALAQ (2)\nWA MIN SHARRI GHASIQIN IZA WAQAB (3)\nWA MIN SHARRI AN-NAFATHATI FI AL-'UQAD (4)\nWA MIN SHARRI HASIDIN IZA HASAD (5)",
         repeat: 3,
         meaning: "يطلب المسلم من الله تعالى الحماية من كل المخلوقات الشريرة، ومن شر الليل إذا أقبل بظلامه، ومن شر السحر والسحرة، ومن شر الحاسدين.",
         virtue: "فضلها: حرز للمسلم وحصن له من كل شرور الدنيا، وقد أوصى بها النبي صلى الله عليه وسلم.",
@@ -353,32 +672,6 @@ azkarData = {
           source: "رواه البخاري", hadith_number: "5017"
         },
     ],
-    "wakeUp": [
-        { text: "أذكار الاستيقاظ\n\nالْحَمْدُ لِلَّهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا وَإِلَيْهِ النُّشُورُ.",
-          repeat: 1,
-          meaning: "أحمد الله الذي أعاد إلينا الحياة بعد الموت الصغير (النوم)، وإليه وحده المرجع بعد الموت الأكبر يوم القيامة للحساب.",
-          virtue: "شكر لله على نعمة اليقظة وإعادة الروح، وتذكر البعث والنشور.",
-          source: "رواه البخاري", hadith_number: "6312"
-        },
-        { text: "أذكار الاستيقاظ\n\nلَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ. سُبْحَانَ اللَّهِ، وَالْحَمْدُ لِلَّهِ، وَلَا إِلَهَ إِلَّا اللَّهُ، وَاللَّهُ أَكْبَرُ، وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ.",
-          repeat: 1,
-          meaning: "إقرار بتوحيد الله، وأنه لا معبود بحق سواه، المتفرد بالملك والحمد، ذو القدرة المطلقة. وتسبيح له، وحمد، وإقرار بأنه لا قوة ولا حول إلا به سبحانه.",
-          virtue: "فضله: من قالها ثم دعا استجيب له، وإن توضأ وصلى قبلت صلاته.",
-          source: "رواه البخاري", hadith_number: "1154"
-        },
-        { text: "أذكار الاستيقاظ\n\nأَصْبَحْنَا عَلَى فِطْرَةِ الْإِسْلَامِ وَكَلِمَةِ الْإِخْلَاصِ وَعَلَى دِينِ نَبِيِّنَا مُحَمَّدٍ صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ وَعَلَى مِلَّةِ أَبِينَا إِبْرَاهِيمَ حَنِيفًا مُسْلِمًا وَمَا كَانَ مِنَ الْمُشْرِكِينَ.",
-          repeat: 1,
-          meaning: "نستقبل صباحنا على فطرة الإسلام النقية، وعلى كلمة التوحيد الخالص، وعلى دين نبينا محمد صلى الله عليه وسلم، وعلى ملة أبينا إبراهيم عليه السلام الذي كان حنيفًا مسلمًا، متبرئين من الشرك وأهله.",
-          virtue: "تأكيد على الثبات على الإسلام والتوحيد والسنة، واعتزاز بالدين في بداية اليوم.",
-          source: "رواه أحمد", hadith_number: "15360"
-        },
-        { text: "أذكار الاستيقاظ\n\nاللَّهُمَّ إِنِّي أَسْأَلُكَ خَيْرَ هَذَا الْيَوْمِ فَتْحَهُ وَنَصْرَهُ وَنُورَهُ وَبَرَكَتَهُ وَهُدَاهُ، وَأَعُوذُ بِكَ مِنْ شَرِّ مَا فِيهِ وَشَرِّ مَا بَعْدَهُ.",
-          repeat: 1,
-          meaning: "اللهم إني أطلب منك خير هذا اليوم، من تيسير أموري فيه وفتح أبواب الخير، والنصر على كل سوء، والنور الذي يهدي إلى الحق، والبركة في كل ما أفعله، والهداية إلى الصراط المستقيم. وأستعيذ بك من كل شر قد يحدث فيه أو يأتي بعده.",
-          virtue: "دعاء شامل لطلب الخير في اليوم كله والحماية من شروره.",
-          source: "رواه أبو داود", hadith_number: "5084"
-        }
-    ],
     "prayer": [
         { text: "أذكار بعد الصلوات\n\nأَسْتَغْفِرُ اللَّهَ.",
           repeat: 3,
@@ -456,6 +749,116 @@ azkarData = {
 
 
 // --- Helper Functions ---
+function getTranslation(key) {
+    return translations[currentLanguage][key] || key; // Fallback to key if translation not found
+}
+
+function setLanguage(lang) {
+    currentLanguage = lang;
+    localStorage.setItem('currentLanguage', lang);
+    applyTranslations();
+    // Re-render current active tab content to apply new language strings
+    const activeTabId = document.querySelector('.main-content-tab.active').id;
+    openTab(activeTabId, false); // Pass false to avoid re-activating horizontal tab
+}
+
+function applyTranslations() {
+    // Update app title
+    appTitle.textContent = getTranslation('appTitle');
+
+    // Update sidebar links
+    document.querySelector('.sidenav a[onclick*="mainContentTab-main"]').textContent = getTranslation('home');
+    document.querySelector('.sidenav a[onclick*="mainContentTab-settings"]').textContent = getTranslation('settings');
+    document.querySelector('.sidenav a[onclick*="mainContentTab-stats"]').textContent = getTranslation('stats');
+    document.querySelector('.sidenav a[onclick*="mainContentTab-contactUs"]').textContent = getTranslation('contactUs');
+    document.querySelector('.sidenav a[onclick*="mainContentTab-about"]').textContent = getTranslation('about');
+
+    // Update horizontal tab buttons
+    document.querySelector('.main-horizontal-tabs button[onclick*="mainContentTab-main"]').textContent = getTranslation('home');
+    document.querySelector('.main-horizontal-tabs button[onclick*="mainContentTab-settings"]').textContent = getTranslation('settings');
+    document.querySelector('.main-horizontal-tabs button[onclick*="mainContentTab-stats"]').textContent = getTranslation('stats');
+    document.querySelector('.main-horizontal-tabs button[onclick*="mainContentTab-contactUs"]').textContent = getTranslation('contactUs');
+    document.querySelector('.main-horizontal-tabs button[onclick*="mainContentTab-about"]').textContent = getTranslation('about');
+
+    // Update settings tab labels and buttons
+    const settingsTabElement = document.getElementById('mainContentTab-settings');
+    if (settingsTabElement) { // Check if settings tab is rendered
+        settingsTabElement.querySelector('h2').textContent = getTranslation('settings');
+        settingsTabElement.querySelector('label[for="darkModeToggle"]').textContent = getTranslation('darkMode');
+        settingsTabElement.querySelector('label[for="themeSelector"]').textContent = getTranslation('theme');
+        settingsTabElement.querySelector('#themeSelector option[value="default"]').textContent = getTranslation('defaultTheme');
+        settingsTabElement.querySelector('#themeSelector option[value="blue"]').textContent = getTranslation('blueTheme');
+        settingsTabElement.querySelector('#themeSelector option[value="brown"]').textContent = getTranslation('brownTheme');
+        settingsTabElement.querySelector('label[for="fontSelector"]').textContent = getTranslation('font');
+        settingsTabElement.querySelector('label[for="fontSizeRange"]').textContent = `${getTranslation('fontSize')} ${fontSize.toFixed(1)}em`;
+        settingsTabElement.querySelector('label[for="autoSkipToggle"]').textContent = getTranslation('autoSkip');
+        settingsTabElement.querySelector('label[for="notificationToggle"]').textContent = getTranslation('enableNotifications');
+        settingsTabElement.querySelector('label[for="customAzkarReminderToggle"]').textContent = getTranslation('customAzkarReminder');
+        document.getElementById('resetButton').innerHTML = `<i class="fas fa-redo"></i> ${getTranslation('resetApp')}`;
+        document.getElementById('installAppBtn').innerHTML = `<i class="fas fa-download"></i> ${getTranslation('installApp')}`;
+    }
+
+    // Update About tab content
+    if (document.getElementById('mainContentTab-about') && document.getElementById('mainContentTab-about').classList.contains('active')) {
+        renderAboutPage(); // Re-render to apply translations
+    }
+
+    // Update Contact Us tab content
+    if (document.getElementById('mainContentTab-contactUs') && document.getElementById('mainContentTab-contactUs').classList.contains('active')) {
+        renderContactUsPage(); // Re-render to apply translations
+    }
+
+    // Update Footer
+    document.querySelector('.footer p:first-child').textContent = `© 2024 ${getTranslation('appTitle')}. ${getTranslation('allRightsReserved')}.`;
+    document.querySelector('.footer p:last-child').textContent = getTranslation('designedWithLove');
+
+    // Update Azkar page elements if active
+    if (document.getElementById('azkarDisplay')) {
+        document.getElementById('prevAzkarBtn').innerHTML = `<i class="fas fa-arrow-right"></i> ${getTranslation('prevAzkar')}`;
+        document.getElementById('shareAzkarBtn').innerHTML = `<i class="fas fa-share-alt"></i> ${getTranslation('shareAzkar')}`;
+        document.getElementById('skipAzkarBtn').innerHTML = `${getTranslation('skip')} <i class="fas fa-forward"></i>`;
+        document.getElementById('nextAzkarBtn').innerHTML = `${getTranslation('nextAzkar')} <i class="fas fa-arrow-left"></i>`;
+        renderAzkar(); // Re-render current azkar to update counter text
+    }
+
+    // Update Custom Azkar page elements if active
+    const customAzkarListElement = document.getElementById('customAzkarList');
+    if (customAzkarListElement) {
+        // Only update if the custom azkar page is currently rendered
+        const mainContentTabMain = document.getElementById('mainContentTab-main');
+        if (mainContentTabMain && mainContentTabMain.contains(customAzkarListElement)) {
+            mainContentTabMain.querySelector('h2').textContent = getTranslation('manageCustomAzkar');
+            document.getElementById('addCustomAzkarBtn').innerHTML = `<i class="fas fa-plus"></i> ${getTranslation('addCustomAzkar')}`;
+            document.getElementById('startCustomAzkarSessionBtn').textContent = getTranslation('startCustomSession');
+            renderCustomAzkarList(); // Re-render list to update text
+        }
+    }
+    // Update modal buttons if modal is open
+    if (appModal.classList.contains('show')) {
+        // Re-render modal buttons based on current modal state (e.g., confirm, alert, custom azkar add/edit)
+        // This is a bit complex as it depends on which modal was open.
+        // For simplicity, we'll just re-set the common buttons.
+        const confirmBtn = document.getElementById('modalConfirmBtn');
+        const cancelBtn = document.getElementById('cancelCustomAzkarBtn') || document.querySelector('#appModal .button[onclick="closeModal()"]');
+        const saveBtn = document.getElementById('saveCustomAzkarBtn');
+        const copyBtn = document.getElementById('copyShareBtn');
+        const shareBtn = document.getElementById('nativeShareBtn');
+
+        if (confirmBtn) confirmBtn.textContent = getTranslation('confirm');
+        if (cancelBtn) cancelBtn.textContent = getTranslation('cancel');
+        if (saveBtn) saveBtn.textContent = getTranslation('save');
+        if (copyBtn) copyBtn.innerHTML = `<i class="fas fa-copy"></i> ${getTranslation('copy')}`;
+        if (shareBtn) shareBtn.innerHTML = `<i class="fas fa-share-alt"></i> ${getTranslation('share')}`;
+        
+        // Update azkar text input placeholder if custom azkar modal is open
+        if (document.getElementById('azkarTextInput')) {
+            document.getElementById('azkarTextInput').placeholder = getTranslation('azkarTextPlaceholder');
+            document.getElementById('azkarRepeatInput').placeholder = getTranslation('repeatCountPlaceholder');
+        }
+    }
+}
+
+
 function saveSettings() {
     localStorage.setItem('darkMode', isDarkMode);
     localStorage.setItem('selectedTheme', selectedTheme);
@@ -464,6 +867,7 @@ function saveSettings() {
     localStorage.setItem('autoSkip', autoSkip);
     localStorage.setItem('notificationEnabled', notificationEnabled);
     localStorage.setItem('customAzkarReminder', customAzkarReminder);
+    localStorage.setItem('currentLanguage', currentLanguage); // Save language setting
     applySettings();
 }
 
@@ -487,6 +891,9 @@ function applySettings() {
     if (autoSkipToggle) autoSkipToggle.checked = autoSkip;
     if (notificationToggle) notificationToggle.checked = notificationEnabled;
     if (customAzkarReminderToggle) customAzkarReminderToggle.checked = customAzkarReminder;
+    if (languageSelector) languageSelector.value = currentLanguage; // Set language selector value
+
+    applyTranslations(); // Apply translations after settings are applied
 }
 
 // --- Notifications ---
@@ -495,16 +902,17 @@ function requestNotificationPermission() {
         Notification.requestPermission().then(permission => {
             if (permission === 'granted') {
                 console.log('Notification permission granted.');
-                sendNotification('تطبيق الأذكار', 'تم تفعيل الإشعارات بنجاح!');
+                sendNotification(getTranslation('appTitle'), getTranslation('notificationsEnabled'));
             } else {
                 console.warn('Notification permission denied or dismissed.');
                 notificationEnabled = false; // Disable if not granted
                 if (notificationToggle) notificationToggle.checked = false;
                 saveSettings(); // Save updated setting
+                showAlertModal(getTranslation('notificationsDenied'));
             }
         });
     } else {
-        showAlertModal('المتصفح لا يدعم الإشعارات.');
+        showAlertModal(getTranslation('browserNoNotifications'));
         notificationEnabled = false;
         if (notificationToggle) notificationToggle.checked = false;
         saveSettings();
@@ -520,39 +928,27 @@ function sendNotification(title, body) {
 function scheduleDailyNotification(hour, minute, title, body, notificationId) {
     if (!notificationEnabled || !('Notification' in window) || Notification.permission !== 'granted') return;
 
-    // Clear existing notification for this ID to avoid duplicates
-    // (This part is tricky with standard Notifications API, often requires background sync or more advanced APIs)
-    // For simplicity, we'll just schedule and let new ones overwrite.
-
     const now = new Date();
     let notificationTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour, minute, 0, 0);
 
-    // If the scheduled time is in the past today, schedule for tomorrow
     if (notificationTime.getTime() < now.getTime()) {
         notificationTime.setDate(notificationTime.getDate() + 1);
     }
 
     const delay = notificationTime.getTime() - now.getTime();
 
-    // Use setTimeout for simple scheduling. For persistent notifications,
-    // Service Worker's Periodic Background Sync or Web Push is needed.
     setTimeout(() => {
         sendNotification(title, body);
-        // Reschedule for the next day
         scheduleDailyNotification(hour, minute, title, body, notificationId);
     }, delay);
 }
 
 function initializeNotifications() {
-    // Example: Morning Azkar reminder at 7:00 AM
-    scheduleDailyNotification(7, 0, 'تذكير أذكار الصباح', 'لا تنس أذكار الصباح!', 'morningAzkar');
-    // Example: Evening Azkar reminder at 6:00 PM
-    scheduleDailyNotification(18, 0, 'تذكير أذكار المساء', 'حان وقت أذكار المساء!', 'eveningAzkar');
+    scheduleDailyNotification(7, 0, getTranslation('appTitle'), getTranslation('morningAzkar'), 'morningAzkar');
+    scheduleDailyNotification(18, 0, getTranslation('appTitle'), getTranslation('eveningAzkar'), 'eveningAzkar');
 
-    // Custom Azkar reminder (simplified, for advanced scheduling, use Service Worker background sync)
     if (customAzkarReminder && customAzkar.length > 0) {
-        // Schedule a generic reminder for custom azkar, e.g., at 9:00 PM
-        scheduleDailyNotification(21, 0, 'تذكير أذكارك الخاصة', 'راجع أذكارك المخصصة!', 'customAzkar');
+        scheduleDailyNotification(21, 0, getTranslation('appTitle'), getTranslation('customAzkarReminder'), 'customAzkar');
     }
 }
 
@@ -570,20 +966,17 @@ function showInstallPrompt() {
             deferredPrompt = null;
         });
     } else {
-        showAlertModal('لا يمكن عرض نافذة التثبيت في الوقت الحالي. ربما تم تثبيت التطبيق بالفعل، أو أن المتصفح لا يدعم هذه الميزة.');
+        showAlertModal(getTranslation('pwaInstallPromptFailed'));
     }
 }
 
 window.addEventListener('beforeinstallprompt', (e) => {
-    // Prevent the mini-infobar from appearing on mobile
     e.preventDefault();
-    // Stash the event so it can be triggered later.
     deferredPrompt = e;
     console.log(`'beforeinstallprompt' event was fired.`);
-    // You could show a custom install button here if you want
     const installAppBtn = document.getElementById('installAppBtn');
     if (installAppBtn) {
-        installAppBtn.style.display = 'block'; // Show install button
+        installAppBtn.style.display = 'block';
         installAppBtn.onclick = showInstallPrompt;
     }
 });
@@ -592,7 +985,7 @@ window.addEventListener('appinstalled', () => {
     console.log('PWA was installed');
     const installAppBtn = document.getElementById('installAppBtn');
     if (installAppBtn) {
-        installAppBtn.style.display = 'none'; // Hide install button after install
+        installAppBtn.style.display = 'none';
     }
 });
 
@@ -602,26 +995,46 @@ window.addEventListener('appinstalled', () => {
 function loadAzkar(category) {
     currentCategory = category;
     currentAzkarIndex = 0;
-    // Check if the category exists and has azkar, otherwise fall back to 'general' or display empty
     const selectedAzkarList = azkarData[currentCategory] || [];
     if (selectedAzkarList.length === 0 && currentCategory !== 'custom') {
         console.warn(`Category "${category}" has no azkar. Falling back to general.`);
-        currentCategory = 'general'; // Fallback
+        currentCategory = 'general';
         currentAzkarIndex = 0;
         currentRepeatCount = 0;
-        return; // Exit to re-evaluate with general azkar
+        return;
     }
     currentRepeatCount = 0;
     renderAzkar();
 }
 
 function renderAzkar() {
+    const mainContentTabMain = document.getElementById('mainContentTab-main');
+    mainContentTabMain.innerHTML = `
+        <div id="progressContainer" class="progress-container">
+            <div id="progressBarFill" class="progress-bar-fill"></div>
+            <span id="progressText" class="progress-text"></span>
+        </div>
+        <div class="azkar-container">
+            <div id="azkarDisplay" class="azkar"></div>
+            <button id="azkarInfoButton" class="info-button" aria-label="${getTranslation('infoTitle')}"><i class="fas fa-info-circle"></i></button>
+            <button id="focusModeBtn" class="focus-button" aria-label="${getTranslation('focusModeOn')}"><i class="fas fa-arrows-alt"></i></button>
+        </div>
+        <div id="azkarCount" class="count"></div>
+        <button id="counterButton" class="counter-btn"></button>
+        <div class="azkar-navigation">
+            <button id="prevAzkarBtn" class="button" style="background:var(--button-bg-prev);"><i class="fas fa-arrow-right"></i> ${getTranslation('prevAzkar')}</button>
+            <button id="shareAzkarBtn" class="button" style="background:var(--button-bg-share);"><i class="fas fa-share-alt"></i> ${getTranslation('shareAzkar')}</button>
+            <button id="skipAzkarBtn" class="button" style="background:var(--button-bg-skip);">${getTranslation('skip')} <i class="fas fa-forward"></i></button>
+            <button id="nextAzkarBtn" class="button" style="background:var(--button-bg-main);">${getTranslation('nextAzkar')} <i class="fas fa-arrow-left"></i></button>
+        </div>
+    `;
+
     const azkarDisplay = document.getElementById('azkarDisplay');
     const azkarCount = document.getElementById('azkarCount');
     const counterButton = document.getElementById('counterButton');
 
     if (!azkarDisplay || !azkarCount || !counterButton) {
-        console.error("DOM elements for azkar display are not found.");
+        console.error("DOM elements for azkar display are not found after rendering azkar page.");
         return;
     }
 
@@ -633,7 +1046,7 @@ function renderAzkar() {
     }
 
     if (!azkarList || azkarList.length === 0) {
-        azkarDisplay.innerHTML = '<p>لا يوجد أذكار لعرضها في هذه الفئة.</p>';
+        azkarDisplay.innerHTML = `<p>${getTranslation('noAzkar')}</p>`;
         azkarCount.textContent = '';
         counterButton.style.display = 'none';
         return;
@@ -642,50 +1055,57 @@ function renderAzkar() {
     }
 
     if (currentAzkarIndex >= azkarList.length) {
-        azkarDisplay.innerHTML = '<p>انتهت أذكار هذه الفئة! يمكنك البدء من جديد أو اختيار فئة أخرى.</p>';
+        azkarDisplay.innerHTML = `<p>${getTranslation('azkarEnded')}</p>`;
         azkarCount.textContent = '';
         counterButton.style.display = 'none';
-        currentAzkarIndex = 0; // Reset for next session
+        currentAzkarIndex = 0;
         return;
     }
 
     const azkar = azkarList[currentAzkarIndex];
     const initialRepeat = azkar.repeat;
 
-    // Reset repeat count if starting a new azkar or if it's auto-skipped
     if (currentRepeatCount === 0 || counterButton.dataset.prevAzkarId !== `${currentCategory}-${currentAzkarIndex}`) {
         currentRepeatCount = initialRepeat;
     }
     counterButton.dataset.prevAzkarId = `${currentCategory}-${currentAzkarIndex}`;
 
-    // Apply fade-out animation first, then change content and fade-in
     azkarDisplay.classList.add('fade-out-element');
     setTimeout(() => {
         azkarDisplay.innerHTML = azkar.text;
-        azkarCount.textContent = `العداد: ${currentRepeatCount} / ${initialRepeat}`;
-        counterButton.textContent = `اضغط هنا (${currentRepeatCount})`;
+        azkarCount.textContent = `${getTranslation('counter')} ${currentRepeatCount} / ${initialRepeat}`;
+        counterButton.textContent = `${getTranslation('tapHere')} (${currentRepeatCount})`;
         azkarDisplay.classList.remove('fade-out-element');
         azkarDisplay.classList.add('fade-in-element');
-        // Remove fade-in class after animation to allow re-triggering
         azkarDisplay.addEventListener('animationend', () => {
             azkarDisplay.classList.remove('fade-in-element');
         }, { once: true });
-    }, 300); // Duration of fade-out animation
+    }, 300);
+
+    // Attach event listeners after content is loaded
+    document.getElementById('azkarInfoButton').onclick = showAzkarInfo;
+    document.getElementById('focusModeBtn').onclick = toggleFocusMode;
+    document.getElementById('counterButton').onclick = updateCounter;
+    document.getElementById('prevAzkarBtn').onclick = prevAzkar;
+    document.getElementById('shareAzkarBtn').onclick = showShareModal;
+    document.getElementById('skipAzkarBtn').onclick = skipAzkar;
+    document.getElementById('nextAzkarBtn').onclick = nextAzkar;
+
+    updateProgressBar();
 }
 
 
 function updateCounter() {
     const azkarList = (currentCategory === 'custom') ? customAzkar : azkarData[currentCategory];
     if (!azkarList || azkarList.length === 0 || currentAzkarIndex >= azkarList.length) {
-        return; // No azkar to count
+        return;
     }
 
     const azkar = azkarList[currentAzkarIndex];
     currentRepeatCount--;
-    document.getElementById('azkarCount').textContent = `العداد: ${currentRepeatCount} / ${azkar.repeat}`;
-    document.getElementById('counterButton').textContent = `اضغط هنا (${currentRepeatCount})`;
+    document.getElementById('azkarCount').textContent = `${getTranslation('counter')} ${currentRepeatCount} / ${azkar.repeat}`;
+    document.getElementById('counterButton').textContent = `${getTranslation('tapHere')} (${currentRepeatCount})`;
 
-    // Add flash effect
     const counterButton = document.getElementById('counterButton');
     counterButton.classList.add('flash');
     setTimeout(() => {
@@ -702,7 +1122,7 @@ function updateCounter() {
 
 function nextAzkar() {
     currentAzkarIndex++;
-    currentRepeatCount = 0; // Reset count for the next azkar
+    currentRepeatCount = 0;
     renderAzkar();
     updateProgressBar();
 }
@@ -710,14 +1130,14 @@ function nextAzkar() {
 function prevAzkar() {
     if (currentAzkarIndex > 0) {
         currentAzkarIndex--;
-        currentRepeatCount = 0; // Reset count for the previous azkar
+        currentRepeatCount = 0;
         renderAzkar();
         updateProgressBar();
     }
 }
 
 function skipAzkar() {
-    nextAzkar(); // Simply move to the next azkar
+    nextAzkar();
 }
 
 function updateProgressBar() {
@@ -745,71 +1165,80 @@ function updateProgressBar() {
 
 // --- Navigation and Page Rendering ---
 
-// Global function to toggle sidebar (accessible from index.html onclick)
 function toggleNav() {
     sidebar.classList.toggle('open');
 }
 
-// Global function to close sidebar (accessible from index.html onclick, or via direct call)
 function closeNav() {
     sidebar.classList.remove('open');
 }
 
-// Global function to open tabs (accessible from index.html onclick)
-function openTab(tabName) {
-    const tabs = document.querySelectorAll('.tab-content');
-    tabs.forEach(tab => {
+function openTab(tabId, updateHorizontalTabs = true) {
+    // Hide all main content tabs
+    document.querySelectorAll('.main-content-tab').forEach(tab => {
         tab.classList.remove('active');
     });
 
-    const targetTab = document.getElementById(tabName);
+    // Show the selected tab
+    const targetTab = document.getElementById(tabId);
     if (targetTab) {
         targetTab.classList.add('active');
     } else {
-        console.error(`Element with ID '${tabName}' not found in main HTML structure.`);
-        // Fallback to mainTab if the requested tab is not found
-        document.getElementById('mainTab').classList.add('active');
-        appTitle.textContent = 'تطبيق الأذكار';
-        renderMainPage();
-        closeNav();
-        return;
+        console.error(`Element with ID '${tabId}' not found.`);
+        // Fallback to main tab if not found
+        document.getElementById('mainContentTab-main').classList.add('active');
+        tabId = 'mainContentTab-main'; // Set fallback tabId
     }
 
-    // Update title based on tab and render content
-    if (tabName === 'mainTab') {
-        appTitle.textContent = 'تطبيق الأذكار';
-        renderMainPage(); // Render the category selection grid
-    } else if (tabName === 'settingsTab') {
-        appTitle.textContent = 'الإعدادات';
-        applySettings(); // Apply settings when settings tab is opened
-    } else if (tabName === 'statsTab') { // New Stats Tab
-        appTitle.textContent = 'إحصاءاتي';
-        renderStatsPage();
-    } else if (tabName === 'contactUsTab') { // New Contact Us Tab
-        appTitle.textContent = 'تواصل معنا';
-        renderContactUsPage();
-    } else if (tabName === 'aboutTab') {
-        appTitle.textContent = 'عن التطبيق';
+    // Update app title based on tab
+    const tabTitles = {
+        'mainContentTab-main': getTranslation('appTitle'),
+        'mainContentTab-settings': getTranslation('settings'),
+        'mainContentTab-stats': getTranslation('stats'),
+        'mainContentTab-contactUs': getTranslation('contactUs'),
+        'mainContentTab-about': getTranslation('about')
+    };
+    appTitle.textContent = tabTitles[tabId] || getTranslation('appTitle');
+
+    // Update horizontal tab active state
+    if (updateHorizontalTabs) {
+        document.querySelectorAll('.main-horizontal-tabs .tab-button').forEach(button => {
+            button.classList.remove('active');
+        });
+        const activeHorizontalButton = document.querySelector(`.main-horizontal-tabs .tab-button[onclick*="${tabId}"]`);
+        if (activeHorizontalButton) {
+            activeHorizontalButton.classList.add('active');
+        }
     }
-    
+
     // Highlight active link in sidebar
-    const sidebarLinks = document.querySelectorAll('.sidenav a');
-    sidebarLinks.forEach(link => {
+    document.querySelectorAll('.sidenav a').forEach(link => {
         link.classList.remove('active-azkar-link');
-        if (link.onclick && link.onclick.toString().includes(`openTab('${tabName}')`)) {
+        if (link.onclick && link.onclick.toString().includes(`openTab('${tabId}')`)) {
             link.classList.add('active-azkar-link');
         }
     });
 
-    closeNav();
+    // Render specific content for each tab
+    if (tabId === 'mainContentTab-main') {
+        renderMainPage();
+    } else if (tabId === 'mainContentTab-settings') {
+        applySettings(); // Re-apply settings to ensure UI matches state
+    } else if (tabId === 'mainContentTab-stats') {
+        renderStatsPage();
+    } else if (tabId === 'mainContentTab-contactUs') {
+        renderContactUsPage();
+    } else if (tabId === 'mainContentTab-about') {
+        renderAboutPage();
+    }
+
+    closeNav(); // Close sidebar after tab selection
 }
 
-// Global function to reset app (accessible from index.html onclick)
 function resetApp() {
-    showConfirmModal("إعادة تعيين التطبيق وتحديثه", "هل أنت متأكد أنك تريد إعادة تعيين التطبيق؟ سيتم حذف جميع أذكارك المخصصة وإعادة تعيين الإعدادات، ثم سيتم تحديث التطبيق إلى أحدث إصدار.", () => {
+    showConfirmModal(getTranslation('resetConfirmTitle'), getTranslation('resetConfirmMessage'), () => {
         localStorage.clear();
-        customAzkar = []; // Clear in memory
-        // Reset settings to default values
+        customAzkar = [];
         isDarkMode = false;
         selectedTheme = 'default';
         selectedFont = 'Amiri';
@@ -817,22 +1246,21 @@ function resetApp() {
         autoSkip = false;
         notificationEnabled = false;
         customAzkarReminder = false;
-        saveSettings(); // Save defaults
-        showAlertModal("تم إعادة تعيين التطبيق بنجاح. سيتم إعادة تحميل الصفحة الآن لتطبيق التحديثات.");
+        currentLanguage = 'ar'; // Reset language to default
+        saveSettings();
+        showAlertModal(getTranslation('resetSuccess'));
         
-        // Force a hard reload to ensure the service worker checks for updates
-        // This will effectively make it a "reset and update" button.
         setTimeout(() => {
             location.reload(true); 
-        }, 1500); // Give a short delay for the user to read the message
+        }, 1500);
     });
 }
 
 // --- Custom Modal Functions (Replaces alert/confirm) ---
 function showAlertModal(message) {
-    modalHeaderText.textContent = 'تنبيه';
+    modalHeaderText.textContent = getTranslation('alert');
     modalBody.innerHTML = `<p>${message}</p>`;
-    modalButtons.innerHTML = `<button class="button" onclick="closeModal()">إغلاق</button>`;
+    modalButtons.innerHTML = `<button class="button" onclick="closeModal()">${getTranslation('close')}</button>`;
     appModal.classList.add('show');
 }
 
@@ -840,12 +1268,11 @@ function showConfirmModal(title, message, onConfirmCallback) {
     modalHeaderText.textContent = title;
     modalBody.innerHTML = `<p>${message}</p>`;
     modalButtons.innerHTML = `
-        <button class="button" id="modalConfirmBtn">تأكيد</button>
-        <button class="button" onclick="closeModal()">إلغاء</button>
+        <button class="button" id="modalConfirmBtn">${getTranslation('confirm')}</button>
+        <button class="button" onclick="closeModal()">${getTranslation('cancel')}</button>
     `;
     document.getElementById('modalConfirmBtn').onclick = () => {
         onConfirmCallback();
-        // closeModal(); // Don't close immediately if reload is happening
     };
     appModal.classList.add('show');
 }
@@ -857,102 +1284,55 @@ function closeModal() {
 
 // This function will render the content of the main Azkar categories page
 function renderMainPage() {
-    mainTab.innerHTML = `
+    const mainContentTabMain = document.getElementById('mainContentTab-main');
+    mainContentTabMain.innerHTML = `
         <div id="progressContainer" class="progress-container fade-in-element">
           <div id="progressBarFill" class="progress-bar-fill"></div>
           <span id="progressText" class="progress-text"></span>
         </div>
         <div class="category-grid fade-in-element">
-            <button id="morningAzkarBtn" class="category-btn">أذكار الصباح</button>
-            <button id="eveningAzkarBtn" class="category-btn">أذكار المساء</button>
-            <button id="sleepAzkarBtn" class="category-btn">أذكار النوم</button>
-            <button id="wakeUpAzkarBtn" class="category-btn">أذكار الاستيقاظ</button>
-            <button id="prayerAzkarBtn" class="category-btn">أذكار الصلاة</button>
-            <button id="fortressBookBtn" class="category-btn">حصن المسلم</button>
-            <button id="generalAzkarBtn" class="category-btn">أذكار متنوعة</button>
-            <button id="dailyDuaaBtn" class="category-btn">أدعية يومية</button>
-            <button id="dailyQuranBtn" class="category-btn">آيات من القرآن</button>
-            <button id="customAzkarPageBtn" class="category-btn">أذكاري الخاصة</button>
+            <button id="morningAzkarBtn" class="category-btn"><i class="fas fa-sun"></i> ${getTranslation('morningAzkar')}</button>
+            <button id="eveningAzkarBtn" class="category-btn"><i class="fas fa-moon"></i> ${getTranslation('eveningAzkar')}</button>
+            <button id="sleepAzkarBtn" class="category-btn"><i class="fas fa-bed"></i> ${getTranslation('sleepAzkar')}</button>
+            <button id="wakeUpAzkarBtn" class="category-btn"><i class="fas fa-sunrise"></i> ${getTranslation('wakeUpAzkar')}</button>
+            <button id="prayerAzkarBtn" class="category-btn"><i class="fas fa-pray"></i> ${getTranslation('prayerAzkar')}</button>
+            <button id="fortressBookBtn" class="category-btn"><i class="fas fa-book"></i> ${getTranslation('fortressBook')}</button>
+            <button id="generalAzkarBtn" class="category-btn"><i class="fas fa-random"></i> ${getTranslation('generalAzkar')}</button>
+            <button id="dailyDuaaBtn" class="category-btn"><i class="fas fa-hands-praying"></i> ${getTranslation('dailyDuaa')}</button>
+            <button id="dailyQuranBtn" class="category-btn"><i class="fas fa-quran"></i> ${getTranslation('dailyQuran')}</button>
+            <button id="customAzkarPageBtn" class="category-btn"><i class="fas fa-list-alt"></i> ${getTranslation('customAzkar')}</button>
         </div>
     `;
     // Attach event listeners after content is loaded
-    // These now directly call render functions for sub-views within mainTab
-    document.getElementById('morningAzkarBtn').onclick = () => { loadAzkar('morning'); renderAzkarPage(); };
-    document.getElementById('eveningAzkarBtn').onclick = () => { loadAzkar('evening'); renderAzkarPage(); };
-    document.getElementById('sleepAzkarBtn').onclick = () => { loadAzkar('sleep'); renderAzkarPage(); };
-    document.getElementById('wakeUpAzkarBtn').onclick = () => { loadAzkar('wakeUp'); renderAzkarPage(); };
-    document.getElementById('prayerAzkarBtn').onclick = () => { loadAzkar('prayer'); renderAzkarPage(); };
-    document.getElementById('fortressBookBtn').onclick = () => { loadAzkar('fortressBook'); renderAzkarPage(); };
-    document.getElementById('generalAzkarBtn').onclick = () => { loadAzkar('general'); renderAzkarPage(); };
-    document.getElementById('dailyDuaaBtn').onclick = () => { loadAzkar('dailyDuaa'); renderAzkarPage(); };
-    document.getElementById('dailyQuranBtn').onclick = () => { loadAzkar('dailyQuran'); renderAzkarPage(); };
-    document.getElementById('customAzkarPageBtn').onclick = () => renderCustomAzkarPage(); // This will render into mainTab
+    document.getElementById('morningAzkarBtn').onclick = () => { loadAzkar('morning'); renderAzkar(); };
+    document.getElementById('eveningAzkarBtn').onclick = () => { loadAzkar('evening'); renderAzkar(); };
+    document.getElementById('sleepAzkarBtn').onclick = () => { loadAzkar('sleep'); renderAzkar(); };
+    document.getElementById('wakeUpAzkarBtn').onclick = () => { loadAzkar('wakeUp'); renderAzkar(); };
+    document.getElementById('prayerAzkarBtn').onclick = () => { loadAzkar('prayer'); renderAzkar(); };
+    document.getElementById('fortressBookBtn').onclick = () => { loadAzkar('fortressBook'); renderAzkar(); };
+    document.getElementById('generalAzkarBtn').onclick = () => { loadAzkar('general'); renderAzkar(); };
+    document.getElementById('dailyDuaaBtn').onclick = () => { loadAzkar('dailyDuaa'); renderAzkar(); };
+    document.getElementById('dailyQuranBtn').onclick = () => { loadAzkar('dailyQuran'); renderAzkar(); };
+    document.getElementById('customAzkarPageBtn').onclick = () => renderCustomAzkarPage();
 
     updateProgressBar();
-    closeNav();
-}
-
-// This function will render the current azkar display page
-function renderAzkarPage() {
-    mainTab.innerHTML = `
-        <div id="progressContainer" class="progress-container">
-            <div id="progressBarFill" class="progress-bar-fill"></div>
-            <span id="progressText" class="progress-text"></span>
-        </div>
-        <div class="azkar-container">
-            <div id="azkarDisplay" class="azkar"></div>
-            <button id="azkarInfoButton" class="info-button" aria-label="عرض معلومات الذكر"><i class="fas fa-info-circle"></i></button>
-            <button id="focusModeBtn" class="focus-button" aria-label="تفعيل وضع التركيز"><i class="fas fa-arrows-alt"></i></button>
-        </div>
-        <div id="azkarCount" class="count"></div>
-        <button id="counterButton" class="counter-btn"></button>
-        <div class="azkar-navigation">
-            <button id="prevAzkarBtn" class="button" style="background:var(--button-bg-prev);"><i class="fas fa-arrow-right"></i> الذكر السابق</button>
-            <button id="shareAzkarBtn" class="button" style="background:var(--button-bg-share);"><i class="fas fa-share-alt"></i> مشاركة الذكر</button>
-            <button id="skipAzkarBtn" class="button" style="background:var(--button-bg-skip);">تخطي <i class="fas fa-forward"></i></button>
-            <button id="nextAzkarBtn" class="button" style="background:var(--button-bg-main);">الذكر التالي <i class="fas fa-arrow-left"></i></button>
-        </div>
-    `;
-    // Attach event listeners after content is loaded
-    document.getElementById('azkarInfoButton').onclick = showAzkarInfo;
-    document.getElementById('focusModeBtn').onclick = toggleFocusMode;
-    document.getElementById('counterButton').onclick = updateCounter;
-    document.getElementById('prevAzkarBtn').onclick = prevAzkar;
-    document.getElementById('shareAzkarBtn').onclick = showShareModal;
-    document.getElementById('skipAzkarBtn').onclick = skipAzkar;
-    document.getElementById('nextAzkarBtn').onclick = nextAzkar;
-
-    // Ensure the current azkar is rendered if a category was already selected
-    if (currentCategory && azkarData[currentCategory] && azkarData[currentCategory].length > 0) {
-        renderAzkar();
-    } else if (currentCategory === 'custom' && customAzkar.length > 0) {
-        renderAzkar();
-    } else {
-        // Fallback if no category selected or data is empty
-        mainTab.querySelector('.azkar').innerHTML = '<p>الرجاء اختيار فئة أذكار من الرئيسية.</p>';
-        mainTab.querySelector('.count').textContent = '';
-        mainTab.querySelector('.counter-btn').style.display = 'none';
-    }
-
-    updateProgressBar();
-    closeNav();
 }
 
 
 function renderCustomAzkarPage() {
-    mainTab.innerHTML = `
+    const mainContentTabMain = document.getElementById('mainContentTab-main'); // Custom azkar is rendered into main tab
+    mainContentTabMain.innerHTML = `
         <div class="custom-azkar-area fade-in-element">
-            <h2>إدارة أذكاري الخاصة</h2>
-            <button id="addCustomAzkarBtn" class="add-button" title="إضافة ذكر جديد" aria-label="إضافة ذكر جديد"><i class="fas fa-plus"></i> إضافة ذكر جديد</button>
+            <h2>${getTranslation('manageCustomAzkar')}</h2>
+            <button id="addCustomAzkarBtn" class="add-button" title="${getTranslation('addCustomAzkar')}" aria-label="${getTranslation('addCustomAzkar')}"><i class="fas fa-plus"></i> ${getTranslation('addCustomAzkar')}</button>
             <ul id="customAzkarList" class="custom-azkar-list"></ul>
         </div>
-        <button id="startCustomAzkarSessionBtn" class="button" style="background:var(--button-bg-main);">بدء جلسة أذكار مخصصة</button>
+        <button id="startCustomAzkarSessionBtn" class="button" style="background:var(--button-bg-main);">${getTranslation('startCustomSession')}</button>
     `;
 
     document.getElementById('addCustomAzkarBtn').onclick = openAddCustomAzkarModal;
-    document.getElementById('startCustomAzkarSessionBtn').onclick = () => { loadAzkar('custom'); renderAzkarPage(); }; // Changed to renderAzkarPage
+    document.getElementById('startCustomAzkarSessionBtn').onclick = () => { loadAzkar('custom'); renderAzkar(); };
     renderCustomAzkarList();
-    closeNav();
 }
 
 // --- Custom Azkar Management ---
@@ -977,10 +1357,10 @@ function renderCustomAzkarList() {
         console.error("customAzkarList element not found.");
         return;
     }
-    list.innerHTML = ''; // Clear existing list
+    list.innerHTML = '';
 
     if (customAzkar.length === 0) {
-        list.innerHTML = '<p style="text-align: center; color: var(--text-color);">لا يوجد أذكار مخصصة بعد. أضف بعض الأذكار!</p>';
+        list.innerHTML = `<p style="text-align: center; color: var(--text-color);">${getTranslation('noCustomAzkar')}</p>`;
         return;
     }
 
@@ -989,16 +1369,15 @@ function renderCustomAzkarList() {
         listItem.innerHTML = `
             <span>${azkar.text} (${azkar.repeat})</span>
             <div class="custom-azkar-actions">
-                <button class="move-btn" data-index="${index}" data-direction="up" title="تحريك لأعلى" aria-label="تحريك لأعلى"><i class="fas fa-arrow-up"></i></button>
-                <button class="move-btn" data-index="${index}" data-direction="down" title="تحريك لأسفل" aria-label="تحريك لأسفل"><i class="fas fa-arrow-down"></i></button>
-                <button class="edit-btn" data-index="${index}" title="تعديل" aria-label="تعديل الذكر"><i class="fas fa-edit"></i></button>
-                <button class="delete-btn" data-index="${index}" title="حذف" aria-label="حذف الذكر"><i class="fas fa-trash-alt"></i></button>
+                <button class="move-btn" data-index="${index}" data-direction="up" title="${getTranslation('moveUp')}" aria-label="${getTranslation('moveUp')}"><i class="fas fa-arrow-up"></i></button>
+                <button class="move-btn" data-index="${index}" data-direction="down" title="${getTranslation('moveDown')}" aria-label="${getTranslation('moveDown')}"><i class="fas fa-arrow-down"></i></button>
+                <button class="edit-btn" data-index="${index}" title="${getTranslation('edit')}" aria-label="${getTranslation('edit')}"><i class="fas fa-edit"></i></button>
+                <button class="delete-btn" data-index="${index}" title="${getTranslation('delete')}" aria-label="${getTranslation('delete')}"><i class="fas fa-trash-alt"></i></button>
             </div>
         `;
         list.appendChild(listItem);
     });
 
-    // Attach event listeners to the dynamically created buttons
     list.querySelectorAll('.move-btn').forEach(button => {
         button.onclick = () => moveCustomAzkar(parseInt(button.dataset.index), button.dataset.direction);
     });
@@ -1006,28 +1385,25 @@ function renderCustomAzkarList() {
         button.onclick = () => editCustomAzkar(parseInt(button.dataset.index));
     });
     list.querySelectorAll('.delete-btn').forEach(button => {
-        button.onclick = () => deleteCustomAzkar(parseInt(button.dataset.index));
+        button.onclick = () => confirmDeleteCustomAzkar(parseInt(button.dataset.index)); // Changed to confirmDelete
     });
 }
 
 
 function openAddCustomAzkarModal() {
-    editingAzkarIndex = -1; // Indicate new azkar
-    modalHeaderText.textContent = 'إضافة ذكر جديد';
-    // Render modal body content dynamically for custom azkar input
+    editingAzkarIndex = -1;
+    modalHeaderText.textContent = getTranslation('addCustomAzkar');
     modalBody.innerHTML = `
-        <input type="text" id="azkarTextInput" placeholder="نص الذكر" dir="rtl">
-        <input type="number" id="azkarRepeatInput" placeholder="عدد التكرار" min="1" value="1">
+        <input type="text" id="azkarTextInput" placeholder="${getTranslation('azkarTextPlaceholder')}" dir="rtl">
+        <input type="number" id="azkarRepeatInput" placeholder="${getTranslation('repeatCountPlaceholder')}" min="1" value="1">
     `;
     modalButtons.innerHTML = `
-        <button class="button" id="saveCustomAzkarBtn">حفظ</button>
-        <button class="button" id="cancelCustomAzkarBtn" style="background: var(--button-bg-reset);">إلغاء</button>
+        <button class="button" id="saveCustomAzkarBtn">${getTranslation('save')}</button>
+        <button class="button" id="cancelCustomAzkarBtn" style="background: var(--button-bg-reset);">${getTranslation('cancel')}</button>
     `;
-    // Re-attach event listeners for dynamically created buttons/inputs
     document.getElementById('saveCustomAzkarBtn').onclick = saveCustomAzkarEntry;
     document.getElementById('cancelCustomAzkarBtn').onclick = closeCustomAzkarModal;
     appModal.classList.add('show');
-    // Get references to inputs after they are created
     azkarTextInput = document.getElementById('azkarTextInput');
     azkarRepeatInput = document.getElementById('azkarRepeatInput');
 }
@@ -1037,21 +1413,18 @@ function closeCustomAzkarModal() {
 }
 
 function saveCustomAzkarEntry() {
-    // Ensure inputs are referenced correctly (they are global, but might be null if modal wasn't opened via openAddCustomAzkarModal)
     const text = document.getElementById('azkarTextInput').value.trim();
     const repeat = parseInt(document.getElementById('azkarRepeatInput').value);
 
     if (text === '' || isNaN(repeat) || repeat < 1) {
-        showAlertModal('الرجاء إدخال نص الذكر وعدد تكرار صحيح.'); // Changed alert to custom modal
+        showAlertModal(getTranslation('enterValidAzkarInfo')); // New translation key
         return;
     }
 
     if (editingAzkarIndex === -1) {
-        // Add new azkar
-        customAzkar.push({ text, repeat, info: "ذكر مخصص" });
+        customAzkar.push({ text, repeat, info: getTranslation('customDhikr') }); // New translation key
     } else {
-        // Update existing azkar
-        customAzkar[editingAzkarIndex] = { text, repeat, info: "ذكر مخصص" };
+        customAzkar[editingAzkarIndex] = { text, repeat, info: getTranslation('customDhikr') };
     }
     saveCustomAzkar();
     renderCustomAzkarList();
@@ -1062,21 +1435,18 @@ function editCustomAzkar(index) {
     editingAzkarIndex = index;
     const azkar = customAzkar[index];
     if (azkar) {
-        modalHeaderText.textContent = 'تعديل الذكر';
-        // Render modal body content dynamically for custom azkar input
+        modalHeaderText.textContent = getTranslation('editDhikr'); // New translation key
         modalBody.innerHTML = `
             <input type="text" id="azkarTextInput" value="${azkar.text}" dir="rtl">
             <input type="number" id="azkarRepeatInput" min="1" value="${azkar.repeat}">
         `;
         modalButtons.innerHTML = `
-            <button class="button" id="saveCustomAzkarBtn">حفظ التعديلات</button>
-            <button class="button" id="cancelCustomAzkarBtn" style="background: var(--button-bg-reset);">إلغاء</button>
+            <button class="button" id="saveCustomAzkarBtn">${getTranslation('saveEdits')}</button>
+            <button class="button" id="cancelCustomAzkarBtn" style="background: var(--button-bg-reset);">${getTranslation('cancel')}</button>
         `;
-        // Re-attach event listeners for dynamically created buttons/inputs
         document.getElementById('saveCustomAzkarBtn').onclick = saveCustomAzkarEntry;
         document.getElementById('cancelCustomAzkarBtn').onclick = closeCustomAzkarModal;
         appModal.classList.add('show');
-        // Get references to inputs after they are created
         azkarTextInput = document.getElementById('azkarTextInput');
         azkarRepeatInput = document.getElementById('azkarRepeatInput');
     }
@@ -1084,16 +1454,14 @@ function editCustomAzkar(index) {
 
 function confirmDeleteCustomAzkar(index) {
     deleteIndexToConfirm = index;
-    // Render confirmation modal content dynamically
-    modalHeaderText.textContent = 'تأكيد الحذف';
-    modalBody.innerHTML = `<p>هل أنت متأكد أنك تريد حذف هذا الذكر المخصص؟</p>`;
+    modalHeaderText.textContent = getTranslation('confirmDeleteTitle');
+    modalBody.innerHTML = `<p>${getTranslation('confirmDeleteMessage')}</p>`;
     modalButtons.innerHTML = `
-        <button class="button" id="confirmDeleteBtn" style="background: var(--button-bg-skip);">حذف</button>
-        <button class="button" id="cancelDeleteBtn" onclick="closeModal()">إلغاء</button>
+        <button class="button" id="confirmDeleteBtn" style="background: var(--button-bg-skip);">${getTranslation('delete')}</button>
+        <button class="button" id="cancelDeleteBtn" onclick="closeModal()">${getTranslation('cancel')}</button>
     `;
-    // Re-attach event listeners
     document.getElementById('confirmDeleteBtn').onclick = deleteCustomAzkarConfirmed;
-    document.getElementById('cancelDeleteBtn').onclick = closeConfirmDeleteModal;
+    document.getElementById('cancelDeleteBtn').onclick = closeModal; // Use generic closeModal
     appModal.classList.add('show');
 }
 
@@ -1102,15 +1470,10 @@ function deleteCustomAzkarConfirmed() {
         customAzkar.splice(deleteIndexToConfirm, 1);
         saveCustomAzkar();
         renderCustomAzkarList();
-        closeConfirmDeleteModal();
-        deleteIndexToConfirm = -1; // Reset
+        closeModal(); // Use generic closeModal
+        deleteIndexToConfirm = -1;
     }
 }
-
-function closeConfirmDeleteModal() {
-    appModal.classList.remove('show');
-}
-
 
 function moveCustomAzkar(index, direction) {
     if (direction === 'up' && index > 0) {
@@ -1127,30 +1490,29 @@ function moveCustomAzkar(index, direction) {
 function showShareModal() {
     const azkarList = (currentCategory === 'custom') ? customAzkar : azkarData[currentCategory];
     if (!azkarList || azkarList.length === 0 || currentAzkarIndex >= azkarList.length) {
-        showAlertModal('لا يوجد ذكر لمشاركته حالياً.'); // Changed alert to custom modal
+        showAlertModal(getTranslation('noShareContent'));
         return;
     }
     const azkar = azkarList[currentAzkarIndex];
-    const shareText = `${azkar.text}\n(${azkar.repeat} مرات)\n\nتطبيق الأذكار: https://fazaziai703-cmd.github.io/fazazi-azkar/`;
+    const shareText = `${azkar.text}\n(${azkar.repeat} ${getTranslation('times')})\n\n${getTranslation('appTitle')}: https://fazaziai703-cmd.github.io/fazazi-azkar/`; // New translation key
     
-    modalHeaderText.textContent = 'مشاركة الذكر';
+    modalHeaderText.textContent = getTranslation('shareAzkar');
     modalBody.innerHTML = `
         <p id="shareAzkarText" style="text-align: center; font-weight: bold;"></p>
         <textarea id="shareTextarea" readonly></textarea>
     `;
     modalButtons.innerHTML = `
-        <button class="button" id="copyShareBtn" style="background: var(--button-bg-blue);"><i class="fas fa-copy"></i> نسخ</button>
-        <button class="button" id="nativeShareBtn" style="background: var(--button-bg-share);"><i class="fas fa-share-alt"></i> مشاركة</button>
+        <button class="button" id="copyShareBtn" style="background: var(--button-bg-blue);"><i class="fas fa-copy"></i> ${getTranslation('copy')}</button>
+        <button class="button" id="nativeShareBtn" style="background: var(--button-bg-share);"><i class="fas fa-share-alt"></i> ${getTranslation('share')}</button>
     `;
 
-    // Get references to dynamically created elements
     const shareAzkarTextElement = document.getElementById('shareAzkarText');
     const shareTextareaElement = document.getElementById('shareTextarea');
     const copyShareBtnElement = document.getElementById('copyShareBtn');
     const nativeShareBtnElement = document.getElementById('nativeShareBtn');
 
-    shareAzkarTextElement.textContent = azkar.text; // Display the azkar text
-    shareTextareaElement.value = shareText; // Set full share text in textarea
+    shareAzkarTextElement.textContent = azkar.text;
+    shareTextareaElement.value = shareText;
     
     copyShareBtnElement.onclick = copyShareText;
     nativeShareBtnElement.onclick = nativeShare;
@@ -1158,17 +1520,13 @@ function showShareModal() {
     appModal.classList.add('show');
 }
 
-function closeShareModal() {
-    appModal.classList.remove('show');
-}
-
 function copyShareText() {
     const shareTextareaElement = document.getElementById('shareTextarea');
     if (shareTextareaElement) {
         shareTextareaElement.select();
         document.execCommand('copy');
-        showAlertModal('تم نسخ الذكر بنجاح!'); // Changed alert to custom modal
-        closeShareModal();
+        showAlertModal(getTranslation('copySuccess'));
+        closeModal(); // Use generic closeModal
     }
 }
 
@@ -1176,29 +1534,29 @@ function nativeShare() {
     if (navigator.share) {
         const azkarList = (currentCategory === 'custom') ? customAzkar : azkarData[currentCategory];
         const azkar = azkarList[currentAzkarIndex];
-        const shareText = `${azkar.text}\n(${azkar.repeat} مرات)`;
+        const shareText = `${azkar.text}\n(${azkar.repeat} ${getTranslation('times')})`; // New translation key
         navigator.share({
-            title: 'تطبيق الأذكار',
+            title: getTranslation('appTitle'),
             text: shareText,
             url: 'https://fazaziai703-cmd.github.io/fazazi-azkar/',
         }).then(() => {
             console.log('Share successful');
-            closeShareModal();
+            closeModal(); // Use generic closeModal
         }).catch((error) => {
             console.error('Error sharing:', error);
-            showAlertModal('فشل في المشاركة، قد لا يدعم جهازك هذه الميزة.'); // Changed alert to custom modal
+            showAlertModal(getTranslation('shareFailed'));
         });
     } else {
-        showAlertModal('متصفحك لا يدعم ميزة المشاركة المباشرة. يمكنك نسخ النص يدوياً.'); // Changed alert to custom modal
+        showAlertModal(getTranslation('browserNoShare'));
     }
 }
 
 function showAzkarInfo() {
     const azkarList = (currentCategory === 'custom') ? customAzkar : azkarData[currentCategory];
     if (!azkarList || azkarList.length === 0 || currentAzkarIndex >= azkarList.length) {
-        modalHeaderText.textContent = 'معلومات الذكر';
-        modalBody.innerHTML = '<p>لا توجد معلومات متاحة لهذا الذكر.</p>';
-        modalButtons.innerHTML = `<button class="button" onclick="closeModal()">إغلاق</button>`;
+        modalHeaderText.textContent = getTranslation('infoTitle');
+        modalBody.innerHTML = `<p>${getTranslation('noInfo')}</p>`;
+        modalButtons.innerHTML = `<button class="button" onclick="closeModal()">${getTranslation('close')}</button>`;
         appModal.classList.add('show');
         return;
     }
@@ -1206,99 +1564,120 @@ function showAzkarInfo() {
 
     let infoContent = '';
     if (azkar.meaning) {
-        infoContent += `<p><strong>المعنى:</strong> ${azkar.meaning}</p>`;
+        infoContent += `<p><strong>${getTranslation('meaning')}</strong> ${azkar.meaning}</p>`;
     }
     if (azkar.virtue) {
-        infoContent += `<p><strong>الفضل:</strong> ${azkar.virtue}</p>`;
+        infoContent += `<p><strong>${getTranslation('virtue')}</strong> ${azkar.virtue}</p>`;
     }
     if (azkar.source) {
-        infoContent += `<p><strong>المصدر:</strong> ${azkar.source}`;
+        infoContent += `<p><strong>${getTranslation('source')}</strong> ${azkar.source}`;
         if (azkar.hadith_number) {
-            infoContent += ` (رقم الحديث: ${azkar.hadith_number})`;
+            infoContent += ` (${getTranslation('hadithNumber')} ${azkar.hadith_number})`;
         }
         infoContent += `</p>`;
     }
-    if (azkar.info) { // For backward compatibility or general info if the above are missing
-        infoContent += `<p><strong>معلومات إضافية:</strong> ${azkar.info}</p>`;
+    if (azkar.info) {
+        infoContent += `<p><strong>${getTranslation('additionalInfo')}</strong> ${azkar.info}</p>`;
     }
 
     if (infoContent === '') {
-        infoContent = '<p>لا توجد معلومات إضافية لهذا الذكر.</p>';
+        infoContent = `<p>${getTranslation('noInfo')}</p>`;
     }
 
-    modalHeaderText.textContent = 'معلومات الذكر';
+    modalHeaderText.textContent = getTranslation('infoTitle');
     modalBody.innerHTML = infoContent;
-    modalButtons.innerHTML = `<button class="button" onclick="closeModal()">إغلاق</button>`;
+    modalButtons.innerHTML = `<button class="button" onclick="closeModal()">${getTranslation('close')}</button>`;
     appModal.classList.add('show');
-}
-
-function closeInfoModal() {
-    appModal.classList.remove('show');
 }
 
 function toggleFocusMode() {
     document.body.classList.toggle('focus-mode');
     if (document.body.classList.contains('focus-mode')) {
-        document.getElementById('focusModeBtn').innerHTML = '<i class="fas fa-compress-arrows-alt"></i>'; // Change icon to exit focus
-        showAlertModal('تم تفعيل وضع التركيز. سيتم إخفاء بعض العناصر.'); // Changed alert to custom modal
+        document.getElementById('focusModeBtn').innerHTML = '<i class="fas fa-compress-arrows-alt"></i>';
+        showAlertModal(getTranslation('focusModeOn'));
     } else {
-        document.getElementById('focusModeBtn').innerHTML = '<i class="fas fa-arrows-alt"></i>'; // Change icon to enter focus
-        showAlertModal('تم إلغاء وضع التركيز.'); // Changed alert to custom modal
+        document.getElementById('focusModeBtn').innerHTML = '<i class="fas fa-arrows-alt"></i>';
+        showAlertModal(getTranslation('focusModeOff'));
     }
 }
 
 // --- New Functions for Stats and Contact Us Tabs ---
 function renderStatsPage() {
-    const statsTab = document.getElementById('statsTab');
+    const statsTab = document.getElementById('mainContentTab-stats');
     if (!statsTab) {
-        console.error("statsTab element not found.");
+        console.error("mainContentTab-stats element not found.");
         return;
     }
     statsTab.innerHTML = `
         <div class="stats-section fade-in-element">
-            <h2>إحصاءاتي</h2>
-            <p>هنا يمكنك عرض إحصائيات استخدامك للتطبيق.</p>
-            <p>عدد الأذكار المكتملة اليوم: <span id="completedAzkarToday">0</span></p>
-            <p>إجمالي الأذكار المكتملة: <span id="totalCompletedAzkar">0</span></p>
-            <p>آخر جلسة: <span id="lastSessionDate">لا توجد</span></p>
-            <button class="button" onclick="showAlertModal('هذه الميزة قيد التطوير!')">عرض تقرير مفصل</button>
+            <h2>${getTranslation('statsPageTitle')}</h2>
+            <p>${getTranslation('statsPageDescription')}</p>
+            <p>${getTranslation('completedAzkarToday')} <span id="completedAzkarToday">0</span></p>
+            <p>${getTranslation('totalCompletedAzkar')} <span id="totalCompletedAzkar">0</span></p>
+            <p>${getTranslation('lastSessionDate')} <span id="lastSessionDate">${getTranslation('noLastSession')}</span></p>
+            <button class="button" onclick="showAlertModal('${getTranslation('featureUnderDevelopment')}')">${getTranslation('viewDetailedReport')}</button>
         </div>
     `;
-    // You would typically load and display actual stats here from localStorage or a database
-    // For now, it's placeholder content.
-    // Example: updateStatsDisplay(); // If you have a stats object and update function
-    closeNav();
+    // Placeholder for stats logic. You'll need to implement actual stats tracking.
+    // updateStatsDisplay(); // If you have a stats object and update function
 }
 
 function renderContactUsPage() {
-    const contactUsTab = document.getElementById('contactUsTab');
+    const contactUsTab = document.getElementById('mainContentTab-contactUs');
     if (!contactUsTab) {
-        console.error("contactUsTab element not found.");
+        console.error("mainContentTab-contactUs element not found.");
         return;
     }
     contactUsTab.innerHTML = `
         <div class="contact-us-section fade-in-element">
-            <h2>تواصل معنا</h2>
-            <p>يسعدنا تواصلكم معنا لأي استفسارات أو اقتراحات.</p>
+            <h2>${getTranslation('contactUsPageTitle')}</h2>
+            <p>${getTranslation('contactUsPageDescription')}</p>
             <a href="https://wa.me/97471851027" target="_blank" class="contact-button whatsapp">
-                <i class="fab fa-whatsapp"></i> تواصل عبر واتساب
+                <i class="fab fa-whatsapp"></i> ${getTranslation('contactWhatsapp')}
             </a>
-            <a href="mailto:salaheldin.abdelrahman703@gmail.com?subject=استفسار%20بخصوص%20تطبيق%20الأذكار" class="contact-button email">
-                <i class="fas fa-envelope"></i> أرسل بريد إلكتروني
+            <a href="mailto:salaheldin.abdelrahman703@gmail.com?subject=${encodeURIComponent(getTranslation('appTitle') + ' - ' + getTranslation('inquirySubject'))}" class="contact-button email">
+                <i class="fas fa-envelope"></i> ${getTranslation('contactEmail')}
             </a>
             <div class="fazazi-media-images">
-    <img src="images/icon/fazazimedia.png" alt="Fazazi Media Image">
-	    </div>
+                <img src="images/icon/fazazimedia.png" alt="Fazazi Media Image">
+            </div>
         </div>
     `;
-    closeNav();
+}
+
+function renderAboutPage() {
+    const aboutTab = document.getElementById('mainContentTab-about');
+    if (!aboutTab) {
+        console.error("mainContentTab-about element not found.");
+        return;
+    }
+    aboutTab.innerHTML = `
+        <div class="about-section fade-in-element">
+            <h2>${getTranslation('aboutPageTitle')}</h2>
+            <p>${getTranslation('aboutPageP1')}</p>
+            <p>${getTranslation('aboutPageP2')}</p>
+            <p>${getTranslation('version')} 1.0.0</p>
+            <p>${getTranslation('developedBy')} Fazazi AI</p>
+            <p>${getTranslation('hopeMessage')}</p>
+        </div>
+    `;
 }
 
 
 // --- Initial Setup and Event Listeners (for static elements) ---
 document.addEventListener('DOMContentLoaded', () => {
-    applySettings(); // Apply saved settings first
-    openTab('mainTab'); // Render the initial main page content by activating mainTab
+    // Initialize language selector
+    if (languageSelector) {
+        languageSelector.value = currentLanguage;
+        languageSelector.onchange = (event) => {
+            setLanguage(event.target.value);
+        };
+    }
+
+    applySettings(); // Apply saved settings and initial translations
+
+    // Set initial active tab to main content tab
+    openTab('mainContentTab-main', false); // Do not update horizontal tabs on initial load
 
     // Settings tab event listeners
     if (darkModeToggle) {
@@ -1313,10 +1692,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (fontSizeRange) {
         fontSizeRange.oninput = () => {
             fontSize = parseFloat(fontSizeRange.value);
-            currentFontSizeSpan.textContent = `${fontSize.toFixed(1)}em`; // Update displayed value immediately
-            applySettings(); // Apply font size change
+            currentFontSizeSpan.textContent = `${fontSize.toFixed(1)}em`;
+            applySettings();
         };
-        fontSizeRange.onchange = () => { // Save when user releases slider
+        fontSizeRange.onchange = () => {
             saveSettings();
         };
     }
@@ -1337,6 +1716,5 @@ document.addEventListener('DOMContentLoaded', () => {
         customAzkarReminderToggle.onchange = () => { customAzkarReminder = customAzkarReminderToggle.checked; saveSettings(); };
     }
 
-    // Initialize notifications after settings are loaded and applied
     initializeNotifications();
 });
