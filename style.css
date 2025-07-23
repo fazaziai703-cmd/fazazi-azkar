@@ -311,7 +311,7 @@ body {
     background: none;
     border: none;
     color: var(--header-text);
-    font-size: 1.6em; /* Slightly larger icons */
+    font-size: 1em; /* Reduced from 1.6em */
     cursor: pointer;
     padding: 8px; /* More padding for touch target */
     transition: color 0.2s ease, transform 0.1s ease;
@@ -412,9 +412,9 @@ body {
     color: #fff;
     border: none;
     border-radius: 50%;
-    width: 45px; /* Slightly larger */
-    height: 45px; /* Slightly larger */
-    font-size: 1.2em; /* Slightly larger icon */
+    width: 40px; /* Reduced from 45px */
+    height: 40px; /* Reduced from 45px */
+    font-size: 0.9em; /* Reduced from 1.2em */
     cursor: pointer;
     position: absolute;
     top: 15px; /* Adjusted position */
@@ -525,7 +525,7 @@ body {
     box-shadow: 0 8px 20px rgba(0,0,0,0.25); /* Stronger shadow on hover */
 }
 .category-btn i {
-    font-size: 2.2em; /* Slightly larger icon */
+    font-size: 1.4em; /* Reduced from 2.2em */
     margin-bottom: 5px;
 }
 
@@ -691,7 +691,7 @@ body {
 .modal-content .close-button {
     background: none;
     border: none;
-    font-size: 2em; /* Larger close icon */
+    font-size: 1.4em; /* Reduced from 2em */
     color: var(--footer-color);
     cursor: pointer;
     transition: color 0.2s ease, transform 0.1s ease;
@@ -794,7 +794,7 @@ body {
     background: none;
     color: var(--header-text);
     border: none;
-    font-size: 2em; /* Larger icon */
+    font-size: 1.4em; /* Reduced from 2em */
     cursor: pointer;
     z-index: 1001;
     display: flex;
@@ -852,7 +852,7 @@ body {
     position: absolute;
     top: 15px; /* Adjusted position */
     left: 25px;
-    font-size: 38px; /* Larger close icon */
+    font-size: 26px; /* Reduced from 38px */
     margin-left: 50px;
     color: var(--footer-color);
     cursor: pointer;
@@ -963,18 +963,20 @@ body.focus-mode .main-content-padding {
   .info-button {
     top: -10px; /* Adjusted for smaller screens */
     right: 8px;
-    width: 40px; height: 40px; font-size: 1em; /* Smaller size */
+    width: 35px; height: 35px; /* Reduced from 40px */
+    font-size: 0.7em; /* Reduced from 1em */
   }
   .focus-button {
     top: -10px; /* Adjusted for smaller screens */
     left: 8px;
     right: auto;
-    width: 40px; height: 40px; font-size: 1em; /* Smaller size */
+    width: 35px; height: 35px; /* Reduced from 40px */
+    font-size: 0.7em; /* Reduced from 1em */
   }
   .sidenav-toggle-btn {
     top: 15px; /* Adjusted position */
     right: 15px;
-    font-size: 1.6em; /* Adjusted size */
+    font-size: 1.1em; /* Reduced from 1.6em */
     padding: 8px;
   }
   body.focus-mode .azkar {
@@ -1018,7 +1020,7 @@ body.focus-mode .main-content-padding {
     min-height: 90px; /* Adjusted min-height */
   }
   .category-btn i {
-    font-size: 1.8em; /* Adjusted icon size */
+    font-size: 1.2em; /* Reduced from 1.8em */
   }
   .modal-content {
     padding: 20px; /* Adjusted padding */
@@ -1040,7 +1042,7 @@ body.focus-mode .main-content-padding {
     gap: 8px; /* Adjusted gap */
   }
   .modal-content .close-button {
-    font-size: 1.6em; /* Adjusted icon size */
+    font-size: 1.1em; /* Reduced from 1.6em */
   }
   .settings-section {
     padding: 10px 0; /* Adjusted padding */
@@ -1081,12 +1083,13 @@ body.focus-mode .main-content-padding {
     padding: 12px 12px 12px 25px; font-size: 0.95em;
   }
   .sidenav .closebtn {
-    top: 10px; left: 15px; font-size: 30px;
+    top: 10px; left: 15px; font-size: 20px; /* Reduced from 30px */
   }
   body.focus-mode .counter-btn {
     padding: 25px 50px; font-size: 1.4em;
   }
   body.focus-mode .info-button, body.focus-mode .focus-button {
-    top: 15px; width: 35px; height: 35px; font-size: 0.9em;
+    top: 15px; width: 30px; height: 30px; /* Reduced from 35px */
+    font-size: 0.6em; /* Reduced from 0.7em */
   }
 }
