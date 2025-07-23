@@ -1,10 +1,10 @@
 {
-  "name": "تطبيق الفزازي - أذكار يومية للمسلم",
-  "short_name": "أذكار الفزازي",
-  "description": "أذكار الفزازي تطبيق للأذكار اليومية للمسلم، هو رفيقك الروحي لمساعدتك على تذكر الله في كل وقت.",
-  "start_url": "/fazazi-azkar/",
+  "name": "تطبيق الأذكار",
+  "short_name": "الأذكار",
+  "description": "رفيقك اليومي لأذكار الصباح والمساء والنوم وغيرها.",
+  "start_url": "./",
   "display": "standalone",
-  "background_color": "#f7f7f7",
+  "background_color": "#f0f0f0",
   "theme_color": "#4CAF50",
   "icons": [
     {
