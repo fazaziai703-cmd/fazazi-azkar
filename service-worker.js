@@ -1,12 +1,15 @@
-// Cache Version - IMPORTANT: Increment this version number whenever you make changes to the cached assets
-const CACHE_VERSION = 'fazazi-azkar-v1.0.1'; // Changed from v1.0.0 to v1.0.1
+// Cache Version - change this when updating assets
+const CACHE_VERSION = 'fazazi-azkar-v1.0.2';
 const CACHE_NAME = CACHE_VERSION;
 
-// List of URLs to cache
-// This includes all the static assets of your application
+// Offline fallback page
+const OFFLINE_URL = 'offline.html';
+
+// Assets to cache
 const urlsToCache = [
-  './', // Cache the root path (index.html)
+  './',
   'index.html',
+  'offline.html',
   'style.css',
   'script.js',
   'manifest.json',
@@ -18,80 +21,89 @@ const urlsToCache = [
   'images/icons/icon-192x192.png',
   'images/icons/icon-384x384.png',
   'images/icons/icon-512x512.png',
-  'images/icon/fazazimedia.png', // New image path
+  'images/icons/maskable-icon-192.png',
+  'images/icons/maskable-icon-512.png',
+  'images/icon/fazazimedia.png',
   'https://fonts.googleapis.com/css2?family=Amiri&family=Noto+Naskh+Arabic&family=Lateefah&family=Scheherazade+New&display=swap',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css'
 ];
 
-// Install event: caches all the necessary assets
+// Install: Pre-cache everything
 self.addEventListener('install', (event) => {
-  console.log('[Service Worker] Installing Service Worker ...', CACHE_NAME);
+  console.log('[Service Worker] Installing...', CACHE_NAME);
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => {
-        console.log('[Service Worker] Caching app shell');
-        return cache.addAll(urlsToCache);
-      })
-      .catch((error) => {
-        console.error('[Service Worker] Failed to cache:', error);
-      })
+    caches.open(CACHE_NAME).then((cache) => {
+      console.log('[Service Worker] Caching assets...');
+      return cache.addAll(urlsToCache);
+    }).catch((err) => {
+      console.error('[Service Worker] Failed to cache:', err);
+    })
   );
 });
 
-// Activate event: cleans up old caches
+// Activate: Clean old caches
 self.addEventListener('activate', (event) => {
-  console.log('[Service Worker] Activating Service Worker ...', CACHE_NAME);
+  console.log('[Service Worker] Activating...', CACHE_NAME);
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
+    caches.keys().then((keys) => {
       return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
-            console.log('[Service Worker] Deleting old cache:', cacheName);
-            return caches.delete(cacheName);
+        keys.map((key) => {
+          if (key !== CACHE_NAME) {
+            console.log('[Service Worker] Deleting old cache:', key);
+            return caches.delete(key);
           }
         })
       );
     })
   );
-  // Ensure the service worker takes control of all clients immediately
   return self.clients.claim();
 });
 
-// Fetch event: serves cached content when available, otherwise fetches from network
+// Fetch: Serve from cache or fallback
 self.addEventListener('fetch', (event) => {
-  // Check if the request is for a navigation (HTML page)
+  // HTML navigation
   if (event.request.mode === 'navigate') {
     event.respondWith(
-      fetch(event.request).catch(() => {
-        // If network fails, try to serve the offline page or root page
-        return caches.match('index.html'); // Fallback to index.html for offline navigation
+      fetch(event.request).catch(() => caches.match(OFFLINE_URL))
+    );
+    return;
+  }
+
+  // Style or font requests: cache first
+  if (event.request.destination === 'style' || event.request.destination === 'font') {
+    event.respondWith(
+      caches.match(event.request).then((resp) => {
+        return resp || fetch(event.request).then((fetchResp) => {
+          return caches.open(CACHE_NAME).then((cache) => {
+            if (fetchResp.ok) {
+              cache.put(event.request, fetchResp.clone());
+            }
+            return fetchResp;
+          });
+        });
       })
     );
     return;
   }
 
-  // For other assets (CSS, JS, images, fonts)
+  // Other assets
   event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || fetch(event.request).then((fetchResponse) => {
-        // Cache new requests as they come in
+    caches.match(event.request).then((resp) => {
+      return resp || fetch(event.request).then((fetchResp) => {
         return caches.open(CACHE_NAME).then((cache) => {
-          // Only cache valid responses
-          if (fetchResponse.ok) {
-            cache.put(event.request, fetchResponse.clone());
+          if (fetchResp.ok) {
+            cache.put(event.request, fetchResp.clone());
           }
-          return fetchResponse;
+          return fetchResp;
         });
-      }).catch((error) => {
-        console.error('[Service Worker] Fetch failed:', error);
-        // You can return a generic offline image or other fallback here for images/assets
-        // For now, we'll just let it fail or return undefined
+      }).catch((err) => {
+        console.warn('[Service Worker] Network failed:', err);
       });
     })
   );
 });
 
-// Optional: Message listener for communication between app and service worker
+// Messaging support (optional)
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
