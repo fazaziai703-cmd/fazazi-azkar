@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>تطبيق الفزازي للأذكار اليومية</title>
+  <title>تطبيق الأذكار</title>
   <!-- Google Fonts for Arabic -->
   <link href="https://fonts.googleapis.com/css2?family=Amiri&family=Noto+Naskh+Arabic&family=Lateefah&family=Scheherazade+New&display=swap" rel="stylesheet">
   <!-- Font Awesome for Icons (Updated Version) -->
@@ -22,27 +22,50 @@
   <!-- Sidebar Navigation -->
   <div id="mySidenav" class="sidenav">
     <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
-    <a href="#" onclick="openTab('mainTab')">الرئيسية</a>
-    <a href="#" onclick="openTab('settingsTab')">الإعدادات</a>
-    <a href="#" onclick="openTab('statsTab')">إحصاءاتي</a>
-    <a href="#" onclick="openTab('contactUsTab')">تواصل معنا</a>
-    <a href="#" onclick="openTab('aboutTab')">عن التطبيق</a>
+    <!-- These links now primarily control the sidebar active state, main tabs are horizontal -->
+    <a href="#" onclick="openTab('mainContentTab-main')">الرئيسية</a>
+    <a href="#" onclick="openTab('mainContentTab-settings')">الإعدادات</a>
+    <a href="#" onclick="openTab('mainContentTab-stats')">إحصاءاتي</a>
+    <a href="#" onclick="openTab('mainContentTab-contactUs')">تواصل معنا</a>
+    <a href="#" onclick="openTab('mainContentTab-about')">عن التطبيق</a>
   </div>
 
   <!-- Main Content Container -->
-  <div class="container main-content-padding">
-    <!-- Header with App Title and Menu Button -->
+  <div class="container">
+    <!-- Header with App Title, Menu Button, Language Selector, and Home Button -->
     <div class="header">
-      <span class="sidenav-toggle-btn" onclick="toggleNav()">&#9776;</span>
-      <h1 id="appTitle">تطبيق الفزازي للأذكار اليومية</h1>
+      <button class="icon-button home-button" onclick="openTab('mainContentTab-main')" aria-label="العودة للصفحة الرئيسية">
+        <i class="fas fa-home"></i>
+      </button>
+      <h1 id="appTitle">تطبيق الأذكار</h1>
+      <div class="header-actions">
+        <select id="languageSelector" class="language-selector">
+          <option value="ar">العربية</option>
+          <option value="en">English</option>
+          <option value="ur">اردو</option>
+        </select>
+        <button class="sidenav-toggle-btn" onclick="toggleNav()" aria-label="فتح القائمة الجانبية">
+            <i class="fas fa-bars"></i>
+        </button>
+      </div>
     </div>
 
-    <!-- Tab Content Area -->
-    <div id="mainTab" class="tab-content active">
-      <!-- Content for main Azkar categories will be rendered here by script.js -->
+    <!-- Main Horizontal Tabs -->
+    <div class="main-horizontal-tabs">
+      <button class="tab-button active" onclick="openTab('mainContentTab-main')">الرئيسية</button>
+      <button class="tab-button" onclick="openTab('mainContentTab-settings')">الإعدادات</button>
+      <button class="tab-button" onclick="openTab('mainContentTab-stats')">إحصاءاتي</button>
+      <button class="tab-button" onclick="openTab('mainContentTab-contactUs')">تواصل معنا</button>
+      <button class="tab-button" onclick="openTab('mainContentTab-about')">عن التطبيق</button>
     </div>
 
-    <div id="settingsTab" class="tab-content">
+    <!-- Main Content Tab Areas -->
+    <div id="mainContentTab-main" class="main-content-tab active">
+      <!-- Content for main Azkar categories or active Azkar will be rendered here by script.js -->
+      <!-- Initial content will be the category grid, dynamically loaded -->
+    </div>
+
+    <div id="mainContentTab-settings" class="main-content-tab">
       <div class="settings-section">
         <h2>الإعدادات</h2>
 
@@ -115,22 +138,34 @@
       </div>
     </div>
 
-    <div id="statsTab" class="tab-content">
+    <div id="mainContentTab-stats" class="main-content-tab">
       <!-- Content for Stats will be rendered here by script.js -->
     </div>
 
-    <div id="contactUsTab" class="tab-content">
-      <!-- Content for Contact Us will be rendered here by script.js -->
+    <div id="mainContentTab-contactUs" class="main-content-tab">
+      <div class="contact-us-section">
+          <h2>تواصل معنا</h2>
+          <p>يسعدنا تواصلكم معنا لأي استفسارات أو اقتراحات.</p>
+          <a href="https://wa.me/97471851027" target="_blank" class="contact-button whatsapp">
+              <i class="fab fa-whatsapp"></i> تواصل عبر واتساب
+          </a>
+          <a href="mailto:your_email@example.com?subject=استفسار%20بخصوص%20تطبيق%20الأذكار" class="contact-button email">
+              <i class="fas fa-envelope"></i> أرسل بريد إلكتروني
+          </a>
+          <div class="fazazi-media-images">
+              <img src="images/icon/fazazimedia.png" alt="Fazazi Media Image">
+          </div>
+      </div>
     </div>
 
-    <div id="aboutTab" class="tab-content">
+    <div id="mainContentTab-about" class="main-content-tab">
       <div class="about-section">
         <h2>عن التطبيق</h2>
         <p>تطبيق الأذكار هو رفيقك اليومي لتذكيرك بالأذكار والأدعية المهمة في حياتك.</p>
         <p>يهدف التطبيق إلى تسهيل قراءة الأذكار والمحافظة عليها، مع توفير خيارات تخصيص لتناسب احتياجاتك.</p>
         <p>الإصدار: 1.0.0</p>
-        <p>تم التطوير بواسطة: FazaziMedia</p>
-        <p>نأمل أن يكون هذا التطبيق عوناً لنا ولكم في ذكر الله.</p>
+        <p>تم التطوير بواسطة: Fazazi AI</p>
+        <p>نأمل أن يكون هذا التطبيق عوناً لكم في ذكر الله.</p>
       </div>
     </div>
 
@@ -144,7 +179,7 @@
     </div>
 
     <div class="footer">
-      <p>&copy; 2025 تطبيق الأذكار. جميع الحقوق محفوظة.</p>
+      <p>&copy; 2024 تطبيق الأذكار. جميع الحقوق محفوظة.</p>
       <p>صمم بحب ليساعدك على ذكر الله.</p>
     </div>
   </div>
@@ -156,7 +191,7 @@
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         // تم تغيير المسار ليكون نسبيًا لضمان التوافق مع GitHub Pages
-        navigator.serviceWorker.register('./fazazi-azkar/service-worker.js')
+        navigator.serviceWorker.register('./service-worker.js')
           .then(registration => {
             console.log('Service Worker registered:', registration);
           })
