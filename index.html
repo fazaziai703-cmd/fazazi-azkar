@@ -1,28 +1,29 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>تطبيق الأذكار</title>
+
   <!-- Google Fonts for Arabic -->
-  <link href="https://fonts.googleapis.com/css2?family=Amiri&family=Noto+Naskh+Arabic&family=Lateefah&family=Scheherazade+New&display=swap" rel="stylesheet">
-  <!-- Font Awesome for Icons (Updated Version) -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-  <!-- Your Custom Styles -->
-  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Amiri&family=Noto+Naskh+Arabic&family=Lateefah&family=Scheherazade+New&display=swap" rel="stylesheet" />
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="style.css" />
+
   <!-- Web App Manifest -->
-  <link rel="manifest" href="manifest.json">
-  <!-- Apple Touch Icon (for iOS PWA) -->
-  <link rel="apple-touch-icon" href="images/icons/icon-192x192.png">
-  <!-- Theme Color for PWA -->
-  <meta name="theme-color" content="#4CAF50">
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="images/icons/icon-192x192.png" />
+  <meta name="theme-color" content="#4CAF50" />
 </head>
 <body>
 
   <!-- Sidebar Navigation -->
   <div id="mySidenav" class="sidenav">
     <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
-    <!-- These links now primarily control the sidebar active state, main tabs are horizontal -->
     <a href="#" onclick="openTab('mainContentTab-main')">الرئيسية</a>
     <a href="#" onclick="openTab('mainContentTab-settings')">الإعدادات</a>
     <a href="#" onclick="openTab('mainContentTab-stats')">إحصاءاتي</a>
@@ -30,9 +31,9 @@
     <a href="#" onclick="openTab('mainContentTab-about')">عن التطبيق</a>
   </div>
 
-  <!-- Main Content Container -->
+  <!-- Main Content -->
   <div class="container">
-    <!-- Header with App Title, Menu Button, Language Selector, and Home Button -->
+    <!-- Header -->
     <div class="header">
       <button class="icon-button home-button" onclick="openTab('mainContentTab-main')" aria-label="العودة للصفحة الرئيسية">
         <i class="fas fa-home"></i>
@@ -45,12 +46,12 @@
           <option value="ur">اردو</option>
         </select>
         <button class="sidenav-toggle-btn" onclick="toggleNav()" aria-label="فتح القائمة الجانبية">
-            <i class="fas fa-bars"></i>
+          <i class="fas fa-bars"></i>
         </button>
       </div>
     </div>
 
-    <!-- Main Horizontal Tabs -->
+    <!-- Tabs -->
     <div class="main-horizontal-tabs">
       <button class="tab-button active" onclick="openTab('mainContentTab-main')">الرئيسية</button>
       <button class="tab-button" onclick="openTab('mainContentTab-settings')">الإعدادات</button>
@@ -59,12 +60,35 @@
       <button class="tab-button" onclick="openTab('mainContentTab-about')">عن التطبيق</button>
     </div>
 
-    <!-- Main Content Tab Areas -->
-    <div id="mainContentTab-main" class="main-content-tab active">
-      <!-- Content for main Azkar categories or active Azkar will be rendered here by script.js -->
-      <!-- Initial content will be the category grid, dynamically loaded -->
+    <!-- Main Tab -->
+    <div id="mainContentTab-main" class="main-content-tab active fade-in-element">
+      <h2 style="font-weight:300; font-size:1.7em; letter-spacing:0.5px;">
+        الأقسام الرئيسية للأذكار
+      </h2>
+      <p style="font-size:1.2em; color:var(--footer-color); margin-bottom:30px;">
+        اختر القسم الذي ترغب في قراءته، واستمتع بتجربة سلسة ومصممة بدقة.
+      </p>
+      <div class="category-grid fade-in-element">
+        <div class="category-btn active">
+          <i class="fas fa-sun"></i>
+          <span>أذكار الصباح</span>
+        </div>
+        <div class="category-btn">
+          <i class="fas fa-moon"></i>
+          <span>أذكار المساء</span>
+        </div>
+        <div class="category-btn">
+          <i class="fas fa-praying-hands"></i>
+          <span>أذكار الصلاة</span>
+        </div>
+        <div class="category-btn">
+          <i class="fas fa-heart"></i>
+          <span>أذكار متنوعة</span>
+        </div>
+      </div>
     </div>
 
+    <!-- Settings Tab -->
     <div id="mainContentTab-settings" class="main-content-tab">
       <div class="settings-section">
         <h2>الإعدادات</h2>
@@ -138,38 +162,41 @@
       </div>
     </div>
 
+    <!-- Stats Tab -->
     <div id="mainContentTab-stats" class="main-content-tab">
-      <!-- Content for Stats will be rendered here by script.js -->
+      <!-- Your stats content placeholder -->
     </div>
 
+    <!-- Contact Tab -->
     <div id="mainContentTab-contactUs" class="main-content-tab">
       <div class="contact-us-section">
-          <h2>تواصل معنا</h2>
-          <p>يسعدنا تواصلكم معنا لأي استفسارات أو اقتراحات.</p>
-          <a href="https://wa.me/97471851027" target="_blank" class="contact-button whatsapp">
-              <i class="fab fa-whatsapp"></i> تواصل عبر واتساب
-          </a>
-          <a href="mailto:your_email@example.com?subject=استفسار%20بخصوص%20تطبيق%20الأذكار" class="contact-button email">
-              <i class="fas fa-envelope"></i> أرسل بريد إلكتروني
-          </a>
-          <div class="fazazi-media-images">
-              <img src="images/icon/fazazimedia.png" alt="Fazazi Media Image">
-          </div>
+        <h2>تواصل معنا</h2>
+        <p>يسعدنا تواصلكم معنا لأي استفسارات أو اقتراحات.</p>
+        <a href="https://wa.me/97471851027" target="_blank" class="contact-button whatsapp">
+          <i class="fab fa-whatsapp"></i> تواصل عبر واتساب
+        </a>
+        <a href="mailto:salaheldin.abdelrahman703@gmail.com?subject=استفسار%20بخصوص%20تطبيق%20الأذكار" class="contact-button email">
+          <i class="fas fa-envelope"></i> أرسل بريد إلكتروني
+        </a>
+        <div class="fazazi-media-images">
+          <img src="images/icon/fazazimedia.png" alt="Fazazi Media Image" />
+        </div>
       </div>
     </div>
 
+    <!-- About Tab -->
     <div id="mainContentTab-about" class="main-content-tab">
       <div class="about-section">
         <h2>عن التطبيق</h2>
         <p>تطبيق الأذكار هو رفيقك اليومي لتذكيرك بالأذكار والأدعية المهمة في حياتك.</p>
         <p>يهدف التطبيق إلى تسهيل قراءة الأذكار والمحافظة عليها، مع توفير خيارات تخصيص لتناسب احتياجاتك.</p>
-        <p>الإصدار: 1.0.0</p>
-        <p>تم التطوير بواسطة: Fazazi AI</p>
-        <p>نأمل أن يكون هذا التطبيق عوناً لكم في ذكر الله.</p>
+        <p>الإصدار: 1.1.0</p>
+        <p>تم التطوير بواسطة: FazaziMedia</p>
+        <p>نأمل أن يكون هذا التطبيق عوناً لنا ولكم في ذكر الله.</p>
       </div>
     </div>
 
-    <!-- Universal Modal Structure -->
+    <!-- Modal -->
     <div id="appModal" class="modal-overlay">
       <div class="modal-content">
         <h3 id="modalHeaderText"></h3>
@@ -178,26 +205,21 @@
       </div>
     </div>
 
+    <!-- Footer -->
     <div class="footer">
-      <p>&copy; 2024 تطبيق الأذكار. جميع الحقوق محفوظة.</p>
-      <p>صمم بحب ليساعدك على ذكر الله.</p>
+      <p>&copy; 2025 تطبيق الأذكار. جميع الحقوق محفوظة.</p>
+      <p>صممناه بحب ليساعدنا واياكم على ذكر الله.</p>
     </div>
   </div>
 
-  <!-- Your JavaScript -->
+  <!-- Scripts -->
   <script src="script.js"></script>
-  <!-- Service Worker Registration -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        // تم تغيير المسار ليكون نسبيًا لضمان التوافق مع GitHub Pages
         navigator.serviceWorker.register('./service-worker.js')
-          .then(registration => {
-            console.log('Service Worker registered:', registration);
-          })
-          .catch(error => {
-            console.error('Service Worker registration failed:', error);
-          });
+          .then(reg => console.log('Service Worker registered:', reg))
+          .catch(err => console.error('Service Worker registration failed:', err));
       });
     }
   </script>
