@@ -4,7 +4,7 @@ const CACHE_NAME = 'azkar-app-cache-v1.0.0';
 // List all the files that your PWA needs to function offline.
 // This includes HTML, CSS, JavaScript, manifest, and any images.
 const urlsToCache = [
-  '/fazazi-azkar/', // The root of your application
+  '/', // The root of your application
   'index.html',
   'style.css',
   'script.js',
