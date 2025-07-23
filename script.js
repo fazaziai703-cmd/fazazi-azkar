@@ -1283,12 +1283,12 @@ function renderContactUsPage() {
             <a href="https://wa.me/97471851027" target="_blank" class="contact-button whatsapp">
                 <i class="fab fa-whatsapp"></i> تواصل عبر واتساب
             </a>
-            <a href="mailto:your_email@example.com?subject=استفسار%20بخصوص%20تطبيق%20الأذكار" class="contact-button email">
+            <a href="mailto:salaheldin.abdelrahman703@gmail.com?subject=استفسار%20بخصوص%20تطبيق%20الأذكار" class="contact-button email">
                 <i class="fas fa-envelope"></i> أرسل بريد إلكتروني
             </a>
             <div class="fazazi-media-images">
-                <img src="https://lh3.googleusercontent.com/u/0/drive-viewer/AFoagU9545sC44c15fb2-9ad1-43a7-8224-59784aa6558f=w1920-h937" alt="Fazazi Media Image">
-            </div>
+    <img src="images/icon/fazazimedia.png" alt="Fazazi Media Image">
+	    </div>
         </div>
     `;
     closeNav();
