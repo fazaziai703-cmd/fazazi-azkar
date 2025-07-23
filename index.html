@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>تطبيق الأذكار</title>
+  <title>تطبيق الفزازي للأذكار اليومية</title>
   <!-- Google Fonts for Arabic -->
   <link href="https://fonts.googleapis.com/css2?family=Amiri&family=Noto+Naskh+Arabic&family=Lateefah&family=Scheherazade+New&display=swap" rel="stylesheet">
   <!-- Font Awesome for Icons (Updated Version) -->
@@ -34,7 +34,7 @@
     <!-- Header with App Title and Menu Button -->
     <div class="header">
       <span class="sidenav-toggle-btn" onclick="toggleNav()">&#9776;</span>
-      <h1 id="appTitle">تطبيق الأذكار</h1>
+      <h1 id="appTitle">تطبيق الفزازي للأذكار اليومية</h1>
     </div>
 
     <!-- Tab Content Area -->
@@ -129,8 +129,8 @@
         <p>تطبيق الأذكار هو رفيقك اليومي لتذكيرك بالأذكار والأدعية المهمة في حياتك.</p>
         <p>يهدف التطبيق إلى تسهيل قراءة الأذكار والمحافظة عليها، مع توفير خيارات تخصيص لتناسب احتياجاتك.</p>
         <p>الإصدار: 1.0.0</p>
-        <p>تم التطوير بواسطة: Fazazi AI</p>
-        <p>نأمل أن يكون هذا التطبيق عوناً لكم في ذكر الله.</p>
+        <p>تم التطوير بواسطة: FazaziMedia</p>
+        <p>نأمل أن يكون هذا التطبيق عوناً لنا ولكم في ذكر الله.</p>
       </div>
     </div>
 
@@ -144,7 +144,7 @@
     </div>
 
     <div class="footer">
-      <p>&copy; 2024 تطبيق الأذكار. جميع الحقوق محفوظة.</p>
+      <p>&copy; 2025 تطبيق الأذكار. جميع الحقوق محفوظة.</p>
       <p>صمم بحب ليساعدك على ذكر الله.</p>
     </div>
   </div>
@@ -156,7 +156,7 @@
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         // تم تغيير المسار ليكون نسبيًا لضمان التوافق مع GitHub Pages
-        navigator.serviceWorker.register('./service-worker.js')
+        navigator.serviceWorker.register('./fazazi-azkar/service-worker.js')
           .then(registration => {
             console.log('Service Worker registered:', registration);
           })
