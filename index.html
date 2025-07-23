@@ -8,8 +8,8 @@
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Amiri&family=Noto+Naskh+Arabic&family=Lateefah&family=Scheherazade+New&display=swap" rel="stylesheet">
   
-  <!-- Font Awesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" xintegrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <!-- Font Awesome Icons (Updated CDN) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" xintegrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   
   <!-- PWA Manifest -->
   <link rel="manifest" href="manifest.json">
@@ -24,6 +24,8 @@
     <h3><i class="fas fa-list"></i> قائمة الأذكار</h3>
     <a href="#" onclick="openTab('mainTab')"><i class="fas fa-home"></i> الرئيسية</a>
     <a href="#" onclick="openTab('settingsTab')"><i class="fas fa-cog"></i> الإعدادات</a>
+    <a href="#" onclick="openTab('statsTab')"><i class="fas fa-chart-bar"></i> إحصاءاتي</a>
+    <a href="#" onclick="openTab('contactTab')"><i class="fas fa-headset"></i> تواصل معنا</a>
     <a href="#" onclick="openTab('aboutTab')"><i class="fas fa-info-circle"></i> عن التطبيق</a>
   </div>
 
@@ -98,7 +100,35 @@
           <span class="slider round"></span>
         </label>
       </div>
+
+      <!-- Reset App Button - Moved here -->
+      <div class="settings-section">
+        <h3>إعادة تعيين التطبيق</h3>
+        <button class="button" style="background:#607d8b;" onclick="resetApp()"><i class="fas fa-sync-alt"></i> إعادة تعيين التطبيق</button>
+      </div>
     </div>
+
+    <div id="statsTab" class="tab-content">
+      <!-- Stats content will be rendered here by script.js -->
+    </div>
+
+    <div id="contactTab" class="tab-content">
+      <!-- Contact Us content -->
+      <h2>تواصل معنا</h2>
+      <p>يسعدنا تواصلكم معنا لأي استفسارات أو اقتراحات أو ملاحظات.</p>
+      <div class="contact-buttons">
+        <button class="button whatsapp-btn" onclick="window.open('https://wa.me/97471851027', '_blank');"><i class="fab fa-whatsapp"></i> واتساب</button>
+        <button class="button email-btn" onclick="window.location.href='mailto:your.email@example.com';"><i class="fas fa-envelope"></i> بريد إلكتروني</button>
+      </div>
+      <div class="contact-images">
+        <h3>صور فزازي ميديا</h3>
+        <img src="https://placehold.co/300x200/cccccc/333333?text=Image+1" alt="Fazazi Media Image 1" onerror="this.onerror=null;this.src='https://placehold.co/300x200/cccccc/333333?text=Image+1';">
+        <img src="https://placehold.co/300x200/cccccc/333333?text=Image+2" alt="Fazazi Media Image 2" onerror="this.onerror=null;this.src='https://placehold.co/300x200/cccccc/333333?text=Image+2';">
+        <!-- Placeholder images for now. You'll need to replace these with your actual image URLs -->
+        <!-- For example: <img src="images/fazazi-media-1.jpg" alt="Fazazi Media Image 1"> -->
+      </div>
+    </div>
+
     <div id="aboutTab" class="tab-content">
       <!-- About content -->
       <h2>عن تطبيق الأذكار</h2>
@@ -112,8 +142,7 @@
   
   <!-- Fixed bottom buttons -->
   <div class="top-fixed-buttons">
-    <button class="button" style="background:#2196f3;" onclick="openTab('mainTab')"><i class="fas fa-home"></i> العودة للقائمة الرئيسية</button>
-    <button class="button" style="background:#607d8b;" onclick="resetApp()"><i class="fas fa-sync-alt"></i> إعادة تعيين التطبيق</button>
+    <button class="button" style="background:#2196f3;" onclick="openTab('mainTab')"><i class="fas fa-home"></i> الرئيسية</button>
     <button id="installAppBtn" class="button" style="background:#8bc34a; display:none;"><i class="fas fa-plus"></i> تثبيت التطبيق</button>
   </div>
 
