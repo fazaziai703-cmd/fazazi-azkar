@@ -15,38 +15,21 @@ let autoSkip = localStorage.getItem('autoSkip') === 'true';
 let notificationEnabled = localStorage.getItem('notificationEnabled') === 'true';
 let customAzkarReminder = localStorage.getItem('customAzkarReminder') === 'true';
 
-// --- DOM Elements ---\
+// --- DOM Elements ---
 // يتم تعريف عناصر DOM الثابتة الموجودة في index.html هنا
 const mainTab = document.getElementById('mainTab');
 const appTitle = document.getElementById('appTitle');
 const sidebar = document.querySelector('.sidenav'); // تم تصحيح المعرف ليتوافق مع class="sidenav"
-const resetButton = document.getElementById('resetButton'); // هذا الزر لم يعد موجودًا كـ ID في index.html، بل هو جزء من top-fixed-buttons بدون ID.
-                                                        // سنقوم بتعديل كيفية التعامل معه في Initial Setup.
 
 // Modals
-const shareModal = document.getElementById('appModal'); // المودال الرئيسي يستخدم الآن لجميع الأغراض
-const closeShareModalBtn = document.getElementById('closeShareModalBtn'); // هذا الزر لم يعد موجودًا بشكل مباشر
-const shareAzkarText = document.getElementById('shareAzkarText'); // هذا العنصر يتم إنشاؤه ديناميكياً داخل المودال
-const shareTextarea = document.getElementById('shareTextarea'); // هذا العنصر يتم إنشاؤه ديناميكياً داخل المودال
-const copyShareBtn = document.getElementById('copyShareBtn'); // هذا الزر يتم إنشاؤه ديناميكياً داخل المودال
-const nativeShareBtn = document.getElementById('nativeShareBtn'); // هذا الزر يتم إنشاؤه ديناميكياً داخل المودال
+const appModal = document.getElementById('appModal'); // المودال الرئيسي يستخدم الآن لجميع الأغراض
+const modalHeaderText = document.getElementById('modalHeaderText');
+const modalBody = document.getElementById('modalBody');
+const modalButtons = document.getElementById('modalButtons');
 
-const infoModal = document.getElementById('appModal'); // المودال الرئيسي
-const closeInfoModalBtn = document.getElementById('closeInfoModalBtn'); // هذا الزر لم يعد موجودًا بشكل مباشر
-const azkarInfoText = document.getElementById('modalBody'); // سيتم استخدام modalBody لعرض المعلومات
-
-const customAzkarModal = document.getElementById('appModal'); // المودال الرئيسي
-const customAzkarModalTitle = document.getElementById('modalHeaderText'); // سيتم استخدام modalHeaderText كعنوان
-const azkarTextInput = document.getElementById('azkarTextInput'); // هذا العنصر يتم إنشاؤه ديناميكياً داخل المودال
-const azkarRepeatInput = document.getElementById('azkarRepeatInput'); // هذا العنصر يتم إنشاؤه ديناميكياً داخل المودال
-const saveCustomAzkarBtn = document.getElementById('saveCustomAzkarBtn'); // هذا الزر يتم إنشاؤه ديناميكياً داخل المودال
-const cancelCustomAzkarBtn = document.getElementById('cancelCustomAzkarBtn'); // هذا الزر يتم إنشاؤه ديناميكياً داخل المودال
+let azkarTextInput; // تم إعلانها هنا لتكون متاحة عالمياً بعد إنشائها ديناميكياً
+let azkarRepeatInput; // تم إعلانها هنا لتكون متاحة عالمياً بعد إنشائها ديناميكياً
 let editingAzkarIndex = -1; // -1 means adding new, otherwise index of azkar being edited
-
-const confirmDeleteModal = document.getElementById('appModal'); // المودال الرئيسي
-const closeConfirmDeleteModalBtn = document.getElementById('closeConfirmDeleteModalBtn'); // هذا الزر لم يعد موجودًا بشكل مباشر
-const confirmDeleteBtn = document.getElementById('confirmDeleteBtn'); // هذا الزر يتم إنشاؤه ديناميكياً داخل المودال
-const cancelDeleteBtn = document.getElementById('cancelDeleteBtn'); // هذا الزر يتم إنشاؤه ديناميكياً داخل المودال
 let deleteIndexToConfirm = -1;
 
 // Settings elements
@@ -58,7 +41,6 @@ const currentFontSizeSpan = document.getElementById('currentFontSize');
 const autoSkipToggle = document.getElementById('autoSkipToggle');
 const notificationToggle = document.getElementById('notificationToggle');
 const customAzkarReminderToggle = document.getElementById('customAzkarReminderToggle');
-
 
 // --- Azkar Data (Your full azkar data will go here) ---
 // بيانات أذكار الصباح (يمكن إضافة التشكيل يدوياً هنا)
@@ -781,11 +763,11 @@ function openTab(tabName) {
     });
 
     const targetTab = document.getElementById(tabName);
-    if (targetTab) { // <-- Added check for null
+    if (targetTab) {
         targetTab.classList.add('active');
     } else {
-        console.error(`Element with ID '${tabName}' not found in main HTML structure. Falling back to mainTab.`);
-        // Fallback to mainTab if the requested tab is not a top-level tab in index.html
+        console.error(`Element with ID '${tabName}' not found in main HTML structure.`);
+        // Fallback to mainTab if the requested tab is not found
         document.getElementById('mainTab').classList.add('active');
         appTitle.textContent = 'تطبيق الأذكار';
         renderMainPage();
@@ -800,20 +782,31 @@ function openTab(tabName) {
     } else if (tabName === 'settingsTab') {
         appTitle.textContent = 'الإعدادات';
         applySettings(); // Apply settings when settings tab is opened
+    } else if (tabName === 'statsTab') { // New Stats Tab
+        appTitle.textContent = 'إحصاءاتي';
+        renderStatsPage();
+    } else if (tabName === 'contactUsTab') { // New Contact Us Tab
+        appTitle.textContent = 'تواصل معنا';
+        renderContactUsPage();
     } else if (tabName === 'aboutTab') {
         appTitle.textContent = 'عن التطبيق';
     }
-    // 'azkarPage' and 'customAzkarTab' are not top-level tabs in index.html.
-    // They are sub-views rendered within 'mainTab'.
-    // The sidebar links should only call openTab('mainTab'), openTab('settingsTab'), openTab('aboutTab').
+    
+    // Highlight active link in sidebar
+    const sidebarLinks = document.querySelectorAll('.sidenav a');
+    sidebarLinks.forEach(link => {
+        link.classList.remove('active-azkar-link');
+        if (link.onclick && link.onclick.toString().includes(`openTab('${tabName}')`)) {
+            link.classList.add('active-azkar-link');
+        }
+    });
 
     closeNav();
 }
 
 // Global function to reset app (accessible from index.html onclick)
 function resetApp() {
-    // Replaced alert with a custom modal for confirmation
-    showConfirmModal("إعادة تعيين التطبيق", "هل أنت متأكد أنك تريد إعادة تعيين التطبيق؟ سيتم حذف جميع أذكارك المخصصة وإعادة تعيين الإعدادات.", () => {
+    showConfirmModal("إعادة تعيين التطبيق وتحديثه", "هل أنت متأكد أنك تريد إعادة تعيين التطبيق؟ سيتم حذف جميع أذكارك المخصصة وإعادة تعيين الإعدادات، ثم سيتم تحديث التطبيق إلى أحدث إصدار.", () => {
         localStorage.clear();
         customAzkar = []; // Clear in memory
         // Reset settings to default values
@@ -825,37 +818,40 @@ function resetApp() {
         notificationEnabled = false;
         customAzkarReminder = false;
         saveSettings(); // Save defaults
-        showAlertModal("تم إعادة تعيين التطبيق بنجاح.");
-        openTab('mainTab'); // Go back to main page
+        showAlertModal("تم إعادة تعيين التطبيق بنجاح. سيتم إعادة تحميل الصفحة الآن لتطبيق التحديثات.");
+        
+        // Force a hard reload to ensure the service worker checks for updates
+        // This will effectively make it a "reset and update" button.
+        setTimeout(() => {
+            location.reload(true); 
+        }, 1500); // Give a short delay for the user to read the message
     });
 }
 
 // --- Custom Modal Functions (Replaces alert/confirm) ---
 function showAlertModal(message) {
-    const modal = document.getElementById('appModal');
-    document.getElementById('modalHeaderText').textContent = 'تنبيه';
-    document.getElementById('modalBody').innerHTML = `<p>${message}</p>`;
-    document.getElementById('modalButtons').innerHTML = `<button class="button" onclick="closeModal()">إغلاق</button>`;
-    modal.classList.add('show');
+    modalHeaderText.textContent = 'تنبيه';
+    modalBody.innerHTML = `<p>${message}</p>`;
+    modalButtons.innerHTML = `<button class="button" onclick="closeModal()">إغلاق</button>`;
+    appModal.classList.add('show');
 }
 
 function showConfirmModal(title, message, onConfirmCallback) {
-    const modal = document.getElementById('appModal');
-    document.getElementById('modalHeaderText').textContent = title;
-    document.getElementById('modalBody').innerHTML = `<p>${message}</p>`;
-    document.getElementById('modalButtons').innerHTML = `
+    modalHeaderText.textContent = title;
+    modalBody.innerHTML = `<p>${message}</p>`;
+    modalButtons.innerHTML = `
         <button class="button" id="modalConfirmBtn">تأكيد</button>
         <button class="button" onclick="closeModal()">إلغاء</button>
     `;
     document.getElementById('modalConfirmBtn').onclick = () => {
         onConfirmCallback();
-        closeModal();
+        // closeModal(); // Don't close immediately if reload is happening
     };
-    modal.classList.add('show');
+    appModal.classList.add('show');
 }
 
 function closeModal() {
-    document.getElementById('appModal').classList.remove('show');
+    appModal.classList.remove('show');
 }
 
 
@@ -1017,27 +1013,27 @@ function renderCustomAzkarList() {
 
 function openAddCustomAzkarModal() {
     editingAzkarIndex = -1; // Indicate new azkar
-    customAzkarModalTitle.textContent = 'إضافة ذكر جديد';
+    modalHeaderText.textContent = 'إضافة ذكر جديد';
     // Render modal body content dynamically for custom azkar input
-    document.getElementById('modalBody').innerHTML = `
+    modalBody.innerHTML = `
         <input type="text" id="azkarTextInput" placeholder="نص الذكر" dir="rtl">
         <input type="number" id="azkarRepeatInput" placeholder="عدد التكرار" min="1" value="1">
     `;
-    document.getElementById('modalButtons').innerHTML = `
+    modalButtons.innerHTML = `
         <button class="button" id="saveCustomAzkarBtn">حفظ</button>
         <button class="button" id="cancelCustomAzkarBtn" style="background: var(--button-bg-reset);">إلغاء</button>
     `;
     // Re-attach event listeners for dynamically created buttons/inputs
     document.getElementById('saveCustomAzkarBtn').onclick = saveCustomAzkarEntry;
     document.getElementById('cancelCustomAzkarBtn').onclick = closeCustomAzkarModal;
-    customAzkarModal.classList.add('show');
+    appModal.classList.add('show');
     // Get references to inputs after they are created
     azkarTextInput = document.getElementById('azkarTextInput');
     azkarRepeatInput = document.getElementById('azkarRepeatInput');
 }
 
 function closeCustomAzkarModal() {
-    customAzkarModal.classList.remove('show');
+    appModal.classList.remove('show');
 }
 
 function saveCustomAzkarEntry() {
@@ -1066,20 +1062,20 @@ function editCustomAzkar(index) {
     editingAzkarIndex = index;
     const azkar = customAzkar[index];
     if (azkar) {
-        customAzkarModalTitle.textContent = 'تعديل الذكر';
+        modalHeaderText.textContent = 'تعديل الذكر';
         // Render modal body content dynamically for custom azkar input
-        document.getElementById('modalBody').innerHTML = `
+        modalBody.innerHTML = `
             <input type="text" id="azkarTextInput" value="${azkar.text}" dir="rtl">
             <input type="number" id="azkarRepeatInput" min="1" value="${azkar.repeat}">
         `;
-        document.getElementById('modalButtons').innerHTML = `
+        modalButtons.innerHTML = `
             <button class="button" id="saveCustomAzkarBtn">حفظ التعديلات</button>
             <button class="button" id="cancelCustomAzkarBtn" style="background: var(--button-bg-reset);">إلغاء</button>
         `;
         // Re-attach event listeners for dynamically created buttons/inputs
         document.getElementById('saveCustomAzkarBtn').onclick = saveCustomAzkarEntry;
         document.getElementById('cancelCustomAzkarBtn').onclick = closeCustomAzkarModal;
-        customAzkarModal.classList.add('show');
+        appModal.classList.add('show');
         // Get references to inputs after they are created
         azkarTextInput = document.getElementById('azkarTextInput');
         azkarRepeatInput = document.getElementById('azkarRepeatInput');
@@ -1089,16 +1085,16 @@ function editCustomAzkar(index) {
 function confirmDeleteCustomAzkar(index) {
     deleteIndexToConfirm = index;
     // Render confirmation modal content dynamically
-    document.getElementById('modalHeaderText').textContent = 'تأكيد الحذف';
-    document.getElementById('modalBody').innerHTML = `<p>هل أنت متأكد أنك تريد حذف هذا الذكر المخصص؟</p>`;
-    document.getElementById('modalButtons').innerHTML = `
+    modalHeaderText.textContent = 'تأكيد الحذف';
+    modalBody.innerHTML = `<p>هل أنت متأكد أنك تريد حذف هذا الذكر المخصص؟</p>`;
+    modalButtons.innerHTML = `
         <button class="button" id="confirmDeleteBtn" style="background: var(--button-bg-skip);">حذف</button>
         <button class="button" id="cancelDeleteBtn" onclick="closeModal()">إلغاء</button>
     `;
     // Re-attach event listeners
     document.getElementById('confirmDeleteBtn').onclick = deleteCustomAzkarConfirmed;
     document.getElementById('cancelDeleteBtn').onclick = closeConfirmDeleteModal;
-    confirmDeleteModal.classList.add('show');
+    appModal.classList.add('show');
 }
 
 function deleteCustomAzkarConfirmed() {
@@ -1112,7 +1108,7 @@ function deleteCustomAzkarConfirmed() {
 }
 
 function closeConfirmDeleteModal() {
-    confirmDeleteModal.classList.remove('show');
+    appModal.classList.remove('show');
 }
 
 
@@ -1137,12 +1133,12 @@ function showShareModal() {
     const azkar = azkarList[currentAzkarIndex];
     const shareText = `${azkar.text}\n(${azkar.repeat} مرات)\n\nتطبيق الأذكار: https://fazaziai703-cmd.github.io/fazazi-azkar/`;
     
-    document.getElementById('modalHeaderText').textContent = 'مشاركة الذكر';
-    document.getElementById('modalBody').innerHTML = `
+    modalHeaderText.textContent = 'مشاركة الذكر';
+    modalBody.innerHTML = `
         <p id="shareAzkarText" style="text-align: center; font-weight: bold;"></p>
         <textarea id="shareTextarea" readonly></textarea>
     `;
-    document.getElementById('modalButtons').innerHTML = `
+    modalButtons.innerHTML = `
         <button class="button" id="copyShareBtn" style="background: var(--button-bg-blue);"><i class="fas fa-copy"></i> نسخ</button>
         <button class="button" id="nativeShareBtn" style="background: var(--button-bg-share);"><i class="fas fa-share-alt"></i> مشاركة</button>
     `;
@@ -1159,11 +1155,11 @@ function showShareModal() {
     copyShareBtnElement.onclick = copyShareText;
     nativeShareBtnElement.onclick = nativeShare;
     
-    shareModal.classList.add('show');
+    appModal.classList.add('show');
 }
 
 function closeShareModal() {
-    shareModal.classList.remove('show');
+    appModal.classList.remove('show');
 }
 
 function copyShareText() {
@@ -1200,10 +1196,10 @@ function nativeShare() {
 function showAzkarInfo() {
     const azkarList = (currentCategory === 'custom') ? customAzkar : azkarData[currentCategory];
     if (!azkarList || azkarList.length === 0 || currentAzkarIndex >= azkarList.length) {
-        document.getElementById('modalHeaderText').textContent = 'معلومات الذكر';
-        document.getElementById('modalBody').innerHTML = '<p>لا توجد معلومات متاحة لهذا الذكر.</p>';
-        document.getElementById('modalButtons').innerHTML = `<button class="button" onclick="closeModal()">إغلاق</button>`;
-        infoModal.classList.add('show');
+        modalHeaderText.textContent = 'معلومات الذكر';
+        modalBody.innerHTML = '<p>لا توجد معلومات متاحة لهذا الذكر.</p>';
+        modalButtons.innerHTML = `<button class="button" onclick="closeModal()">إغلاق</button>`;
+        appModal.classList.add('show');
         return;
     }
     const azkar = azkarList[currentAzkarIndex];
@@ -1230,14 +1226,14 @@ function showAzkarInfo() {
         infoContent = '<p>لا توجد معلومات إضافية لهذا الذكر.</p>';
     }
 
-    document.getElementById('modalHeaderText').textContent = 'معلومات الذكر';
-    document.getElementById('modalBody').innerHTML = infoContent;
-    document.getElementById('modalButtons').innerHTML = `<button class="button" onclick="closeModal()">إغلاق</button>`;
-    infoModal.classList.add('show');
+    modalHeaderText.textContent = 'معلومات الذكر';
+    modalBody.innerHTML = infoContent;
+    modalButtons.innerHTML = `<button class="button" onclick="closeModal()">إغلاق</button>`;
+    appModal.classList.add('show');
 }
 
 function closeInfoModal() {
-    infoModal.classList.remove('show');
+    appModal.classList.remove('show');
 }
 
 function toggleFocusMode() {
@@ -1251,18 +1247,58 @@ function toggleFocusMode() {
     }
 }
 
+// --- New Functions for Stats and Contact Us Tabs ---
+function renderStatsPage() {
+    const statsTab = document.getElementById('statsTab');
+    if (!statsTab) {
+        console.error("statsTab element not found.");
+        return;
+    }
+    statsTab.innerHTML = `
+        <div class="stats-section fade-in-element">
+            <h2>إحصاءاتي</h2>
+            <p>هنا يمكنك عرض إحصائيات استخدامك للتطبيق.</p>
+            <p>عدد الأذكار المكتملة اليوم: <span id="completedAzkarToday">0</span></p>
+            <p>إجمالي الأذكار المكتملة: <span id="totalCompletedAzkar">0</span></p>
+            <p>آخر جلسة: <span id="lastSessionDate">لا توجد</span></p>
+            <button class="button" onclick="showAlertModal('هذه الميزة قيد التطوير!')">عرض تقرير مفصل</button>
+        </div>
+    `;
+    // You would typically load and display actual stats here from localStorage or a database
+    // For now, it's placeholder content.
+    // Example: updateStatsDisplay(); // If you have a stats object and update function
+    closeNav();
+}
+
+function renderContactUsPage() {
+    const contactUsTab = document.getElementById('contactUsTab');
+    if (!contactUsTab) {
+        console.error("contactUsTab element not found.");
+        return;
+    }
+    contactUsTab.innerHTML = `
+        <div class="contact-us-section fade-in-element">
+            <h2>تواصل معنا</h2>
+            <p>يسعدنا تواصلكم معنا لأي استفسارات أو اقتراحات.</p>
+            <a href="https://wa.me/97471851027" target="_blank" class="contact-button whatsapp">
+                <i class="fab fa-whatsapp"></i> تواصل عبر واتساب
+            </a>
+            <a href="mailto:your_email@example.com?subject=استفسار%20بخصوص%20تطبيق%20الأذكار" class="contact-button email">
+                <i class="fas fa-envelope"></i> أرسل بريد إلكتروني
+            </a>
+            <div class="fazazi-media-images">
+                <img src="https://lh3.googleusercontent.com/u/0/drive-viewer/AFoagU9545sC44c15fb2-9ad1-43a7-8224-59784aa6558f=w1920-h937" alt="Fazazi Media Image">
+            </div>
+        </div>
+    `;
+    closeNav();
+}
+
 
 // --- Initial Setup and Event Listeners (for static elements) ---
 document.addEventListener('DOMContentLoaded', () => {
-    // تصحيح مرجع sidebar
-    // const sidebar = document.querySelector('.sidenav'); // تم تعريفها كـ global في الأعلى
-
     applySettings(); // Apply saved settings first
     openTab('mainTab'); // Render the initial main page content by activating mainTab
-
-    // Event listeners for static elements (those always in index.html)
-    // زر إعادة التعيين لم يعد له ID "resetButton" بشكل مباشر في index.html، بل هو جزء من top-fixed-buttons.
-    // وظيفة resetApp() يتم استدعاؤها مباشرة من onclick في index.html، فلا حاجة لمستمع هنا.
 
     // Settings tab event listeners
     if (darkModeToggle) {
@@ -1300,23 +1336,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (customAzkarReminderToggle) {
         customAzkarReminderToggle.onchange = () => { customAzkarReminder = customAzkarReminderToggle.checked; saveSettings(); };
     }
-
-    // Modal close buttons
-    // هذه الأزرار لم تعد موجودة بشكل مباشر، بل يتم إنشاؤها ديناميكياً داخل show*ModalFunctions().
-    // closeShareModalBtn.onclick = closeShareModal;
-    // copyShareBtn.onclick = copyShareText;
-    // nativeShareBtn.onclick = nativeShare;
-
-    // closeInfoModalBtn.onclick = closeInfoModal;
-
-    // closeCustomAzkarModalBtn.onclick = closeCustomAzkarModal;
-    // saveCustomAzkarBtn.onclick = saveCustomAzkarEntry;
-    // cancelCustomAzkarBtn.onclick = closeCustomAzkarModal;
-
-    // closeConfirmDeleteModalBtn.onclick = closeConfirmDeleteModal;
-    // confirmDeleteBtn.onclick = deleteCustomAzkarConfirmed;
-    // cancelDeleteBtn.onclick = closeConfirmDeleteModal;
-
 
     // Initialize notifications after settings are loaded and applied
     initializeNotifications();
