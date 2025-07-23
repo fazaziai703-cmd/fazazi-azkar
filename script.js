@@ -15,36 +15,38 @@ let autoSkip = localStorage.getItem('autoSkip') === 'true';
 let notificationEnabled = localStorage.getItem('notificationEnabled') === 'true';
 let customAzkarReminder = localStorage.getItem('customAzkarReminder') === 'true';
 
-// --- DOM Elements ---
+// --- DOM Elements ---\
+// يتم تعريف عناصر DOM الثابتة الموجودة في index.html هنا
 const mainTab = document.getElementById('mainTab');
 const appTitle = document.getElementById('appTitle');
-const sidebar = document.querySelector('.sidebar');
-const resetButton = document.getElementById('resetButton');
+const sidebar = document.querySelector('.sidenav'); // تم تصحيح المعرف ليتوافق مع class="sidenav"
+const resetButton = document.getElementById('resetButton'); // هذا الزر لم يعد موجودًا كـ ID في index.html، بل هو جزء من top-fixed-buttons بدون ID.
+                                                        // سنقوم بتعديل كيفية التعامل معه في Initial Setup.
 
 // Modals
-const shareModal = document.getElementById('shareModal');
-const closeShareModalBtn = document.getElementById('closeShareModalBtn');
-const shareAzkarText = document.getElementById('shareAzkarText');
-const shareTextarea = document.getElementById('shareTextarea');
-const copyShareBtn = document.getElementById('copyShareBtn');
-const nativeShareBtn = document.getElementById('nativeShareBtn');
+const shareModal = document.getElementById('appModal'); // المودال الرئيسي يستخدم الآن لجميع الأغراض
+const closeShareModalBtn = document.getElementById('closeShareModalBtn'); // هذا الزر لم يعد موجودًا بشكل مباشر
+const shareAzkarText = document.getElementById('shareAzkarText'); // هذا العنصر يتم إنشاؤه ديناميكياً داخل المودال
+const shareTextarea = document.getElementById('shareTextarea'); // هذا العنصر يتم إنشاؤه ديناميكياً داخل المودال
+const copyShareBtn = document.getElementById('copyShareBtn'); // هذا الزر يتم إنشاؤه ديناميكياً داخل المودال
+const nativeShareBtn = document.getElementById('nativeShareBtn'); // هذا الزر يتم إنشاؤه ديناميكياً داخل المودال
 
-const infoModal = document.getElementById('infoModal');
-const closeInfoModalBtn = document.getElementById('closeInfoModalBtn');
-const azkarInfoText = document.getElementById('azkarInfoText');
+const infoModal = document.getElementById('appModal'); // المودال الرئيسي
+const closeInfoModalBtn = document.getElementById('closeInfoModalBtn'); // هذا الزر لم يعد موجودًا بشكل مباشر
+const azkarInfoText = document.getElementById('modalBody'); // سيتم استخدام modalBody لعرض المعلومات
 
-const customAzkarModal = document.getElementById('customAzkarModal');
-const customAzkarModalTitle = document.getElementById('customAzkarModalTitle');
-const azkarTextInput = document.getElementById('azkarTextInput');
-const azkarRepeatInput = document.getElementById('azkarRepeatInput');
-const saveCustomAzkarBtn = document.getElementById('saveCustomAzkarBtn');
-const cancelCustomAzkarBtn = document.getElementById('cancelCustomAzkarBtn');
+const customAzkarModal = document.getElementById('appModal'); // المودال الرئيسي
+const customAzkarModalTitle = document.getElementById('modalHeaderText'); // سيتم استخدام modalHeaderText كعنوان
+const azkarTextInput = document.getElementById('azkarTextInput'); // هذا العنصر يتم إنشاؤه ديناميكياً داخل المودال
+const azkarRepeatInput = document.getElementById('azkarRepeatInput'); // هذا العنصر يتم إنشاؤه ديناميكياً داخل المودال
+const saveCustomAzkarBtn = document.getElementById('saveCustomAzkarBtn'); // هذا الزر يتم إنشاؤه ديناميكياً داخل المودال
+const cancelCustomAzkarBtn = document.getElementById('cancelCustomAzkarBtn'); // هذا الزر يتم إنشاؤه ديناميكياً داخل المودال
 let editingAzkarIndex = -1; // -1 means adding new, otherwise index of azkar being edited
 
-const confirmDeleteModal = document.getElementById('confirmDeleteModal');
-const closeConfirmDeleteModalBtn = document.getElementById('closeConfirmDeleteModalBtn');
-const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
-const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+const confirmDeleteModal = document.getElementById('appModal'); // المودال الرئيسي
+const closeConfirmDeleteModalBtn = document.getElementById('closeConfirmDeleteModalBtn'); // هذا الزر لم يعد موجودًا بشكل مباشر
+const confirmDeleteBtn = document.getElementById('confirmDeleteBtn'); // هذا الزر يتم إنشاؤه ديناميكياً داخل المودال
+const cancelDeleteBtn = document.getElementById('cancelDeleteBtn'); // هذا الزر يتم إنشاؤه ديناميكياً داخل المودال
 let deleteIndexToConfirm = -1;
 
 // Settings elements
@@ -59,10 +61,7 @@ const customAzkarReminderToggle = document.getElementById('customAzkarReminderTo
 
 
 // --- Azkar Data (Your full azkar data will go here) ---
-// Since the provided .text file had CSS and HTML, I'm assuming your azkar data
-// was either loaded externally or hardcoded in your original script.js.
-// You MUST place your actual azkar data structure here (e.g., const azkarData = { ... };)
-// For now, I'll put a placeholder. Replace this with your actual data.
+// بيانات أذكار الصباح (يمكن إضافة التشكيل يدوياً هنا)
 azkarData = {
     "morning": [
         { text: "آيَةُ الكُرْسِيِّ:\nاللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ ۚ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ ۚ لَّهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ ۗ مَن ذَا الَّذِي يَشْفَعُ عِندَهُ إِلَّا بِإِذْنِهِ ۚ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ ۖ وَلَا يُحِيطُونَ بِشَيْءٍ مِّنْ عِلْمِهِ إِلَّا بِمَا شَاءَ ۚ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ ۖ وَلَا يَئُودُهُ حِفْظُهُمَا ۚ وَهُوَ الْعَلِيُّ الْعَظِيمُ",
@@ -103,7 +102,7 @@ azkarData = {
       },
       { text: "أذكار الصباح\n\nاللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ، أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ، أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ، وَأَبُوءُ بِذَنْبِي فَاغْفِرْ لِي فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ.",
         repeat: 1,
-        meaning: "يُعرف هذا الذكر بـ 'سيد الاستغفار'، وفيه يقر المسلم بتوحيد الله وربوبيته، وبأنه خلقه وهو عبده، وأنه يسعى جاهدًا للوفاء بعهد الله ووعده ما استطاع، ويستعيذ بالله من شر أعماله، ويعترف بإنعام الله عليه وبذنوبه، ويطلب المغفرة من الله وحده.",
+        meaning: "يُعرف هذا الذكر بـ 'سيد الاستغفار'، وفيه يقر المسلم بتوحيد الله وربوبيته، وبأنه خلقه وهو عبده، وأنه يسعى جاهدًا للوفاء بعهد الله ووعده ما استطعتُ، ويستعيذ بالله من شر أعماله، ويعترف بإنعام الله عليه وبذنوبه، ويطلب المغفرة من الله وحده.",
         virtue: "فضلها: سيد الاستغفار، من قاله موقناً به حين يصبح فمات من يومه دخل الجنة، ومن قاله موقناً به حين يمسي فمات من ليلته دخل الجنة.",
         source: "رواه البخاري", hadith_number: "6306"
       },
@@ -232,7 +231,7 @@ azkarData = {
         },
         { text: "أذكار المساء\n\nاللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ، أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ، أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ، وَأَبُوءُ بِذَنْبِي فَاغْفِرْ لِي فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ.",
           repeat: 1,
-          meaning: "يُعرف هذا الذكر بـ 'سيد الاستغفار'، وفيه يقر المسلم بتوحيد الله وربوبيته، وبأنه خلقه وهو عبده، وأنه يسعى جاهدًا للوفاء بعهد الله ووعده ما استطاع، ويستعيذ بالله من شر أعماله، ويعترف بإنعام الله عليه وبذنوبه، ويطلب المغفرة من الله وحده.",
+          meaning: "يُعرف هذا الذكر بـ 'سيد الاستغفار'، وفيه يقر المسلم بتوحيد الله وربوبيته، وبأنه خلقه وهو عبده، وأنه يسعى جاهدًا للوفاء بعهد الله ووعده ما استطعتُ، ويستعيذ بالله من شر أعماله، ويعترف بإنعام الله عليه وبذنوبه، ويطلب المغفرة من الله وحده.",
           virtue: "فضلها: سيد الاستغفار، من قاله موقناً به حين يصبح فمات من يومه دخل الجنة، ومن قاله موقناً به حين يمسي فمات من ليلته دخل الجنة.",
           source: "رواه البخاري", hadith_number: "6306"
         },
@@ -523,7 +522,7 @@ function requestNotificationPermission() {
             }
         });
     } else {
-        alert('المتصفح لا يدعم الإشعارات.');
+        showAlertModal('المتصفح لا يدعم الإشعارات.');
         notificationEnabled = false;
         if (notificationToggle) notificationToggle.checked = false;
         saveSettings();
@@ -600,7 +599,21 @@ window.addEventListener('beforeinstallprompt', (e) => {
     deferredPrompt = e;
     console.log(`'beforeinstallprompt' event was fired.`);
     // You could show a custom install button here if you want
+    const installAppBtn = document.getElementById('installAppBtn');
+    if (installAppBtn) {
+        installAppBtn.style.display = 'block'; // Show install button
+        installAppBtn.onclick = showInstallPrompt;
+    }
 });
+
+window.addEventListener('appinstalled', () => {
+    console.log('PWA was installed');
+    const installAppBtn = document.getElementById('installAppBtn');
+    if (installAppBtn) {
+        installAppBtn.style.display = 'none'; // Hide install button after install
+    }
+});
+
 
 // --- Main App Logic ---
 
@@ -900,7 +913,7 @@ function renderAzkarPage() {
         <div class="azkar-navigation">
             <button id="prevAzkarBtn" class="button" style="background:var(--button-bg-prev);"><i class="fas fa-arrow-right"></i> الذكر السابق</button>
             <button id="shareAzkarBtn" class="button" style="background:var(--button-bg-share);"><i class="fas fa-share-alt"></i> مشاركة الذكر</button>
-            <button id="skipAzkarBtn" class="button" style="background:var(--button-bg-skip);"><i class="fas fa-forward"></i> تخطي</button>
+            <button id="skipAzkarBtn" class="button" style="background:var(--button-bg-skip);">تخطي <i class="fas fa-forward"></i></button>
             <button id="nextAzkarBtn" class="button" style="background:var(--button-bg-main);">الذكر التالي <i class="fas fa-arrow-left"></i></button>
         </div>
     `;
@@ -1005,9 +1018,22 @@ function renderCustomAzkarList() {
 function openAddCustomAzkarModal() {
     editingAzkarIndex = -1; // Indicate new azkar
     customAzkarModalTitle.textContent = 'إضافة ذكر جديد';
-    azkarTextInput.value = '';
-    azkarRepeatInput.value = '1';
+    // Render modal body content dynamically for custom azkar input
+    document.getElementById('modalBody').innerHTML = `
+        <input type="text" id="azkarTextInput" placeholder="نص الذكر" dir="rtl">
+        <input type="number" id="azkarRepeatInput" placeholder="عدد التكرار" min="1" value="1">
+    `;
+    document.getElementById('modalButtons').innerHTML = `
+        <button class="button" id="saveCustomAzkarBtn">حفظ</button>
+        <button class="button" id="cancelCustomAzkarBtn" style="background: var(--button-bg-reset);">إلغاء</button>
+    `;
+    // Re-attach event listeners for dynamically created buttons/inputs
+    document.getElementById('saveCustomAzkarBtn').onclick = saveCustomAzkarEntry;
+    document.getElementById('cancelCustomAzkarBtn').onclick = closeCustomAzkarModal;
     customAzkarModal.classList.add('show');
+    // Get references to inputs after they are created
+    azkarTextInput = document.getElementById('azkarTextInput');
+    azkarRepeatInput = document.getElementById('azkarRepeatInput');
 }
 
 function closeCustomAzkarModal() {
@@ -1015,8 +1041,9 @@ function closeCustomAzkarModal() {
 }
 
 function saveCustomAzkarEntry() {
-    const text = azkarTextInput.value.trim();
-    const repeat = parseInt(azkarRepeatInput.value);
+    // Ensure inputs are referenced correctly (they are global, but might be null if modal wasn't opened via openAddCustomAzkarModal)
+    const text = document.getElementById('azkarTextInput').value.trim();
+    const repeat = parseInt(document.getElementById('azkarRepeatInput').value);
 
     if (text === '' || isNaN(repeat) || repeat < 1) {
         showAlertModal('الرجاء إدخال نص الذكر وعدد تكرار صحيح.'); // Changed alert to custom modal
@@ -1040,14 +1067,37 @@ function editCustomAzkar(index) {
     const azkar = customAzkar[index];
     if (azkar) {
         customAzkarModalTitle.textContent = 'تعديل الذكر';
-        azkarTextInput.value = azkar.text;
-        azkarRepeatInput.value = azkar.repeat;
+        // Render modal body content dynamically for custom azkar input
+        document.getElementById('modalBody').innerHTML = `
+            <input type="text" id="azkarTextInput" value="${azkar.text}" dir="rtl">
+            <input type="number" id="azkarRepeatInput" min="1" value="${azkar.repeat}">
+        `;
+        document.getElementById('modalButtons').innerHTML = `
+            <button class="button" id="saveCustomAzkarBtn">حفظ التعديلات</button>
+            <button class="button" id="cancelCustomAzkarBtn" style="background: var(--button-bg-reset);">إلغاء</button>
+        `;
+        // Re-attach event listeners for dynamically created buttons/inputs
+        document.getElementById('saveCustomAzkarBtn').onclick = saveCustomAzkarEntry;
+        document.getElementById('cancelCustomAzkarBtn').onclick = closeCustomAzkarModal;
         customAzkarModal.classList.add('show');
+        // Get references to inputs after they are created
+        azkarTextInput = document.getElementById('azkarTextInput');
+        azkarRepeatInput = document.getElementById('azkarRepeatInput');
     }
 }
 
 function confirmDeleteCustomAzkar(index) {
     deleteIndexToConfirm = index;
+    // Render confirmation modal content dynamically
+    document.getElementById('modalHeaderText').textContent = 'تأكيد الحذف';
+    document.getElementById('modalBody').innerHTML = `<p>هل أنت متأكد أنك تريد حذف هذا الذكر المخصص؟</p>`;
+    document.getElementById('modalButtons').innerHTML = `
+        <button class="button" id="confirmDeleteBtn" style="background: var(--button-bg-skip);">حذف</button>
+        <button class="button" id="cancelDeleteBtn" onclick="closeModal()">إلغاء</button>
+    `;
+    // Re-attach event listeners
+    document.getElementById('confirmDeleteBtn').onclick = deleteCustomAzkarConfirmed;
+    document.getElementById('cancelDeleteBtn').onclick = closeConfirmDeleteModal;
     confirmDeleteModal.classList.add('show');
 }
 
@@ -1086,8 +1136,29 @@ function showShareModal() {
     }
     const azkar = azkarList[currentAzkarIndex];
     const shareText = `${azkar.text}\n(${azkar.repeat} مرات)\n\nتطبيق الأذكار: https://fazaziai703-cmd.github.io/fazazi-azkar/`;
-    shareAzkarText.textContent = azkar.text; // Display the azkar text
-    shareTextarea.value = shareText; // Set full share text in textarea
+    
+    document.getElementById('modalHeaderText').textContent = 'مشاركة الذكر';
+    document.getElementById('modalBody').innerHTML = `
+        <p id="shareAzkarText" style="text-align: center; font-weight: bold;"></p>
+        <textarea id="shareTextarea" readonly></textarea>
+    `;
+    document.getElementById('modalButtons').innerHTML = `
+        <button class="button" id="copyShareBtn" style="background: var(--button-bg-blue);"><i class="fas fa-copy"></i> نسخ</button>
+        <button class="button" id="nativeShareBtn" style="background: var(--button-bg-share);"><i class="fas fa-share-alt"></i> مشاركة</button>
+    `;
+
+    // Get references to dynamically created elements
+    const shareAzkarTextElement = document.getElementById('shareAzkarText');
+    const shareTextareaElement = document.getElementById('shareTextarea');
+    const copyShareBtnElement = document.getElementById('copyShareBtn');
+    const nativeShareBtnElement = document.getElementById('nativeShareBtn');
+
+    shareAzkarTextElement.textContent = azkar.text; // Display the azkar text
+    shareTextareaElement.value = shareText; // Set full share text in textarea
+    
+    copyShareBtnElement.onclick = copyShareText;
+    nativeShareBtnElement.onclick = nativeShare;
+    
     shareModal.classList.add('show');
 }
 
@@ -1096,10 +1167,13 @@ function closeShareModal() {
 }
 
 function copyShareText() {
-    shareTextarea.select();
-    document.execCommand('copy');
-    showAlertModal('تم نسخ الذكر بنجاح!'); // Changed alert to custom modal
-    closeShareModal();
+    const shareTextareaElement = document.getElementById('shareTextarea');
+    if (shareTextareaElement) {
+        shareTextareaElement.select();
+        document.execCommand('copy');
+        showAlertModal('تم نسخ الذكر بنجاح!'); // Changed alert to custom modal
+        closeShareModal();
+    }
 }
 
 function nativeShare() {
@@ -1126,7 +1200,9 @@ function nativeShare() {
 function showAzkarInfo() {
     const azkarList = (currentCategory === 'custom') ? customAzkar : azkarData[currentCategory];
     if (!azkarList || azkarList.length === 0 || currentAzkarIndex >= azkarList.length) {
-        azkarInfoText.innerHTML = '<p>لا توجد معلومات متاحة لهذا الذكر.</p>';
+        document.getElementById('modalHeaderText').textContent = 'معلومات الذكر';
+        document.getElementById('modalBody').innerHTML = '<p>لا توجد معلومات متاحة لهذا الذكر.</p>';
+        document.getElementById('modalButtons').innerHTML = `<button class="button" onclick="closeModal()">إغلاق</button>`;
         infoModal.classList.add('show');
         return;
     }
@@ -1154,7 +1230,9 @@ function showAzkarInfo() {
         infoContent = '<p>لا توجد معلومات إضافية لهذا الذكر.</p>';
     }
 
-    azkarInfoText.innerHTML = infoContent;
+    document.getElementById('modalHeaderText').textContent = 'معلومات الذكر';
+    document.getElementById('modalBody').innerHTML = infoContent;
+    document.getElementById('modalButtons').innerHTML = `<button class="button" onclick="closeModal()">إغلاق</button>`;
     infoModal.classList.add('show');
 }
 
@@ -1176,11 +1254,15 @@ function toggleFocusMode() {
 
 // --- Initial Setup and Event Listeners (for static elements) ---
 document.addEventListener('DOMContentLoaded', () => {
+    // تصحيح مرجع sidebar
+    // const sidebar = document.querySelector('.sidenav'); // تم تعريفها كـ global في الأعلى
+
     applySettings(); // Apply saved settings first
     openTab('mainTab'); // Render the initial main page content by activating mainTab
 
     // Event listeners for static elements (those always in index.html)
-    resetButton.onclick = resetApp;
+    // زر إعادة التعيين لم يعد له ID "resetButton" بشكل مباشر في index.html، بل هو جزء من top-fixed-buttons.
+    // وظيفة resetApp() يتم استدعاؤها مباشرة من onclick في index.html، فلا حاجة لمستمع هنا.
 
     // Settings tab event listeners
     if (darkModeToggle) {
@@ -1220,19 +1302,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Modal close buttons
-    closeShareModalBtn.onclick = closeShareModal;
-    copyShareBtn.onclick = copyShareText;
-    nativeShareBtn.onclick = nativeShare;
+    // هذه الأزرار لم تعد موجودة بشكل مباشر، بل يتم إنشاؤها ديناميكياً داخل show*ModalFunctions().
+    // closeShareModalBtn.onclick = closeShareModal;
+    // copyShareBtn.onclick = copyShareText;
+    // nativeShareBtn.onclick = nativeShare;
 
-    closeInfoModalBtn.onclick = closeInfoModal;
+    // closeInfoModalBtn.onclick = closeInfoModal;
 
-    closeCustomAzkarModalBtn.onclick = closeCustomAzkarModal;
-    saveCustomAzkarBtn.onclick = saveCustomAzkarEntry;
-    cancelCustomAzkarBtn.onclick = closeCustomAzkarModal;
+    // closeCustomAzkarModalBtn.onclick = closeCustomAzkarModal;
+    // saveCustomAzkarBtn.onclick = saveCustomAzkarEntry;
+    // cancelCustomAzkarBtn.onclick = closeCustomAzkarModal;
 
-    closeConfirmDeleteModalBtn.onclick = closeConfirmDeleteModal;
-    confirmDeleteBtn.onclick = deleteCustomAzkarConfirmed;
-    cancelDeleteBtn.onclick = closeConfirmDeleteModal;
+    // closeConfirmDeleteModalBtn.onclick = closeConfirmDeleteModal;
+    // confirmDeleteBtn.onclick = deleteCustomAzkarConfirmed;
+    // cancelDeleteBtn.onclick = closeConfirmDeleteModal;
 
 
     // Initialize notifications after settings are loaded and applied
