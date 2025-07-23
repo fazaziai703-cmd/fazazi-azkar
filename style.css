@@ -426,8 +426,8 @@ body {
 .counter-btn {
   background: var(--button-bg-blue);
   color: #fff;
-  border: none;
   padding: 20px 50px;
+  border: none;
   border-radius: 12px;
   font-size: 1.3em;
   cursor: pointer;
