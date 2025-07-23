@@ -33,6 +33,13 @@
   --sidebar-border: #ccc;
   --sidebar-text: #333;
   --sidebar-active-item: #e0e0e0;
+  --header-bg: #4CAF50; /* New: Header background */
+  --header-text: #fff; /* New: Header text color */
+  --main-tabs-bg: #e0e0e0; /* New: Horizontal tabs background */
+  --main-tabs-active-bg: #4CAF50; /* New: Horizontal tabs active background */
+  --main-tabs-text: #333; /* New: Horizontal tabs text color */
+  --main-tabs-active-text: #fff; /* New: Horizontal tabs active text color */
+
 
   /* Font Size Variables */
   --base-font-size: 1.1em;
@@ -73,6 +80,12 @@ body.dark {
   --sidebar-border: #444;
   --sidebar-text: #ddd;
   --sidebar-active-item: #3a3c3e;
+  --header-bg: #3a3c3e; /* Dark mode header */
+  --header-text: #eee;
+  --main-tabs-bg: #444;
+  --main-tabs-active-bg: #5cb85c;
+  --main-tabs-text: #eee;
+  --main-tabs-active-text: #fff;
 }
 
 /* Blue Theme */
@@ -86,8 +99,35 @@ body.theme-blue {
     --button-bg-hover-main: #1565c0;
     --button-bg-blue: #03a9f4;
     --button-bg-blue-hover: #039be5;
+    --button-bg-share: #00bcd4;
+    --button-bg-prev: #ffc107;
+    --button-bg-skip: #f44336;
+    --button-bg-reset: #607d8b;
+    --button-bg-install: #8bc34a;
+    --custom-azkar-bg: #e0f2f7;
+    --custom-azkar-border: #90caf9;
+    --custom-azkar-list-item-border: #bbdefb;
     --tab-active-bg: #1976d2;
+    --tab-inactive-bg: #81d4fa;
+    --tab-text-color: #fff;
+    --azkar-text-color: #212121;
+    --progress-bg: #bbdefb;
     --progress-fill: #1976d2;
+    --info-button-bg: #673ab7; /* Deeper purple */
+    --info-button-hover: #5e35b1;
+    --modal-bg: #e3f2fd;
+    --modal-text: #212121;
+    --modal-border: #90caf9;
+    --sidebar-bg: #e3f2fd;
+    --sidebar-border: #90caf9;
+    --sidebar-text: #212121;
+    --sidebar-active-item: #bbdefb;
+    --header-bg: #1976d2;
+    --header-text: #fff;
+    --main-tabs-bg: #81d4fa;
+    --main-tabs-active-bg: #1976d2;
+    --main-tabs-text: #212121;
+    --main-tabs-active-text: #fff;
 }
 body.dark.theme-blue {
     --primary-bg: #0d47a1; /* Dark blue */
@@ -97,8 +137,37 @@ body.dark.theme-blue {
     --border-color: #42a5f5;
     --button-bg-main: #42a5f5;
     --button-bg-hover-main: #2196f3;
+    --button-bg-blue: #64b5f6;
+    --button-bg-blue-hover: #42a5f5;
+    --button-bg-share: #4dd0e1;
+    --button-bg-prev: #ffd54f;
+    --button-bg-skip: #e57373;
+    --button-bg-reset: #90a4ae;
+    --button-bg-install: #c5e1a5;
+    --custom-azkar-bg: #2196f3;
+    --custom-azkar-border: #64b5f6;
+    --custom-azkar-list-item-border: #64b5f6;
     --tab-active-bg: #42a5f5;
+    --tab-inactive-bg: #2196f3;
+    --tab-text-color: #fff;
+    --azkar-text-color: #e0e0e0;
+    --progress-bg: #1565c0;
     --progress-fill: #42a5f5;
+    --info-button-bg: #7e57c2;
+    --info-button-hover: #673ab7;
+    --modal-bg: #1e88e5;
+    --modal-text: #e0e0e0;
+    --modal-border: #64b5f6;
+    --sidebar-bg: #1e88e5;
+    --sidebar-border: #64b5f6;
+    --sidebar-text: #e0e0e0;
+    --sidebar-active-item: #2196f3;
+    --header-bg: #1e88e5;
+    --header-text: #e0e0e0;
+    --main-tabs-bg: #2196f3;
+    --main-tabs-active-bg: #42a5f5;
+    --main-tabs-text: #e0e0e0;
+    --main-tabs-active-text: #fff;
 }
 
 /* Brown Theme */
@@ -110,38 +179,61 @@ body.theme-brown {
     --border-color: #a1887f;
     --button-bg-main: #6d4c41; /* Brown */
     --button-bg-hover-main: #5d4037;
+    --button-bg-blue: #795548;
+    --button-bg-blue-hover: #6d4c41;
+    --button-bg-share: #8d6e63;
+    --button-bg-prev: #a1887f;
+    --button-bg-skip: #bf360c;
+    --button-bg-reset: #757575;
+    --button-bg-install: #a2b568;
+    --custom-azkar-bg: #efebe9;
+    --custom-azkar-border: #8d6e63;
+    --custom-azkar-list-item-border: #a1887f;
     --tab-active-bg: #6d4c41;
+    --tab-inactive-bg: #8d6e63;
+    --tab-text-color: #fff;
+    --azkar-text-color: #3e2723;
+    --progress-bg: #d7ccc8;
     --progress-fill: #6d4c41;
-}
-body.dark.theme-brown {
-    --primary-bg: #2d1b18; /* Very dark brown */
-    --secondary-bg: #3e2723;
-    --text-color: #f5f5dc;
-    --footer-color: #d7ccc8;
-    --border-color: #795548;
-    --button-bg-main: #795548;
-    --button-bg-hover-main: #6d4c41;
-    --tab-active-bg: #795548;
-    --progress-fill: #795548;
+    --info-button-bg: #5d4037; /* Darker brown */
+    --info-button-hover: #4e342e;
+    --modal-bg: #efebe9;
+    --modal-text: #3e2723;
+    --modal-border: #a1887f;
+    --sidebar-bg: #efebe9;
+    --sidebar-border: #a1887f;
+    --sidebar-text: #3e2723;
+    --sidebar-active-item: #d7ccc8;
+    --header-bg: #6d4c41;
+    --header-text: #fff;
+    --main-tabs-bg: #8d6e63;
+    --main-tabs-active-bg: #6d4c41;
+    --main-tabs-text: #3e2723;
+    --main-tabs-active-text: #fff;
 }
 
 body {
     font-family: var(--font-family, 'Amiri', serif);
     background: var(--primary-bg);
     color: var(--text-color);
-    text-align: center;
     margin:0;
     transition: background 0.3s, color 0.3s, font-family 0.3s;
     font-size: var(--base-font-size);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 .container {
     margin: 40px auto;
-    max-width: 480px;
+    max-width: 900px; /* Increased max-width for better layout with horizontal tabs */
     background: var(--secondary-bg);
     border-radius: 16px;
     box-shadow: 0 4px 24px rgba(0,0,0,0.1);
     padding: 30px;
     transition: background 0.3s, color 0.3s;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
 }
 .button {
     background: var(--button-bg-main);
@@ -153,18 +245,153 @@ body {
     font-size: 1em;
     cursor: pointer;
     transition: background 0.2s, transform 0.1s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 .button:active { background: var(--button-bg-hover-main); transform: translateY(1px); }
+
+/* Header Styles */
+.header {
+    background: var(--header-bg);
+    color: var(--header-text);
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    border-radius: 16px 16px 0 0; /* Rounded top corners for header */
+}
+.header h1 {
+    margin: 0;
+    font-size: 1.8em;
+    flex-grow: 1;
+    text-align: center;
+}
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Space between language selector and home button */
+}
+.language-selector {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--secondary-bg);
+    color: var(--text-color);
+    font-size: 0.9em;
+    cursor: pointer;
+    appearance: none; /* Remove default dropdown arrow */
+    background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-down"><polyline points="6 9 12 15 18 9"></polyline></svg>');
+    background-repeat: no-repeat;
+    background-position: left 8px center; /* Position arrow on the left for RTL */
+    padding-left: 30px; /* Space for the arrow */
+}
+.language-selector:focus {
+    outline: none;
+    border-color: var(--button-bg-blue);
+}
+.icon-button {
+    background: none;
+    border: none;
+    color: var(--header-text);
+    font-size: 1.5em;
+    cursor: pointer;
+    padding: 5px;
+    transition: color 0.2s, transform 0.1s;
+}
+.icon-button:hover {
+    color: var(--button-bg-blue);
+}
+.icon-button:active {
+    transform: scale(0.95);
+}
+.home-button {
+    /* Specific styling if needed */
+}
+
+
+/* Horizontal Main Tabs */
+.main-horizontal-tabs {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px; /* Space below header */
+    margin-bottom: 20px; /* Space above content */
+    background: var(--main-tabs-bg);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+}
+.main-horizontal-tabs .tab-button {
+    flex-grow: 1;
+    padding: 15px 10px;
+    border: none;
+    background: var(--main-tabs-bg);
+    color: var(--main-tabs-text);
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background 0.3s, color 0.3s;
+    white-space: nowrap; /* Prevent text wrapping */
+    overflow: hidden; /* Hide overflow text */
+    text-overflow: ellipsis; /* Add ellipsis for overflow */
+}
+.main-horizontal-tabs .tab-button.active {
+    background: var(--main-tabs-active-bg);
+    color: var(--main-tabs-active-text);
+    font-weight: bold;
+}
+.main-horizontal-tabs .tab-button:hover:not(.active) {
+    background: var(--tab-inactive-bg); /* Lighter hover for non-active */
+}
+
+/* Main Content Tabs */
+.main-content-tab {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+    padding: 0px; /* Removed padding from here, will be added to specific sections */
+    flex-grow: 1; /* Allow content to fill space */
+    text-align: center; /* Default text alignment for content */
+}
+.main-content-tab.active {
+    display: block;
+    opacity: 1;
+}
+
+/* Specific content padding for sections within main-content-tab */
+#mainContentTab-main,
+#mainContentTab-settings,
+#mainContentTab-stats,
+#mainContentTab-contactUs,
+#mainContentTab-about {
+    padding: 20px; /* Add padding to individual sections */
+    box-sizing: border-box;
+}
+
+
+/* Azkar Display Styles */
 .azkar {
     font-size: var(--azkar-font-size);
     margin: 30px 0 10px 0;
     line-height: 1.7;
     white-space: pre-wrap;
     color: var(--azkar-text-color);
+    text-align: center;
+    /* opacity controlled by JS for fade-in/out */
 }
 .azkar-container {
     position: relative;
     margin-bottom: 20px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 .info-button, .focus-button {
     background: var(--info-button-bg);
@@ -176,8 +403,8 @@ body {
     font-size: 1.1em;
     cursor: pointer;
     position: absolute;
-    top: 0px;
-    right: 0px;
+    top: 10px;
+    right: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -186,7 +413,7 @@ body {
     z-index: 5;
 }
 .focus-button {
-    left: 0px;
+    left: 10px;
     right: auto;
     background: var(--button-bg-blue);
 }
@@ -195,23 +422,27 @@ body {
     transform: scale(0.95);
 }
 
-.count { font-size: 1.1em; margin-bottom: 20px; }
+.count { font-size: 1.1em; margin-bottom: 20px; text-align: center; }
 .counter-btn {
-    background: var(--button-bg-blue);
-    color: #fff;
-    border: none;
-    padding: 20px 50px;
-    border-radius: 12px;
-    font-size: 1.3em;
-    cursor: pointer;
-    margin: 10px 0;
-    transition: background 0.2s, transform 0.1s;
+  background: var(--button-bg-blue);
+  color: #fff;
+  border: none;
+  padding: 20px 50px;
+  border-radius: 12px;
+  font-size: 1.3em;
+  cursor: pointer;
+  margin: 10px auto;
+  display: block;
+  transition: background 0.2s, transform 0.1s;
+  width: 80%;
+  max-width: 300px;
 }
 .counter-btn:active, .counter-btn.flash {
   background: var(--button-bg-blue-hover);
   transform: scale(1.07);
 }
 
+/* Keyframe for fade-in effect */
 @keyframes fade-in {
     from { opacity: 0; transform: translateY(20px);}
     to { opacity: 1; transform: translateY(0);}
@@ -220,6 +451,7 @@ body {
   animation: fade-in 0.7s forwards;
 }
 
+/* Keyframe for fade-out effect */
 @keyframes fade-out {
     from { opacity: 1; transform: translateY(0);}
     to { opacity: 0; transform: translateY(-20px);}
@@ -229,13 +461,54 @@ body {
 }
 
 .footer {
-    margin-top: 40px;
+    margin-top: auto;
     font-size: 1em;
     color: var(--footer-color);
     line-height: 1.7;
     border-top: 1px solid var(--border-color);
-    padding-top: 16px;
+    padding: 15px;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+    background-color: var(--secondary-bg);
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    border-radius: 0 0 16px 16px; /* Rounded bottom corners for footer */
 }
+
+/* Category Grid for Main Tab */
+.category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Responsive grid */
+    gap: 15px;
+    padding: 20px 0;
+    text-align: center;
+}
+.category-btn {
+    background: var(--button-bg-blue);
+    color: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 100px;
+}
+.category-btn:hover {
+    background: var(--button-bg-blue-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+}
+.category-btn i {
+    font-size: 2em;
+    margin-bottom: 5px;
+}
+
 
 /* Custom Azkar Area Styles */
 .custom-azkar-area {
@@ -244,8 +517,8 @@ body {
     padding: 15px;
     margin: 20px 0;
 }
-.custom-azkar-area input, .custom-azkar-area select,
-.settings-section input, .settings-section select {
+.custom-azkar-area input[type="text"], .custom-azkar-area input[type="number"], .custom-azkar-area select,
+.settings-section input[type="color"], .settings-section select, .settings-section input[type="range"] {
     padding: 8px;
     margin-left: 5px;
     border: 1px solid var(--border-color);
@@ -254,7 +527,7 @@ body {
     font-size: 1em;
     background: var(--secondary-bg);
     color: var(--text-color);
-    width: calc(100% - 22px);
+    width: calc(100% - 10px);
     margin-bottom: 10px;
     box-sizing: border-box;
 }
@@ -390,41 +663,6 @@ body {
     color: var(--button-bg-skip);
 }
 
-/* Tab Styles */
-.tabs {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 20px;
-    background: var(--secondary-bg);
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    transition: all 0.3s ease;
-}
-.tab-button {
-    flex-grow: 1;
-    padding: 15px 20px;
-    border: none;
-    background: var(--tab-inactive-bg);
-    color: var(--text-color);
-    font-size: 1.1em;
-    cursor: pointer;
-    transition: background 0.3s, color 0.3s;
-}
-.tab-button.active {
-    background: var(--tab-active-bg);
-    color: var(--tab-text-color);
-}
-.tab-content {
-    display: none;
-    opacity: 0;
-    transition: opacity 0.5s ease-in-out;
-}
-.tab-content.active {
-    display: block;
-    opacity: 1;
-}
-
 /* Settings Section Specific Styles */
 .settings-section {
     text-align: right;
@@ -507,33 +745,31 @@ body {
 
 /* Side Navigation Styles */
 .sidenav-toggle-btn {
-    position: fixed; /* Changed to fixed */
-    top: 15px;
+    position: absolute; /* Changed to absolute to be relative to header */
+    top: 50%; /* Center vertically in header */
+    transform: translateY(-50%); /* Adjust for vertical centering */
     right: 15px;
-    background: var(--button-bg-blue);
-    color: #fff;
+    background: none; /* No background for toggle button */
+    color: var(--header-text); /* Use header text color */
     border: none;
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
-    font-size: 1.5em;
+    font-size: 1.8em; /* Larger icon */
     cursor: pointer;
     z-index: 1001;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: transform 0.2s, right 0.5s;
+    transition: transform 0.2s;
+    padding: 0; /* Remove padding */
 }
 .sidenav-toggle-btn:active {
-    transform: scale(0.95);
+    transform: translateY(-50%) scale(0.95);
 }
 
 .sidenav {
     height: 100%;
     width: 0;
     position: fixed;
-    z-index: 1002; /* Higher than toggle */
+    z-index: 1002;
     top: 0;
     right: 0;
     background-color: var(--sidebar-bg);
@@ -674,9 +910,10 @@ body.focus-mode .main-content-padding {
       padding: 10px 15px;
       font-size: 1em;
   }
-  .main-content-padding {
+  /* Removed main-content-padding, now padding is on individual sections */
+  /* .main-content-padding {
       padding-bottom: 80px;
-  }
+  } */
   .settings-option label, .settings-option div {
     flex-basis: 100%;
     text-align: right;
@@ -697,12 +934,23 @@ body.focus-mode .main-content-padding {
   .sidenav-toggle-btn {
     top: 10px;
     right: 10px;
-    width: 45px;
-    height: 45px;
+    width: auto; /* Allow content to define width */
+    height: auto; /* Allow content to define height */
     font-size: 1.3em;
+    padding: 5px; /* Add some padding back for touch target */
   }
   body.focus-mode .azkar {
       font-size: 1.5em;
+  }
+
+  .main-horizontal-tabs {
+    flex-wrap: wrap; /* Allow tabs to wrap on small screens */
+    border-radius: 0; /* No rounded corners on small screen if wrapped */
+  }
+  .main-horizontal-tabs .tab-button {
+    flex-basis: 50%; /* Two tabs per row */
+    font-size: 0.95em;
+    padding: 12px 5px;
   }
 }
 
@@ -718,12 +966,16 @@ body.focus-mode .main-content-padding {
     padding: 15px 30px;
     border: none;
     border-radius: 8px;
-    margin: 10px auto; /* Centering the buttons */
+    margin: 10px auto;
     font-size: 1.1em;
     cursor: pointer;
     transition: background 0.2s, transform 0.1s;
-    display: block; /* Make buttons block level to stack them */
-    max-width: 300px; /* Limit button width for better appearance */
+    display: block;
+    max-width: 300px;
+    display: flex; /* For icon and text alignment */
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
 }
 
 .contact-button:active {
