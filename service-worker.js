@@ -1,93 +1,99 @@
-// Define a cache name for your assets. This helps manage different versions of your cache.
-const CACHE_NAME = 'azkar-app-cache-v1.0.0';
+// Cache Version - IMPORTANT: Increment this version number whenever you make changes to the cached assets
+const CACHE_VERSION = 'fazazi-azkar-v1.0.1'; // Changed from v1.0.0 to v1.0.1
+const CACHE_NAME = CACHE_VERSION;
 
-// List all the files that your PWA needs to function offline.
-// This includes HTML, CSS, JavaScript, manifest, and any images.
+// List of URLs to cache
+// This includes all the static assets of your application
 const urlsToCache = [
-  '/', // The root of your application
+  './', // Cache the root path (index.html)
   'index.html',
   'style.css',
   'script.js',
   'manifest.json',
-  'images/icons/icon-192x192.png', // Main PWA icon
-  'images/icons/icon-512x512.png', // Another PWA icon (if you have it)
-  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css', // Font Awesome CSS
-  'https://fonts.googleapis.com/css2?family=Amiri&family=Noto+Naskh+Arabic&family=Lateefah&family=Scheherazade+New&display=swap', // Google Fonts CSS
-  // Add the Fazazi Media image URL here
-  'https://lh3.googleusercontent.com/u/0/drive-viewer/AFoagU9545sC44c15fb2-9ad1-43a7-8224-59784aa6558f=w1920-h937' // Fazazi Media Image
+  'images/icons/icon-72x72.png',
+  'images/icons/icon-96x96.png',
+  'images/icons/icon-128x128.png',
+  'images/icons/icon-144x144.png',
+  'images/icons/icon-152x152.png',
+  'images/icons/icon-192x192.png',
+  'images/icons/icon-384x384.png',
+  'images/icons/icon-512x512.png',
+  'images/icon/fazazimedia.png', // New image path
+  'https://fonts.googleapis.com/css2?family=Amiri&family=Noto+Naskh+Arabic&family=Lateefah&family=Scheherazade+New&display=swap',
+  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css'
 ];
 
-// --- Install Event ---
-// This event is fired when the Service Worker is first installed.
-// It's typically used to cache all the essential assets for offline use.
+// Install event: caches all the necessary assets
 self.addEventListener('install', (event) => {
-  console.log('[Service Worker] Installing...');
+  console.log('[Service Worker] Installing Service Worker ...', CACHE_NAME);
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
         console.log('[Service Worker] Caching app shell');
-        return cache.addAll(urlsToCache); // Add all specified URLs to the cache
+        return cache.addAll(urlsToCache);
       })
       .catch((error) => {
-        console.error('[Service Worker] Failed to cache during install:', error);
+        console.error('[Service Worker] Failed to cache:', error);
       })
   );
 });
 
-// --- Fetch Event ---
-// This event is fired every time the browser requests a resource.
-// It intercepts network requests and serves content from the cache if available,
-// otherwise, it fetches from the network.
-self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request) // Try to find the request in the cache
-      .then((response) => {
-        // If a response is found in the cache, return it
-        if (response) {
-          console.log(`[Service Worker] Serving from cache: ${event.request.url}`);
-          return response;
-        }
-        // If not found in cache, fetch from the network
-        console.log(`[Service Worker] Fetching from network: ${event.request.url}`);
-        return fetch(event.request)
-          .then((networkResponse) => {
-            // Check if we received a valid response
-            if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
-              return networkResponse; // Return non-cacheable responses directly
-            }
-
-            // Clone the response because it's a stream and can only be consumed once
-            const responseToCache = networkResponse.clone();
-            caches.open(CACHE_NAME)
-              .then((cache) => {
-                cache.put(event.request, responseToCache); // Put the new response in cache
-              });
-            return networkResponse; // Return the network response
-          })
-          .catch((error) => {
-            console.error(`[Service Worker] Fetch failed for: ${event.request.url}`, error);
-            // You can return a fallback page here for offline scenarios if needed
-            // For example: return caches.match('/offline.html');
-          });
-      })
-  );
-});
-
-// --- Activate Event ---
-// This event is fired when the Service Worker is activated.
-// It's commonly used to clean up old caches, ensuring only the latest version is kept.
+// Activate event: cleans up old caches
 self.addEventListener('activate', (event) => {
-  console.log('[Service Worker] Activating...');
+  console.log('[Service Worker] Activating Service Worker ...', CACHE_NAME);
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME) {
             console.log('[Service Worker] Deleting old cache:', cacheName);
-            return caches.delete(cacheName); // Delete old caches
+            return caches.delete(cacheName);
           }
         })
       );
     })
   );
+  // Ensure the service worker takes control of all clients immediately
+  return self.clients.claim();
+});
+
+// Fetch event: serves cached content when available, otherwise fetches from network
+self.addEventListener('fetch', (event) => {
+  // Check if the request is for a navigation (HTML page)
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request).catch(() => {
+        // If network fails, try to serve the offline page or root page
+        return caches.match('index.html'); // Fallback to index.html for offline navigation
+      })
+    );
+    return;
+  }
+
+  // For other assets (CSS, JS, images, fonts)
+  event.respondWith(
+    caches.match(event.request).then((response) => {
+      return response || fetch(event.request).then((fetchResponse) => {
+        // Cache new requests as they come in
+        return caches.open(CACHE_NAME).then((cache) => {
+          // Only cache valid responses
+          if (fetchResponse.ok) {
+            cache.put(event.request, fetchResponse.clone());
+          }
+          return fetchResponse;
+        });
+      }).catch((error) => {
+        console.error('[Service Worker] Fetch failed:', error);
+        // You can return a generic offline image or other fallback here for images/assets
+        // For now, we'll just let it fail or return undefined
+      });
+    })
+  );
+});
+
+// Optional: Message listener for communication between app and service worker
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
