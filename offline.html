@@ -8,35 +8,60 @@
   <style>
     body {
       font-family: 'Amiri', serif;
-      background: #f7f7f7;
+      background: url('images/backgrounds/islamic-gradient.png') center center / cover no-repeat fixed;
       color: #333;
       text-align: center;
       padding: 60px 30px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
     }
+
     .wrapper {
-      max-width: 600px;
-      margin: auto;
-      background: #fff;
-      border-radius: 20px;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.08);
-      padding: 40px;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(8px);
+      border-radius: 24px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+      padding: 50px 40px;
+      max-width: 550px;
+      width: 100%;
     }
+
     h1 {
-      font-size: 2em;
+      font-size: 2.2em;
       margin-bottom: 20px;
       color: #4CAF50;
     }
+
     p {
       font-size: 1.2em;
       line-height: 1.8;
       color: #555;
+      margin-bottom: 15px;
     }
+
     .logo {
-      margin-bottom: 30px;
+      margin-bottom: 25px;
     }
+
     .logo img {
-      max-width: 120px;
+      max-width: 100px;
       border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    @media (max-width: 600px) {
+      .wrapper {
+        padding: 30px 20px;
+        border-radius: 16px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+      p {
+        font-size: 1.05em;
+      }
     }
   </style>
 </head>
@@ -46,7 +71,8 @@
       <img src="images/icon/fazazimedia.png" alt="Fazazi Logo" />
     </div>
     <h1>🚫 لا يوجد اتصال</h1>
-    <p>يبدو أنك فقدت الاتصال بالإنترنت.<br>يمكنك العودة لاحقاً للاستفادة من تطبيق الأذكار.</p>
+    <p>يبدو أنك غير متصل بالإنترنت في الوقت الحالي.</p>
+    <p>لا تقلق — تطبيق الأذكار سيكون معك فور عودة الاتصال.</p>
     <p>نحن هنا دائمًا لنساعدك على ذكر الله في كل وقت.</p>
   </div>
 </body>
