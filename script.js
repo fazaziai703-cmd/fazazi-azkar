@@ -43,6 +43,20 @@ const autoSkipToggle = document.getElementById('autoSkipToggle');
 const notificationToggle = document.getElementById('notificationToggle');
 const customAzkarReminderToggle = document.getElementById('customAzkarReminderToggle');
 
+const themeSelector = document.getElementById('themeSelector');
+
+themeSelector.addEventListener('change', function () {
+  document.body.className = ''; // Reset all classes
+  const newTheme = `theme-${this.value}`;
+  document.body.classList.add(newTheme);
+  localStorage.setItem('selectedTheme', this.value);
+});
+
+// Optional: Load saved theme on startup
+document.addEventListener('DOMContentLoaded', () => {
+  const savedTheme = localStorage.getItem('selectedTheme') || 'default';
+  document.body.classList.add(`theme-${savedTheme}`);
+});
 
 // --- Translations Object ---
 // Object to hold all translatable strings in the application
