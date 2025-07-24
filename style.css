@@ -1,50 +1,55 @@
 /* Default (Light) Theme - Greenish */
 :root {
-  --primary-bg: #f7f7f7;
-  --secondary-bg: #fff; /* Container background */
-  --text-color: #333;
-  --footer-color: #555;
-  --border-color: #eee;
-  --button-bg-main: #4caf50;
-  --button-bg-hover-main: #388e3c;
-  --button-bg-blue: #2196f3; /* Counter button */
-  --button-bg-blue-hover: #1769aa;
-  --button-bg-share: #00bcd4;
-  --button-bg-prev: #ff9800;
-  --button-bg-skip: #f44336;
-  --button-bg-reset: #607d8b;
-  --button-bg-install: #8bc34a;
-  --custom-azkar-bg: #f1f8e9;
-  --custom-azkar-border: #e0e0e0;
-  --custom-azkar-list-item-border: #eee;
-  --tab-active-bg: #4caf50;
-  --tab-inactive-bg: #ddd;
-  --tab-text-color: #fff;
-  --azkar-text-color: #333; /* Default azkar text color */
-  --progress-bg: #e0e0e0;
-  --progress-fill: #4caf50;
-  --font-family: 'Amiri', serif; /* Default font */
-  --info-button-bg: #9c27b0; /* Purple for info button */
-  --info-button-hover: #7b1fa2;
+  --font-family: 'Amiri', serif;
   --modal-bg: #fff;
   --modal-text: #333;
   --modal-border: #ccc;
-  --sidebar-bg: #f0f0f0;
   --sidebar-border: #ccc;
   --sidebar-text: #333;
-  --sidebar-active-item: #e0e0e0;
-  --header-bg: #4CAF50; /* New: Header background */
-  --header-text: #fff; /* New: Header text color */
-  --main-tabs-bg: #e0e0e0; /* New: Horizontal tabs background */
-  --main-tabs-active-bg: #4CAF50; /* New: Horizontal tabs active background */
-  --main-tabs-text: #333; /* New: Horizontal tabs text color */
-  --main-tabs-active-text: #fff; /* New: Horizontal tabs active text color */
+  --custom-azkar-border: #e0e0e0;
+  --custom-azkar-list-item-border: #eee;
+  --info-button-bg: #9c27b0;
+  --info-button-hover: #7b1fa2;
 
-
-  /* Font Size Variables */
+/* Font Size Variables */
   --base-font-size: 1.1em;
   --azkar-font-size: 1.3em;
 }
+/* ثيم افتراضية - أزرق داكن مع ذهبي ملكي */
+body.theme-default {
+  --primary-bg: #0b1c2e;
+  --secondary-bg: #112a43;
+  --text-color: #f5f5f5;
+  --button-bg-main: #d4af37;
+  --button-bg-hover-main: #b8860b;
+  --header-bg: #0b1c2e;
+  --header-text: #f5f5f5;
+  --main-tabs-bg: #1d324a;
+  --main-tabs-active-bg: #d4af37;
+  --main-tabs-active-text: #0b1c2e;
+  --tab-text-color: #fff;
+  --azkar-text-color: #f5f5f5;
+  --progress-bg: #1d324a;
+  --progress-fill: #d4af37;
+}
+
+/* تنسيق أيقونات واتساب والإيميل */
+.contact-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.1em;
+  padding: 12px 18px;
+  border-radius: 10px;
+  background: var(--button-bg-main);
+  color: var(--text-color);
+  text-decoration: none;
+}
+
+.contact-button i {
+  font-size: 1.3em;
+}
+
 
 /* Dark Mode Theme */
 body.dark {
@@ -90,126 +95,88 @@ body.dark {
 
 /* Blue Theme */
 body.theme-blue {
-    --primary-bg: #e3f2fd; /* Lighter blue */
-    --secondary-bg: #bbdefb; /* Medium blue */
-    --text-color: #212121;
-    --footer-color: #424242;
-    --border-color: #90caf9;
-    --button-bg-main: #1976d2; /* Darker blue button */
-    --button-bg-hover-main: #1565c0;
-    --button-bg-blue: #03a9f4;
-    --button-bg-blue-hover: #039be5;
-    --button-bg-share: #00bcd4;
-    --button-bg-prev: #ffc107;
-    --button-bg-skip: #f44336;
-    --button-bg-reset: #607d8b;
-    --button-bg-install: #8bc34a;
-    --custom-azkar-bg: #e0f2f7;
-    --custom-azkar-border: #90caf9;
-    --custom-azkar-list-item-border: #bbdefb;
-    --tab-active-bg: #1976d2;
-    --tab-inactive-bg: #81d4fa;
-    --tab-text-color: #fff;
-    --azkar-text-color: #212121;
-    --progress-bg: #bbdefb;
-    --progress-fill: #1976d2;
-    --info-button-bg: #673ab7; /* Deeper purple */
-    --info-button-hover: #5e35b1;
-    --modal-bg: #e3f2fd;
-    --modal-text: #212121;
-    --modal-border: #90caf9;
-    --sidebar-bg: #e3f2fd;
-    --sidebar-border: #90caf9;
-    --sidebar-text: #212121;
-    --sidebar-active-item: #bbdefb;
-    --header-bg: #1976d2;
-    --header-text: #fff;
-    --main-tabs-bg: #81d4fa;
-    --main-tabs-active-bg: #1976d2;
-    --main-tabs-text: #212121;
-    --main-tabs-active-text: #fff;
+  --primary-bg: #eef4fb;
+  --secondary-bg: #ffffff;
+  --text-color: #1a1a1a;
+  --button-bg-main: #2196f3;
+  --button-bg-hover-main: #1769aa;
+  --header-bg: #2196f3;
+  --header-text: #ffffff;
+  --main-tabs-bg: #e3f2fd;
+  --main-tabs-active-bg: #2196f3;
+  --main-tabs-text: #1a1a1a;
+  --main-tabs-active-text: #ffffff;
+  --progress-bg: #cfd8dc;
+  --progress-fill: #2196f3;
+  --azkar-text-color: #1a1a1a;
 }
-body.dark.theme-blue {
-    --primary-bg: #0d47a1; /* Dark blue */
-    --secondary-bg: #1565c0;
-    --text-color: #e0e0e0;
-    --footer-color: #a7d9f7;
-    --border-color: #42a5f5;
-    --button-bg-main: #42a5f5;
-    --button-bg-hover-main: #2196f3;
-    --button-bg-blue: #64b5f6;
-    --button-bg-blue-hover: #42a5f5;
-    --button-bg-share: #4dd0e1;
-    --button-bg-prev: #ffd54f;
-    --button-bg-skip: #e57373;
-    --button-bg-reset: #90a4ae;
-    --button-bg-install: #c5e1a5;
-    --custom-azkar-bg: #2196f3;
-    --custom-azkar-border: #64b5f6;
-    --custom-azkar-list-item-border: #64b5f6;
-    --tab-active-bg: #42a5f5;
-    --tab-inactive-bg: #2196f3;
-    --tab-text-color: #fff;
-    --azkar-text-color: #e0e0e0;
-    --progress-bg: #1565c0;
-    --progress-fill: #42a5f5;
-    --info-button-bg: #7e57c2;
-    --info-button-hover: #673ab7;
-    --modal-bg: #1e88e5;
-    --modal-text: #e0e0e0;
-    --modal-border: #64b5f6;
-    --sidebar-bg: #1e88e5;
-    --sidebar-border: #64b5f6;
-    --sidebar-text: #e0e0e0;
-    --sidebar-active-item: #2196f3;
-    --header-bg: #1e88e5;
-    --header-text: #e0e0e0;
-    --main-tabs-bg: #2196f3;
-    --main-tabs-active-bg: #42a5f5;
-    --main-tabs-text: #e0e0e0;
-    --main-tabs-active-text: #fff;
+
+/* Royal Dark Blue & Gold */
+body.theme-default {
+  --primary-bg: #0b1c2e;
+  --secondary-bg: #112a43;
+  --text-color: #f5f5f5;
+  --button-bg-main: #d4af37;
+  --button-bg-hover-main: #b8860b;
+  --header-bg: #0b1c2e;
+  --header-text: #f5f5f5;
+  --main-tabs-bg: #1d324a;
+  --main-tabs-active-bg: #d4af37;
+  --main-tabs-text: #f5f5f5;
+  --main-tabs-active-text: #0b1c2e;
+  --progress-bg: #1d324a;
+  --progress-fill: #d4af37;
+  --azkar-text-color: #f5f5f5;
 }
+
 
 /* Brown Theme */
 body.theme-brown {
-    --primary-bg: #f5f5dc; /* Beige */
-    --secondary-bg: #d7ccc8; /* Light brown */
-    --text-color: #3e2723; /* Dark brown */
-    --footer-color: #5d4037;
-    --border-color: #a1887f;
-    --button-bg-main: #6d4c41; /* Brown */
-    --button-bg-hover-main: #5d4037;
-    --button-bg-blue: #795548;
-    --button-bg-blue-hover: #6d4c41;
-    --button-bg-share: #8d6e63;
-    --button-bg-prev: #a1887f;
-    --button-bg-skip: #bf360c;
-    --button-bg-reset: #757575;
-    --button-bg-install: #a2b568;
-    --custom-azkar-bg: #efebe9;
-    --custom-azkar-border: #8d6e63;
-    --custom-azkar-list-item-border: #a1887f;
-    --tab-active-bg: #6d4c41;
-    --tab-inactive-bg: #8d6e63;
-    --tab-text-color: #fff;
-    --azkar-text-color: #3e2723;
-    --progress-bg: #d7ccc8;
-    --progress-fill: #6d4c41;
-    --info-button-bg: #5d4037; /* Darker brown */
-    --info-button-hover: #4e342e;
-    --modal-bg: #efebe9;
-    --modal-text: #3e2723;
-    --modal-border: #a1887f;
-    --sidebar-bg: #efebe9;
-    --sidebar-border: #a1887f;
-    --sidebar-text: #3e2723;
-    --sidebar-active-item: #d7ccc8;
-    --header-bg: #6d4c41;
-    --header-text: #fff;
-    --main-tabs-bg: #8d6e63;
-    --main-tabs-active-bg: #6d4c41;
-    --main-tabs-text: #3e2723;
-    --main-tabs-active-text: #fff;
+  --primary-bg: #f3e8dc;
+  --secondary-bg: #ffffff;
+  --text-color: #3e2723;
+  --button-bg-main: #795548;
+  --button-bg-hover-main: #5d4037;
+  --header-bg: #6d4c41;
+  --header-text: #ffffff;
+  --main-tabs-bg: #d7ccc8;
+  --main-tabs-active-bg: #795548;
+  --main-tabs-text: #3e2723;
+  --main-tabs-active-text: #ffffff;
+  --progress-bg: #bcaaa4;
+  --progress-fill: #8d6e63;
+  --azkar-text-color: #3e2723;
+}
+
+/* Green Theme */
+body.theme-green {
+  --primary-bg: #f7f7f7;
+  --secondary-bg: #fff;
+  --text-color: #333;
+  --footer-color: #555;
+  --border-color: #eee;
+  --button-bg-main: #4caf50;
+  --button-bg-hover-main: #388e3c;
+  --button-bg-blue: #2196f3;
+  --button-bg-blue-hover: #1769aa;
+  --button-bg-share: #00bcd4;
+  --button-bg-prev: #ff9800;
+  --button-bg-skip: #f44336;
+  --button-bg-reset: #607d8b;
+  --button-bg-install: #8bc34a;
+  --custom-azkar-bg: #f1f8e9;
+  --tab-active-bg: #4caf50;
+  --tab-inactive-bg: #ddd;
+  --tab-text-color: #fff;
+  --azkar-text-color: #333;
+  --progress-bg: #e0e0e0;
+  --progress-fill: #4caf50;
+  --header-bg: #4CAF50;
+  --header-text: #fff;
+  --main-tabs-bg: #e0e0e0;
+  --main-tabs-active-bg: #4CAF50;
+  --main-tabs-text: #333;
+  --main-tabs-active-text: #fff;
 }
 
 body {
