@@ -6,6 +6,52 @@ let azkarData = {}; // Will hold all azkar categories
 let customAzkar = loadCustomAzkar(); // Load custom azkar from localStorage
 let deferredPrompt; // For PWA install prompt
 
+
+
+// --- DOM Elements ---
+// يتم تعريف عناصر DOM الثابتة الموجودة في index.html هنا
+// Ensure DOM is loaded before running anything
+document.addEventListener('DOMContentLoaded', () => {
+    // Safely get DOM elements
+    const themeSelector = document.getElementById('themeSelector');
+    const azkarDisplay = document.getElementById('azkarDisplay');
+    const azkarCount = document.getElementById('azkarCount');
+    const counterButton = document.getElementById('counterButton');
+    const nextButton = document.getElementById('nextButton');
+    const prevButton = document.getElementById('prevButton');
+    const resetButton = document.getElementById('resetButton');
+    const languageSelector = document.getElementById('languageSelector');
+    const fontSizeSelector = document.getElementById('fontSizeSelector');
+    const currentFontSizeSpan = document.getElementById('currentFontSize');
+    const customAzkarBtn = document.getElementById('customAzkarBtn');
+    const addAzkarBtn = document.getElementById('addAzkarBtn');
+    const customAzkarInput = document.getElementById('customAzkarInput');
+    const customAzkarList = document.getElementById('customAzkarList');
+    const copyButton = document.getElementById('copyButton');
+    const modal = document.getElementById('modal');
+    const modalText = document.getElementById('modalText');
+    const modalConfirm = document.getElementById('modalConfirm');
+    const modalCancel = document.getElementById('modalCancel');
+
+    // Check if all critical elements exist
+    if (!themeSelector || !azkarDisplay || !azkarCount || !counterButton || !nextButton ||
+        !prevButton || !resetButton || !languageSelector || !fontSizeSelector ||
+        !currentFontSizeSpan || !customAzkarBtn || !addAzkarBtn || !customAzkarInput ||
+        !customAzkarList || !copyButton || !modal || !modalText || !modalConfirm || !modalCancel) {
+        console.error('One or more required DOM elements are missing.');
+        return;
+    }
+
+    // Settings and state
+    let currentAzkarIndex = 0;
+    let currentCount = 0;
+    let azkarList = [];
+    let customAzkar = [];
+    let language = localStorage.getItem('language') || 'ar';
+    let theme = localStorage.getItem('theme') || 'light';
+    let fontSize = parseFloat(localStorage.getItem('fontSize'));
+    fontSize = fontSize || 1.1;
+
 // --- Settings Variables (Loaded from localStorage or default) ---
 let isDarkMode = localStorage.getItem('darkMode') === 'true';
 let selectedTheme = localStorage.getItem('selectedTheme') || 'default';
@@ -15,48 +61,6 @@ let autoSkip = localStorage.getItem('autoSkip') === 'true';
 let notificationEnabled = localStorage.getItem('notificationEnabled') === 'true';
 let customAzkarReminder = localStorage.getItem('customAzkarReminder') === 'true';
 let currentLanguage = localStorage.getItem('currentLanguage') || 'ar'; // New: Current language
-
-// --- DOM Elements ---
-// يتم تعريف عناصر DOM الثابتة الموجودة في index.html هنا
-const appTitle = document.getElementById('appTitle');
-const sidebar = document.querySelector('.sidenav');
-const languageSelector = document.getElementById('languageSelector'); // New: Language selector
-
-// Modals
-const appModal = document.getElementById('appModal');
-const modalHeaderText = document.getElementById('modalHeaderText');
-const modalBody = document.getElementById('modalBody');
-const modalButtons = document.getElementById('modalButtons');
-
-let azkarTextInput;
-let azkarRepeatInput;
-let editingAzkarIndex = -1;
-let deleteIndexToConfirm = -1;
-
-// Settings elements
-const darkModeToggle = document.getElementById('darkModeToggle');
-const fontSelector = document.getElementById('fontSelector');
-const fontSizeRange = document.getElementById('fontSizeRange');
-const currentFontSizeSpan = document.getElementById('currentFontSize');
-const autoSkipToggle = document.getElementById('autoSkipToggle');
-const notificationToggle = document.getElementById('notificationToggle');
-const customAzkarReminderToggle = document.getElementById('customAzkarReminderToggle');
-
-const themeSelector = document.getElementById('themeSelector');
-
-themeSelector.addEventListener('change', function () {
-  document.body.className = ''; // Reset all classes
-  const newTheme = `theme-${this.value}`;
-  document.body.classList.add(newTheme);
-  localStorage.setItem('selectedTheme', this.value);
-});
-
-// Optional: Load saved theme on startup
-document.addEventListener('DOMContentLoaded', () => {
-  const savedTheme = localStorage.getItem('selectedTheme') || 'default';
-  document.body.classList.add(`theme-${savedTheme}`);
-});
-
 // --- Translations Object ---
 // Object to hold all translatable strings in the application
 const translations = {
@@ -373,6 +377,73 @@ const translations = {
         'share': 'شیئر کریں'
     }
 };
+
+function getTranslation(key) {
+        return translations[language][key] || key;
+    }
+
+    function loadCustomAzkar() {
+        try {
+            return JSON.parse(localStorage.getItem('customAzkar')) || [];
+        } catch {
+            return [];
+        }
+    }
+
+    function saveCustomAzkar(list) {
+        localStorage.setItem('customAzkar', JSON.stringify(list));
+    }
+
+    function renderCustomAzkar() {
+        customAzkarList.innerHTML = '';
+        customAzkar.forEach((azkar, idx) => {
+            const li = document.createElement('li');
+            li.textContent = azkar;
+            const delBtn = document.createElement('button');
+            delBtn.textContent = '❌';
+            delBtn.onclick = () => showModal(getTranslation('confirmDelete'), () => {
+                customAzkar.splice(idx, 1);
+                saveCustomAzkar(customAzkar);
+                renderCustomAzkar();
+            });
+            li.appendChild(delBtn);
+            customAzkarList.appendChild(li);
+        });
+    }
+
+    function showModal(text, onConfirm) {
+        modalText.textContent = text;
+        modal.style.display = 'block';
+        const confirmHandler = () => {
+            modal.style.display = 'none';
+            onConfirm();
+            modalConfirm.removeEventListener('click', confirmHandler);
+        };
+        modalConfirm.addEventListener('click', confirmHandler);
+        modalCancel.onclick = () => {
+            modal.style.display = 'none';
+            modalConfirm.removeEventListener('click', confirmHandler);
+        };
+    }
+
+    function renderAzkar() {
+        if (currentAzkarIndex >= azkarList.length) {
+            azkarDisplay.innerHTML = `<p>${getTranslation('azkarEnded')}</p>`;
+            azkarCount.textContent = '';
+            counterButton.style.display = 'none';
+            currentAzkarIndex = 0;
+            return;
+        }
+        const currentAzkar = azkarList[currentAzkarIndex];
+        azkarDisplay.textContent = currentAzkar.text;
+        azkarCount.textContent = `${currentCount} / ${currentAzkar.count}`;
+        counterButton.style.display = 'inline-block';
+    }
+
+    function updateFontSize() {
+        document.body.style.fontSize = `${fontSize}em`;
+        currentFontSizeSpan.textContent = fontSize.toFixed(2);
+    }
 
 // --- Azkar Data (Your full azkar data will go here) ---
 // بيانات أذكار الصباح (يمكن إضافة التشكيل يدوياً هنا)
@@ -760,6 +831,105 @@ azkarData = {
     ]
 };
 
+customAzkar = loadCustomAzkar();
+
+    // Event listeners
+    themeSelector.onchange = () => {
+        theme = themeSelector.value;
+        document.body.className = theme;
+        localStorage.setItem('theme', theme);
+    };
+
+    languageSelector.onchange = () => {
+        language = languageSelector.value;
+        localStorage.setItem('language', language);
+        renderAzkar();
+        renderCustomAzkar();
+    };
+
+    fontSizeSelector.oninput = () => {
+        fontSize = parseFloat(fontSizeSelector.value);
+        localStorage.setItem('fontSize', fontSize);
+        updateFontSize();
+    };
+
+    counterButton.onclick = () => {
+        if (currentAzkarIndex < azkarList.length) {
+            currentCount++;
+            if (currentCount >= azkarList[currentAzkarIndex].count) {
+                currentCount = 0;
+                currentAzkarIndex++;
+            }
+            renderAzkar();
+        }
+    };
+
+    nextButton.onclick = () => {
+        if (currentAzkarIndex < azkarList.length - 1) {
+            currentAzkarIndex++;
+            currentCount = 0;
+            renderAzkar();
+        }
+    };
+
+    prevButton.onclick = () => {
+        if (currentAzkarIndex > 0) {
+            currentAzkarIndex--;
+            currentCount = 0;
+            renderAzkar();
+        }
+    };
+
+    resetButton.onclick = () => {
+        currentAzkarIndex = 0;
+        currentCount = 0;
+        renderAzkar();
+    };
+
+    customAzkarBtn.onclick = () => {
+        customAzkarInput.value = '';
+        customAzkarInput.style.display = 'block';
+        addAzkarBtn.style.display = 'block';
+    };
+
+    addAzkarBtn.onclick = () => {
+        const newAzkar = customAzkarInput.value.trim();
+        if (newAzkar) {
+            customAzkar.push(newAzkar);
+            saveCustomAzkar(customAzkar);
+            renderCustomAzkar();
+            customAzkarInput.value = '';
+            customAzkarInput.style.display = 'none';
+            addAzkarBtn.style.display = 'none';
+        }
+    };
+
+    copyButton.onclick = async () => {
+        try {
+            await navigator.clipboard.writeText(azkarDisplay.textContent);
+            copyButton.textContent = getTranslation('copied');
+            setTimeout(() => {
+                copyButton.textContent = '📋';
+            }, 1500);
+        } catch (err) {
+            alert('Copy failed!');
+        }
+    };
+
+    // Initial rendering
+    loadAzkar();
+    renderAzkar();
+    renderCustomAzkar();
+    updateFontSize();
+
+    // Set initial values for selectors
+    themeSelector.value = theme;
+    languageSelector.value = language;
+    fontSizeSelector.value = fontSize;
+
+    // Hide modal initially
+    modal.style.display = 'none';
+});
 
 // --- Helper Functions ---
 function getTranslation(key) {
