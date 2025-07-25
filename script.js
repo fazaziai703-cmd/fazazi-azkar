@@ -6,8 +6,6 @@ let azkarData = {}; // Will hold all azkar categories
 let customAzkar = loadCustomAzkar(); // Load custom azkar from localStorage
 let deferredPrompt; // For PWA install prompt
 
-
-
 // --- DOM Elements ---
 // يتم تعريف عناصر DOM الثابتة الموجودة في index.html هنا
 // Ensure DOM is loaded before running anything
@@ -52,15 +50,19 @@ document.addEventListener('DOMContentLoaded', () => {
     let fontSize = parseFloat(localStorage.getItem('fontSize'));
     fontSize = fontSize || 1.1;
 
-// --- Settings Variables (Loaded from localStorage or default) ---
-let isDarkMode = localStorage.getItem('darkMode') === 'true';
-let selectedTheme = localStorage.getItem('selectedTheme') || 'default';
-let selectedFont = localStorage.getItem('selectedFont') || 'Amiri';
-let fontSize = parseFloat(localStorage.getItem('fontSize')) || 1.1;
-let autoSkip = localStorage.getItem('autoSkip') === 'true';
-let notificationEnabled = localStorage.getItem('notificationEnabled') === 'true';
-let customAzkarReminder = localStorage.getItem('customAzkarReminder') === 'true';
-let currentLanguage = localStorage.getItem('currentLanguage') || 'ar'; // New: Current language
+    // --- Settings Variables (Loaded from localStorage or default) ---
+    let isDarkMode = localStorage.getItem('darkMode') === 'true';
+    let selectedTheme = localStorage.getItem('selectedTheme') || 'default';
+    let selectedFont = localStorage.getItem('selectedFont') || 'Amiri';
+    let fontSizeSetting = parseFloat(localStorage.getItem('fontSize')) || 1.1;
+    let autoSkip = localStorage.getItem('autoSkip') === 'true';
+    let notificationEnabled = localStorage.getItem('notificationEnabled') === 'true';
+    let customAzkarReminder = localStorage.getItem('customAzkarReminder') === 'true';
+    let currentLanguage = localStorage.getItem('currentLanguage') || 'ar'; // New: Current language
+
+    // (Translation object starts next, do not include it in this copy.)
+});
+
 // --- Translations Object ---
 // Object to hold all translatable strings in the application
 const translations = {
