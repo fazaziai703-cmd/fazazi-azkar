@@ -35,7 +35,6 @@ let deleteIndexToConfirm = -1;
 
 // Settings elements
 const darkModeToggle = document.getElementById('darkModeToggle');
-const themeSelector = document.getElementById('themeSelector');
 const fontSelector = document.getElementById('fontSelector');
 const fontSizeRange = document.getElementById('fontSizeRange');
 const currentFontSizeSpan = document.getElementById('currentFontSize');
