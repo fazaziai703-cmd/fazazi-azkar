@@ -1,12 +1,13 @@
 // 🔄 Cache Version - bump this whenever assets change
-const CACHE_VERSION = 'fazazi-azkar-v1.0.3';
-const CACHE_NAME = CACHE_VERSION;
+const CACHE_VERSION = 'fazazi-azkar-v1.1.0';
+const STATIC_CACHE = `static-${CACHE_VERSION}`;
+const DYNAMIC_CACHE = `dynamic-${CACHE_VERSION}`;
 
 // 🌐 Offline fallback page
 const OFFLINE_URL = 'offline.html';
 
 // 📦 Assets to cache (local + external)
-const urlsToCache = [
+const STATIC_ASSETS = [
   './fazazi-azkar/',
   'index.html',
   'offline.html',
@@ -28,38 +29,44 @@ const urlsToCache = [
 
 // 🔧 Install: Cache all core assets
 self.addEventListener('install', (event) => {
-  console.log('[Service Worker] Installing:', CACHE_NAME);
+  self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(urlsToCache))
+    caches.open(STATIC_CACHE)
+      .then(cache => cache.addAll(STATIC_ASSETS))
       .catch(err => console.error('[SW] Failed to cache:', err))
   );
 });
 
 // 🚀 Activate: Remove old caches
 self.addEventListener('activate', (event) => {
-  console.log('[Service Worker] Activating:', CACHE_NAME);
   event.waitUntil(
     caches.keys().then(keys => Promise.all(
-      keys.map(key => {
-        if (key !== CACHE_NAME) {
-          console.log('[SW] Removing old cache:', key);
-          return caches.delete(key);
-        }
-      })
+      keys.filter(key => key !== STATIC_CACHE && key !== DYNAMIC_CACHE)
+          .map(key => caches.delete(key))
     ))
   );
-  return self.clients.claim();
+  self.clients.claim();
 });
 
-// 🌍 Fetch: Serve from cache with fallback
+// 🌍 Fetch: Serve from cache, update in background (stale-while-revalidate)
 self.addEventListener('fetch', (event) => {
   const { request } = event;
+  const url = new URL(request.url);
 
-  // Navigate requests (HTML pages)
+  // ALWAYS serve offline.html for failed navigations
   if (request.mode === 'navigate') {
     event.respondWith(
-      fetch(request).catch(() => caches.match(OFFLINE_URL))
+      (async () => {
+        try {
+          const networkResponse = await fetch(request);
+          // Optionally cache new HTML
+          const cache = await caches.open(DYNAMIC_CACHE);
+          cache.put(request, networkResponse.clone());
+          return networkResponse;
+        } catch (error) {
+          return caches.match(request).then(resp => resp || caches.match(OFFLINE_URL));
+        }
+      })()
     );
     return;
   }
@@ -70,26 +77,25 @@ self.addEventListener('fetch', (event) => {
       caches.match(request).then(resp => {
         return resp || fetch(request).then(fetchResp => {
           if (fetchResp.ok) {
-            caches.open(CACHE_NAME).then(cache => cache.put(request, fetchResp.clone()));
+            caches.open(STATIC_CACHE).then(cache => cache.put(request, fetchResp.clone()));
           }
           return fetchResp;
-        });
+        }).catch(() => undefined);
       })
     );
     return;
   }
 
-  // Other assets → cache with update
+  // Other assets → cache first, update in background
   event.respondWith(
     caches.match(request).then(resp => {
-      return resp || fetch(request).then(fetchResp => {
+      const fetchPromise = fetch(request).then(fetchResp => {
         if (fetchResp.ok) {
-          caches.open(CACHE_NAME).then(cache => cache.put(request, fetchResp.clone()));
+          caches.open(DYNAMIC_CACHE).then(cache => cache.put(request, fetchResp.clone()));
         }
         return fetchResp;
-      }).catch(err => {
-        console.warn('[SW] Network failed:', err);
-      });
+      }).catch(() => resp);
+      return resp || fetchPromise;
     })
   );
 });
@@ -99,4 +105,26 @@ self.addEventListener('message', (event) => {
   if (event.data?.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
+});
+
+// 📢 Push Notifications (optional, ready for use)
+self.addEventListener('push', (event) => {
+  const data = event.data ? event.data.json() : {};
+  const title = data.title || 'تطبيق الأذكار';
+  const options = {
+    body: data.body || 'لا تنس ذكر الله اليوم!',
+    icon: 'images/icons/icon-192x192.png',
+    badge: 'images/icons/icon-192x192.png',
+    data: data.url || '/'
+  };
+  event.waitUntil(
+    self.registration.showNotification(title, options)
+  );
+});
+
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  event.waitUntil(
+    clients.openWindow(event.notification.data)
+  );
 });
