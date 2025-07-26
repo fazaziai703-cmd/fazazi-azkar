@@ -1,14 +1,17 @@
 {
+  "id": "/fazazi-azkar",
   "name": "تطبيق الأذكار اليومي",
   "short_name": "أذكاري",
   "description": "رفيقنا اليومي لأذكار الصباح والمساء والنوم وأذكارنا الخاصة.",
   "lang": "ar",
   "dir": "rtl",
   "start_url": "/fazazi-azkar/index.html",
+  "scope": "/fazazi-azkar/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#f0f0f0",
   "theme_color": "#4CAF50",
+  "categories": ["utilities", "religion", "productivity", "lifestyle"],
   "icons": [
     {
       "src": "images/icons/icon-192x192.png",
@@ -32,5 +35,29 @@
       "type": "image/png",
       "purpose": "maskable"
     }
-  ]
+  ],
+  "screenshots": [
+    {
+      "src": "images/screenshots/main.png",
+      "sizes": "540x960",
+      "type": "image/png"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "أذكار الصباح",
+      "short_name": "الصباح",
+      "description": "افتح أذكار الصباح",
+      "url": "/fazazi-azkar/index.html?category=morning",
+      "icons": [{ "src": "images/icons/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "أذكار المساء",
+      "short_name": "المساء",
+      "description": "افتح أذكار المساء",
+      "url": "/fazazi-azkar/index.html?category=evening",
+      "icons": [{ "src": "images/icons/icon-192x192.png", "sizes": "192x192" }]
+    }
+  ],
+  "prefer_related_applications": false
 }
